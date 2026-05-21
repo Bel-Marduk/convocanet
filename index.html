@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ConvocaNet - Convocatorias para Asociaciones Civiles</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+    <div class="page-particles" id="particles"></div>
+    <!-- Navbar -->
+    <nav class="navbar" id="navbar">
+        <div class="container nav-container">
+            <a href="#" class="logo">
+                <i class="fas fa-bullhorn"></i>
+                <span>ConvocaNet</span>
+            </a>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="#inicio" data-i18n="nav_inicio">Inicio</a></li>
+                <li><a href="#caracteristicas" data-i18n="nav_caracteristicas">Características</a></li>
+                <li><a href="#convocatorias" data-i18n="nav_convocatorias">Convocatorias</a></li>
+                <li><a href="#estadisticas" data-i18n="nav_estadisticas">Estadísticas</a></li>
+                <li><a href="#nosotros" data-i18n="nav_nosotros">Nosotros</a></li>
+                <li><a href="#contacto" data-i18n="nav_contacto">Contacto</a></li>
+            </ul>
+            <div class="nav-controls">
+                <button class="lang-toggle" id="langToggle" title="Cambiar idioma">
+                    <span class="lang-label">ES</span>
+                    <i class="fas fa-globe"></i>
+                </button>
+                <button class="theme-toggle" id="themeToggle" title="Cambiar tema">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                </button>
+                <button class="hamburger" id="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="inicio">
+        <div class="container hero-content">
+            <div class="hero-badge" data-i18n="hero_badge">Plataforma de Convocatorias 2026</div>
+            <h1 data-i18n="hero_title">Conectando <span class="gradient-text">Asociaciones Civiles</span> con Oportunidades</h1>
+            <p class="hero-subtitle" data-i18n="hero_subtitle">Centralizamos las convocatorias públicas para que tu organización encuentre financiamiento, programas y alianzas estratégicas en un solo lugar.</p>
+            <div class="hero-buttons">
+                <a href="#convocatorias" class="btn btn-primary" data-i18n="hero_btn_ver">Ver Convocatorias</a>
+                <a href="#nosotros" class="btn btn-outline" data-i18n="hero_btn_conocer">Conocer Más</a>
+            </div>
+            <div class="hero-stats">
+                <div class="hero-stat">
+                    <span class="stat-number" data-count="248">0</span>
+                    <span data-i18n="hero_stat_activas">Convocatorias Activas</span>
+                </div>
+                <div class="hero-stat">
+                    <span class="stat-number" data-count="1520">0</span>
+                    <span data-i18n="hero_stat_asociaciones">Asociaciones Registradas</span>
+                </div>
+                <div class="hero-stat">
+                    <span class="stat-number" data-count="89">0</span>
+                    <span data-i18n="hero_stat_exitos">% Tasa de Éxito</span>
+                </div>
+            </div>
+        </div>
+        <div class="scroll-indicator">
+            <div class="mouse">
+                <div class="wheel"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="caracteristicas">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag" data-i18n="features_tag">CARACTERÍSTICAS</span>
+                <h2 data-i18n="features_title">Todo lo que necesitas en un solo lugar</h2>
+                <p data-i18n="features_subtitle">Herramientas diseñadas para simplificar la búsqueda y postulación a convocatorias.</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card" data-aos="fade-up">
+                    <div class="feature-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3 data-i18n="feature1_title">Búsqueda Inteligente</h3>
+                    <p data-i18n="feature1_desc">Filtra convocatorias por sector, monto, región y fecha límite. Encuentra las oportunidades perfectas para tu organización.</p>
+                </div>
+                <div class="feature-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="feature-icon">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <h3 data-i18n="feature2_title">Alertas Personalizadas</h3>
+                    <p data-i18n="feature2_desc">Recibe notificaciones por correo cuando se publiquen nuevas convocatorias que coincidan con el perfil de tu asociación.</p>
+                </div>
+                <div class="feature-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="feature-icon">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <h3 data-i18n="feature3_title">Gestión Documental</h3>
+                    <p data-i18n="feature3_desc">Almacena y organiza todos los documentos necesarios para tus postulaciones en un repositorio seguro y accesible.</p>
+                </div>
+                <div class="feature-card" data-aos="fade-up" data-aos-delay="300">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3 data-i18n="feature4_title">Panel de Seguimiento</h3>
+                    <p data-i18n="feature4_desc">Monitorea el estado de todas tus postulaciones en tiempo real con un panel visual e intuitivo.</p>
+                </div>
+                <div class="feature-card" data-aos="fade-up" data-aos-delay="400">
+                    <div class="feature-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3 data-i18n="feature5_title">Red Colaborativa</h3>
+                    <p data-i18n="feature5_desc">Conecta con otras asociaciones civiles para formar alianzas estratégicas y presentar proyectos conjuntos.</p>
+                </div>
+                <div class="feature-card" data-aos="fade-up" data-aos-delay="500">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 data-i18n="feature6_title">Transparencia Total</h3>
+                    <p data-i18n="feature6_desc">Cada convocatoria incluye criterios de evaluación, historial de resultados y feedback de participantes anteriores.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Convocatorias Section -->
+    <section class="convocatorias" id="convocatorias">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag" data-i18n="conv_tag">CONVOCATORIAS ABIERTAS</span>
+                <h2 data-i18n="conv_title">Oportunidades Disponibles</h2>
+                <p data-i18n="conv_subtitle">Explora las convocatorias vigentes y encuentra el apoyo que tu asociación necesita.</p>
+            </div>
+            <div class="conv-filters">
+                <button class="filter-btn active" data-filter="todas" data-i18n="filter_todas">Todas</button>
+                <button class="filter-btn" data-filter="educacion" data-i18n="filter_edu">Educación</button>
+                <button class="filter-btn" data-filter="salud" data-i18n="filter_salud">Salud</button>
+                <button class="filter-btn" data-filter="medioambiente" data-i18n="filter_ambiente">Medio Ambiente</button>
+                <button class="filter-btn" data-filter="cultura" data-i18n="filter_cultura">Cultura</button>
+                <button class="filter-btn" data-filter="social" data-i18n="filter_social">Desarrollo Social</button>
+            </div>
+            <div class="conv-grid" id="convGrid">
+                <!-- Cards will be injected by JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats" id="estadisticas">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-bullhorn"></i></div>
+                    <div class="stat-value" data-count="1250">0</div>
+                    <div class="stat-label" data-i18n="stats_publicadas">Convocatorias Publicadas</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-hand-holding-usd"></i></div>
+                    <div class="stat-value">$<span data-count="45">0</span>M</div>
+                    <div class="stat-label" data-i18n="stats_financiamiento">En Financiamiento</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-building"></i></div>
+                    <div class="stat-value" data-count="320">0</div>
+                    <div class="stat-label" data-i18n="stats_organizaciones">Organizaciones Activas</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-globe-americas"></i></div>
+                    <div class="stat-value" data-count="18">0</div>
+                    <div class="stat-label" data-i18n="stats_estados">Estados Conectados</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="testimonials" id="nosotros">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag" data-i18n="test_tag">TESTIMONIOS</span>
+                <h2 data-i18n="test_title">Lo que dicen las asociaciones</h2>
+            </div>
+            <div class="testimonial-carousel">
+                <div class="testimonial-track" id="testimonialTrack">
+                    <div class="testimonial-card">
+                        <div class="testimonial-stars">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                        </div>
+                        <p data-i18n="test1_text">"Gracias a ConvocaNet obtuvimos una beca que transformó nuestro programa de educación comunitaria. La plataforma es intuitiva y las alertas nos mantienen siempre informados."</p>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">MR</div>
+                            <div>
+                                <strong>María Rodríguez</strong>
+                                <span data-i18n="test1_role">Directora, Fundación Educar</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="testimonial-card">
+                        <div class="testimonial-stars">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                        </div>
+                        <p data-i18n="test2_text">"La red colaborativa nos permitió encontrar aliados para un proyecto ambiental que ahora impacta a 5 comunidades. Una herramienta indispensable."</p>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">CL</div>
+                            <div>
+                                <strong>Carlos López</strong>
+                                <span data-i18n="test2_role">Coordinador, EcoVerde A.C.</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="testimonial-card">
+                        <div class="testimonial-stars">
+                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+                        </div>
+                        <p data-i18n="test3_text">"El panel de seguimiento nos da claridad sobre el estado de nuestras postulaciones. Ya no perdemos oportunidades por fechas límite."</p>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">AP</div>
+                            <div>
+                                <strong>Ana Patricia Sánchez</strong>
+                                <span data-i18n="test3_role">Presidenta, Manos Unidas A.C.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="carousel-controls">
+                    <button class="carousel-btn" id="prevBtn"><i class="fas fa-chevron-left"></i></button>
+                    <div class="carousel-dots" id="carouselDots"></div>
+                    <button class="carousel-btn" id="nextBtn"><i class="fas fa-chevron-right"></i></button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta">
+        <div class="container">
+            <div class="cta-content">
+                <h2 data-i18n="cta_title">¿Listo para encontrar tu próxima convocatoria?</h2>
+                <p data-i18n="cta_subtitle">Únete a más de 1,500 asociaciones civiles que ya están aprovechando estas oportunidades.</p>
+                <a href="#contacto" class="btn btn-white" data-i18n="cta_btn">Comenzar Ahora</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact" id="contacto">
+        <div class="container">
+            <div class="contact-wrapper">
+                <div class="contact-info">
+                    <span class="section-tag" data-i18n="contact_tag">CONTACTO</span>
+                    <h2 data-i18n="contact_title">¿Tienes preguntas?</h2>
+                    <p data-i18n="contact_subtitle">Nuestro equipo está listo para ayudarte a aprovechar al máximo ConvocaNet.</p>
+                    <div class="contact-details">
+                        <div class="contact-item">
+                            <i class="fas fa-envelope"></i>
+                            <span>contacto@convocanet.org</span>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-phone"></i>
+                            <span>+52 (55) 1234-5678</span>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span data-i18n="contact_dir">Ciudad de México, México</span>
+                        </div>
+                    </div>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <form class="contact-form" id="contactForm">
+                    <div class="form-group">
+                        <input type="text" id="name" required placeholder=" ">
+                        <label for="name" data-i18n="form_nombre">Nombre completo</label>
+                    </div>
+                    <div class="form-group">
+                        <input type="email" id="email" required placeholder=" ">
+                        <label for="email" data-i18n="form_email">Correo electrónico</label>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="org" required placeholder=" ">
+                        <label for="org" data-i18n="form_org">Nombre de la asociación</label>
+                    </div>
+                    <div class="form-group">
+                        <textarea id="message" rows="4" required placeholder=" "></textarea>
+                        <label for="message" data-i18n="form_msg">Mensaje</label>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full" data-i18n="form_btn">Enviar Mensaje</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="#" class="logo">
+                        <i class="fas fa-bullhorn"></i>
+                        <span>ConvocaNet</span>
+                    </a>
+                    <p data-i18n="footer_desc">Conectando asociaciones civiles con oportunidades de financiamiento y desarrollo desde 2024.</p>
+                </div>
+                <div class="footer-links">
+                    <h4 data-i18n="footer_plataforma">Plataforma</h4>
+                    <ul>
+                        <li><a href="#convocatorias" data-i18n="footer_conv">Convocatorias</a></li>
+                        <li><a href="#caracteristicas" data-i18n="footer_feat">Características</a></li>
+                        <li><a href="#estadisticas" data-i18n="footer_stats">Estadísticas</a></li>
+                        <li><a href="#nosotros" data-i18n="footer_nosotros">Nosotros</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4 data-i18n="footer_recursos">Recursos</h4>
+                    <ul>
+                        <li><a href="#" data-i18n="footer_blog">Blog</a></li>
+                        <li><a href="#" data-i18n="footer_guia">Guías de Postulación</a></li>
+                        <li><a href="#" data-i18n="footer_faq">Preguntas Frecuentes</a></li>
+                        <li><a href="#" data-i18n="footer_api">API para Desarrolladores</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4 data-i18n="footer_legal">Legal</h4>
+                    <ul>
+                        <li><a href="#" data-i18n="footer_priv">Privacidad</a></li>
+                        <li><a href="#" data-i18n="footer_terms">Términos de Uso</a></li>
+                        <li><a href="#" data-i18n="footer_cookies">Cookies</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p data-i18n="footer_copy">&copy; 2026 ConvocaNet. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal" id="modal">
+            <button class="modal-close" id="modalClose"><i class="fas fa-times"></i></button>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMsg"></span>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

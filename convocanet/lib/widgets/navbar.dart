@@ -1,0 +1,262 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import '../providers/locale_provider.dart';
+import '../providers/auth_provider.dart';
+import '../services/auth_service.dart';
+import 'theme_toggle.dart';
+import 'language_toggle.dart';
+import 'responsive_layout.dart';
+
+class Navbar extends ConsumerStatefulWidget {
+  const Navbar({super.key});
+
+  @override
+  ConsumerState<Navbar> createState() => _NavbarState();
+}
+
+class _NavbarState extends ConsumerState<Navbar> {
+  bool _scrolled = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // We'll handle scroll via NotificationListener
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final lang = ref.watch(localeProvider).languageCode;
+    final isAuthenticated = ref.watch(isAuthenticatedProvider);
+    final theme = Theme.of(context);
+
+    return Container(
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface.withOpacity(_scrolled ? 0.95 : 0.8),
+        border: Border(
+          bottom: BorderSide(
+            color: theme.colorScheme.outlineVariant.withOpacity(0.2),
+          ),
+        ),
+      ),
+      child: ClipRRect(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: SizedBox(
+                height: 72,
+                child: Row(
+                  children: [
+                    // Logo
+                    MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: GestureDetector(
+                        onTap: () => context.go('/'),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.campaign,
+                              color: theme.colorScheme.primary,
+                              size: 28,
+                            ),
+                            const SizedBox(width: 10),
+                            Text(
+                              'ConvocaNet',
+                              style: theme.textTheme.titleLarge?.copyWith(
+                                fontWeight: FontWeight.w800,
+                                color: theme.colorScheme.primary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    if (ResponsiveLayout.isDesktop(context)) ...[
+                      const Spacer(),
+                      // Nav links
+                      _NavLink(
+                        label: lang == 'es' ? 'Inicio' : 'Home',
+                        onTap: () => context.go('/'),
+                      ),
+                      _NavLink(
+                        label: lang == 'es' ? 'Convocatorias' : 'Open Calls',
+                        onTap: () => context.go('/#convocatorias'),
+                      ),
+                      _NavLink(
+                        label: lang == 'es' ? 'Nosotros' : 'About',
+                        onTap: () => context.go('/#nosotros'),
+                      ),
+                      _NavLink(
+                        label: lang == 'es' ? 'Contacto' : 'Contact',
+                        onTap: () => context.go('/#contacto'),
+                      ),
+                      const Spacer(),
+                    ] else
+                      const Spacer(),
+
+                    // Controls
+                    const LanguageToggle(),
+                    const SizedBox(width: 8),
+                    const ThemeToggle(),
+
+                    if (isAuthenticated) ...[
+                      const SizedBox(width: 8),
+                      PopupMenuButton<String>(
+                        icon: CircleAvatar(
+                          radius: 16,
+                          backgroundColor: theme.colorScheme.primary,
+                          child: const Icon(
+                            Icons.person,
+                            size: 18,
+                            color: Colors.white,
+                          ),
+                        ),
+                        onSelected: (value) {
+                          switch (value) {
+                            case 'dashboard':
+                              context.go('/dashboard');
+                              break;
+                            case 'favorites':
+                              context.go('/favorites');
+                              break;
+                            case 'profile':
+                              context.go('/profile');
+                              break;
+                            case 'admin':
+                              context.go('/admin');
+                              break;
+                            case 'logout':
+                              await AuthService.signOut();
+                              if (context.mounted) {
+                                context.go('/');
+                              }
+                              break;
+                          }
+                        },
+                        itemBuilder: (context) => [
+                          PopupMenuItem(
+                            value: 'dashboard',
+                            child: Text(lang == 'es' ? 'Dashboard' : 'Dashboard'),
+                          ),
+                          PopupMenuItem(
+                            value: 'favorites',
+                            child: Text(lang == 'es' ? 'Favoritos' : 'Favorites'),
+                          ),
+                          PopupMenuItem(
+                            value: 'profile',
+                            child: Text(lang == 'es' ? 'Perfil' : 'Profile'),
+                          ),
+                          const PopupMenuDivider(),
+                          PopupMenuItem(
+                            value: 'logout',
+                            child: Text(lang == 'es' ? 'Cerrar sesión' : 'Sign out'),
+                          ),
+                        ],
+                      ),
+                    ] else ...[
+                      const SizedBox(width: 8),
+                      TextButton(
+                        onPressed: () => context.go('/login'),
+                        child: Text(lang == 'es' ? 'Iniciar Sesión' : 'Sign In'),
+                      ),
+                      const SizedBox(width: 8),
+                      ElevatedButton(
+                        onPressed: () => context.go('/register'),
+                        child: Text(lang == 'es' ? 'Registrarse' : 'Sign Up'),
+                      ),
+                    ],
+
+                    if (ResponsiveLayout.isMobile(context)) ...[
+                      const SizedBox(width: 8),
+                      IconButton(
+                        icon: const Icon(Icons.menu),
+                        onPressed: () {
+                          _showMobileMenu(context, lang);
+                        },
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showMobileMenu(BuildContext context, String lang) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.home),
+              title: Text(lang == 'es' ? 'Inicio' : 'Home'),
+              onTap: () {
+                Navigator.pop(context);
+                context.go('/');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.list),
+              title: Text(lang == 'es' ? 'Convocatorias' : 'Open Calls'),
+              onTap: () {
+                Navigator.pop(context);
+                context.go('/#convocatorias');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.info),
+              title: Text(lang == 'es' ? 'Nosotros' : 'About'),
+              onTap: () {
+                Navigator.pop(context);
+                context.go('/#nosotros');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.contact_mail),
+              title: Text(lang == 'es' ? 'Contacto' : 'Contact'),
+              onTap: () {
+                Navigator.pop(context);
+                context.go('/#contacto');
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _NavLink extends StatelessWidget {
+  final String label;
+  final VoidCallback onTap;
+
+  const _NavLink({required this.label, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: GestureDetector(
+          onTap: onTap,
+          child: Text(
+            label,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w500,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+          ),
+        ),
+      ),
+    );
+  }
+}
