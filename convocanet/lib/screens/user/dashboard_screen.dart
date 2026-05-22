@@ -1,16 +1,71 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../providers/locale_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/convocatoria_card.dart';
+import '../../models/convocatoria.dart';
+import '../../services/convocatoria_service.dart';
 import '../../services/whatsapp_service.dart';
 
-class DashboardScreen extends ConsumerWidget {
+class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends ConsumerState<DashboardScreen> {
+  int _matchingCount = 0;
+  int _favoritesCount = 0;
+  double _availableAmount = 0;
+  List<Convocatoria> _recommended = [];
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    try {
+      final stats = await ConvocatoriaService.getStats();
+      final convocatorias = await ConvocatoriaService.getConvocatorias(limit: 5);
+
+      int favCount = 0;
+      final user = Supabase.instance.client.auth.currentUser;
+      if (user != null) {
+        final favs = await ConvocatoriaService.getFavorites(user.id);
+        favCount = favs.length;
+      }
+
+      if (mounted) {
+        setState(() {
+          _matchingCount = stats['activeCount'] as int? ?? 0;
+          _favoritesCount = favCount;
+          _availableAmount = stats['totalAmount'] as double? ?? 0;
+          _recommended = convocatorias;
+          _loading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  String _formatAmount(double amount) {
+    if (amount >= 1000000) {
+      return '\$${(amount / 1000000).toStringAsFixed(1)}M';
+    } else if (amount >= 1000) {
+      return '\$${(amount / 1000).toStringAsFixed(0)}K';
+    }
+    return '\$${amount.toStringAsFixed(0)}';
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final lang = ref.watch(localeProvider).languageCode;
     final theme = Theme.of(context);
     final profile = ref.watch(currentProfileProvider);
@@ -55,21 +110,21 @@ class DashboardScreen extends ConsumerWidget {
                   children: [
                     _StatCard(
                       icon: Icons.list,
-                      value: '12',
+                      value: _loading ? '...' : '$_matchingCount',
                       label: lang == 'es'
-                          ? 'Convocatorias Matching'
-                          : 'Matching Calls',
+                          ? 'Convocatorias Activas'
+                          : 'Active Calls',
                       color: theme.colorScheme.primary,
                     ),
                     _StatCard(
                       icon: Icons.star,
-                      value: '5',
+                      value: _loading ? '...' : '$_favoritesCount',
                       label: lang == 'es' ? 'Favoritas' : 'Favorites',
                       color: const Color(0xFFF59e0b),
                     ),
                     _StatCard(
                       icon: Icons.attach_money,
-                      value: '\$235K',
+                      value: _loading ? '...' : _formatAmount(_availableAmount),
                       label: lang == 'es' ? 'Disponibles' : 'Available',
                       color: const Color(0xFF10b981),
                     ),
@@ -88,15 +143,29 @@ class DashboardScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 16),
 
-                // TODO: Load from Supabase based on user interests
-                Text(
-                  lang == 'es'
-                      ? 'Inicia sesión para ver convocatorias personalizadas.'
-                      : 'Sign in to see personalized calls.',
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
+                if (_loading)
+                  const Center(child: CircularProgressIndicator())
+                else if (_recommended.isEmpty)
+                  Text(
+                    lang == 'es'
+                        ? 'No hay convocatorias disponibles.'
+                        : 'No calls available.',
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  )
+                else
+                  Wrap(
+                    spacing: 16,
+                    runSpacing: 16,
+                    children: _recommended
+                        .map((c) => SizedBox(
+                              width: 350,
+                              height: 300,
+                              child: ConvocatoriaCard(convocatoria: c),
+                            ))
+                        .toList(),
                   ),
-                ),
                 const SizedBox(height: 40),
 
                 // Recent alerts

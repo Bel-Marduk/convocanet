@@ -1,13 +1,63 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../providers/locale_provider.dart';
+import '../../services/convocatoria_service.dart';
 
-class AdminDashboard extends ConsumerWidget {
+class AdminDashboard extends ConsumerStatefulWidget {
   const AdminDashboard({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AdminDashboard> createState() => _AdminDashboardState();
+}
+
+class _AdminDashboardState extends ConsumerState<AdminDashboard> {
+  int _userCount = 0;
+  int _activeCount = 0;
+  double _totalAmount = 0;
+  int _messageCount = 0;
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadStats();
+  }
+
+  Future<void> _loadStats() async {
+    try {
+      final stats = await ConvocatoriaService.getStats();
+      final messageCount = await Supabase.instance.client
+          .from('contact_messages')
+          .select('id')
+          .count();
+
+      if (mounted) {
+        setState(() {
+          _userCount = stats['userCount'] as int? ?? 0;
+          _activeCount = stats['activeCount'] as int? ?? 0;
+          _totalAmount = stats['totalAmount'] as double? ?? 0;
+          _messageCount = messageCount;
+          _loading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  String _formatAmount(double amount) {
+    if (amount >= 1000000) {
+      return '\$${(amount / 1000000).toStringAsFixed(1)}M';
+    } else if (amount >= 1000) {
+      return '\$${(amount / 1000).toStringAsFixed(0)}K';
+    }
+    return '\$${amount.toStringAsFixed(0)}';
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final lang = ref.watch(localeProvider).languageCode;
     final theme = Theme.of(context);
 
@@ -39,27 +89,27 @@ class AdminDashboard extends ConsumerWidget {
                   children: [
                     _AdminStatCard(
                       icon: Icons.people,
-                      value: '1,520',
+                      value: _loading ? '...' : _userCount.toString(),
                       label: lang == 'es' ? 'Usuarios' : 'Users',
                       color: theme.colorScheme.primary,
                       onTap: () => context.go('/admin/users'),
                     ),
                     _AdminStatCard(
                       icon: Icons.list,
-                      value: '248',
+                      value: _loading ? '...' : _activeCount.toString(),
                       label: lang == 'es' ? 'Activas' : 'Active',
                       color: const Color(0xFF10b981),
                       onTap: () => context.go('/admin/convocatorias'),
                     ),
                     _AdminStatCard(
                       icon: Icons.attach_money,
-                      value: '\$45M',
+                      value: _loading ? '...' : _formatAmount(_totalAmount),
                       label: 'USD Total',
                       color: const Color(0xFFF59e0b),
                     ),
                     _AdminStatCard(
                       icon: Icons.email,
-                      value: '23',
+                      value: _loading ? '...' : _messageCount.toString(),
                       label: lang == 'es' ? 'Mensajes' : 'Messages',
                       color: const Color(0xFFEf4444),
                       onTap: () => context.go('/admin/messages'),
