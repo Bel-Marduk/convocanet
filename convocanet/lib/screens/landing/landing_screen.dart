@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../providers/locale_provider.dart';
 import '../../widgets/navbar.dart';
 import 'hero_section.dart';
 import 'features_section.dart';
@@ -102,7 +103,7 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
 class _CTASection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final lang = ref.watch(ref.read(localeProvider.notifier).select((n) => n.currentLang));
+    final lang = ref.read(localeProvider.notifier).currentLang;
     final theme = Theme.of(context);
 
     return Container(
@@ -168,7 +169,7 @@ class _CTASection extends ConsumerWidget {
 class _Footer extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final lang = ref.watch(ref.read(localeProvider.notifier).select((n) => n.currentLang));
+    final lang = ref.read(localeProvider.notifier).currentLang;
     final theme = Theme.of(context);
 
     return Container(
