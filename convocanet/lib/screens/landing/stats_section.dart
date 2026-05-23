@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/locale_provider.dart';
 import '../../widgets/stat_counter.dart';
-import '../../widgets/scroll_reveal.dart';
 import '../../services/convocatoria_service.dart';
 
 class StatsSection extends ConsumerStatefulWidget {
@@ -84,46 +83,34 @@ class _StatsSectionState extends ConsumerState<StatsSection> {
                   runSpacing: 32,
                   alignment: WrapAlignment.spaceAround,
                   children: [
-                    ScrollReveal(
-                      delay: Duration.zero,
-                      child: _StatItem(
-                        icon: Icons.campaign,
-                        target: _publishedCount,
-                        label: lang == 'es'
-                            ? 'Convocatorias Publicadas'
-                            : 'Published Calls',
-                      ),
+                    _StatItem(
+                      icon: Icons.campaign,
+                      target: _publishedCount,
+                      label: lang == 'es'
+                          ? 'Convocatorias Publicadas'
+                          : 'Published Calls',
                     ),
-                    ScrollReveal(
-                      delay: const Duration(milliseconds: 100),
-                      child: _StatItem(
-                        icon: Icons.attach_money,
-                        target: _totalAmountMillions,
-                        suffix: 'M',
-                        prefix: '\$',
-                        label:
-                            lang == 'es' ? 'En Financiamiento' : 'In Funding',
-                      ),
+                    _StatItem(
+                      icon: Icons.attach_money,
+                      target: _totalAmountMillions,
+                      suffix: 'M',
+                      prefix: '\$',
+                      label:
+                          lang == 'es' ? 'En Financiamiento' : 'In Funding',
                     ),
-                    ScrollReveal(
-                      delay: const Duration(milliseconds: 200),
-                      child: _StatItem(
-                        icon: Icons.business,
-                        target: _userCount,
-                        label: lang == 'es'
-                            ? 'Organizaciones Activas'
-                            : 'Active Organizations',
-                      ),
+                    _StatItem(
+                      icon: Icons.business,
+                      target: _userCount,
+                      label: lang == 'es'
+                          ? 'Organizaciones Activas'
+                          : 'Active Organizations',
                     ),
-                    ScrollReveal(
-                      delay: const Duration(milliseconds: 300),
-                      child: _StatItem(
-                        icon: Icons.public,
-                        target: 18,
-                        label: lang == 'es'
-                            ? 'Estados Conectados'
-                            : 'Connected States',
-                      ),
+                    _StatItem(
+                      icon: Icons.public,
+                      target: 18,
+                      label: lang == 'es'
+                          ? 'Estados Conectados'
+                          : 'Connected States',
                     ),
                   ],
                 ),

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/locale_provider.dart';
-import '../../widgets/scroll_reveal.dart';
 
 class TestimonialsSection extends ConsumerStatefulWidget {
   const TestimonialsSection({super.key});
@@ -105,10 +104,9 @@ class _TestimonialsSectionState extends ConsumerState<TestimonialsSection> {
               const SizedBox(height: 56),
 
               // Carousel
-              ScrollReveal(
-                child: SizedBox(
-                  height: 300,
-                  child: PageView.builder(
+              SizedBox(
+                height: 300,
+                child: PageView.builder(
                     controller: _pageController,
                     itemCount: _testimonials.length,
                     onPageChanged: (index) {
@@ -122,7 +120,6 @@ class _TestimonialsSectionState extends ConsumerState<TestimonialsSection> {
                       );
                     },
                   ),
-                ),
               ),
 
               const SizedBox(height: 32),

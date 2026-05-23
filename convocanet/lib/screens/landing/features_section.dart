@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/locale_provider.dart';
-import '../../widgets/scroll_reveal.dart';
 
 class FeaturesSection extends ConsumerWidget {
   const FeaturesSection({super.key});
@@ -111,20 +110,17 @@ class FeaturesSection extends ConsumerWidget {
               ),
               const SizedBox(height: 56),
 
-              // Features grid with scroll-triggered staggered fade-up
+              // Features grid
               Wrap(
                 spacing: 24,
                 runSpacing: 24,
                 alignment: WrapAlignment.center,
-                children: List.generate(features.length, (i) {
-                  return ScrollReveal(
-                    delay: Duration(milliseconds: i * 100),
-                    child: _FeatureCard(
-                      feature: features[i],
-                      lang: lang,
-                    ),
-                  );
-                }),
+                children: features
+                    .map((f) => _FeatureCard(
+                          feature: f,
+                          lang: lang,
+                        ))
+                    .toList(),
               ),
             ],
           ),
