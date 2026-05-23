@@ -120,6 +120,12 @@ class Convocatoria {
   String? categoryName(String lang) => lang == 'es' ? categoryNameEs : categoryNameEn;
   String? region(String lang) => lang == 'es' ? regionEs : regionEn;
 
+  List<String> countries(String lang) {
+    final r = region(lang);
+    if (r == null || r.isEmpty) return [];
+    return r.split(',').map((c) => c.trim()).where((c) => c.isNotEmpty).toList();
+  }
+
   String get formattedAmount {
     if (amountLocal != null && currency != 'USD') {
       final symbol = _currencySymbol(currency);

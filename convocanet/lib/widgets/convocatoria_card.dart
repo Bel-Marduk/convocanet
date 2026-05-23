@@ -82,10 +82,10 @@ class ConvocatoriaCard extends ConsumerWidget {
                           text:
                               '${convocatoria.deadline!.day}/${convocatoria.deadline!.month}/${convocatoria.deadline!.year}',
                         ),
-                      if (convocatoria.region(lang) != null)
+                      if (convocatoria.countries(lang).isNotEmpty)
                         _MetaItem(
-                          icon: Icons.location_on_outlined,
-                          text: convocatoria.region(lang)!,
+                          icon: Icons.public,
+                          text: convocatoria.countries(lang).join(', '),
                         ),
                     ],
                   ),

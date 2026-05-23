@@ -201,11 +201,11 @@ class _ConvocatoriaDetailScreenState
                             '${conv.deadline!.day}/${conv.deadline!.month}/${conv.deadline!.year}',
                         icon: Icons.calendar_today,
                       ),
-                    if (conv.region(lang) != null)
+                    if (conv.countries(lang).isNotEmpty)
                       _DetailCard(
-                        label: lang == 'es' ? 'País' : 'Country',
-                        value: conv.region(lang)!,
-                        icon: Icons.location_on,
+                        label: lang == 'es' ? 'Países' : 'Countries',
+                        value: conv.countries(lang).join(', '),
+                        icon: Icons.public,
                       ),
                     _DetailCard(
                       label: lang == 'es' ? 'Tipo' : 'Type',

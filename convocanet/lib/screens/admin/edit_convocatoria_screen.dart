@@ -5,6 +5,7 @@ import '../../providers/locale_provider.dart';
 import '../../models/convocatoria.dart';
 import '../../models/category.dart';
 import '../../services/convocatoria_service.dart';
+import '../../config/countries.dart';
 
 class EditConvocatoriaScreen extends ConsumerStatefulWidget {
   final String? convocatoriaId;
@@ -26,8 +27,6 @@ class _EditConvocatoriaScreenState
   final _reqEsController = TextEditingController();
   final _reqEnController = TextEditingController();
   final _amountController = TextEditingController();
-  final _regionEsController = TextEditingController();
-  final _regionEnController = TextEditingController();
   final _sourceUrlController = TextEditingController();
   final _sourceNameController = TextEditingController();
 
@@ -38,6 +37,7 @@ class _EditConvocatoriaScreenState
   bool _isLoading = false;
   bool _isEditing = false;
   List<Category> _categories = [];
+  List<int> _selectedCountryIndices = [];
 
   @override
   void initState() {
@@ -65,9 +65,17 @@ class _EditConvocatoriaScreenState
       _reqEsController.text = conv.requirementsEs ?? '';
       _reqEnController.text = conv.requirementsEn ?? '';
       _amountController.text = conv.amountUsd?.toString() ?? '';
-      _regionEsController.text = conv.regionEs ?? '';
-      _regionEnController.text = conv.regionEn ?? '';
       _sourceUrlController.text = conv.sourceUrl ?? '';
+      // Parse selected countries from regionEs
+      if (conv.regionEs != null && conv.regionEs!.isNotEmpty) {
+        final saved = conv.regionEs!.split(',').map((c) => c.trim()).toList();
+        _selectedCountryIndices = [];
+        for (int i = 0; i < kCountries.length; i++) {
+          if (saved.contains(kCountries[i].es)) {
+            _selectedCountryIndices.add(i);
+          }
+        }
+      }
       _sourceNameController.text = conv.sourceName ?? '';
       setState(() {
         _status = conv.status;
@@ -101,11 +109,11 @@ class _EditConvocatoriaScreenState
             ? double.tryParse(_amountController.text)
             : null,
         deadline: _deadline,
-        regionEs: _regionEsController.text.trim().isNotEmpty
-            ? _regionEsController.text.trim()
+        regionEs: _selectedCountryIndices.isNotEmpty
+            ? _selectedCountryIndices.map((i) => kCountries[i].es).join(', ')
             : null,
-        regionEn: _regionEnController.text.trim().isNotEmpty
-            ? _regionEnController.text.trim()
+        regionEn: _selectedCountryIndices.isNotEmpty
+            ? _selectedCountryIndices.map((i) => kCountries[i].en).join(', ')
             : null,
         sourceUrl: _sourceUrlController.text.trim().isNotEmpty
             ? _sourceUrlController.text.trim()
@@ -163,8 +171,6 @@ class _EditConvocatoriaScreenState
     _reqEsController.dispose();
     _reqEnController.dispose();
     _amountController.dispose();
-    _regionEsController.dispose();
-    _regionEnController.dispose();
     _sourceUrlController.dispose();
     _sourceNameController.dispose();
     super.dispose();
@@ -334,30 +340,34 @@ class _EditConvocatoriaScreenState
                       ),
                       const SizedBox(height: 16),
 
-                      // Region
+                      // Countries
+                      Text(
+                        lang == 'es' ? 'Países que aplican' : 'Eligible countries',
+                        style: theme.textTheme.titleSmall,
+                      ),
+                      const SizedBox(height: 8),
                       Wrap(
-                        spacing: 16,
-                        runSpacing: 16,
-                        children: [
-                          SizedBox(
-                            width: 250,
-                            child: TextFormField(
-                              controller: _regionEsController,
-                              decoration: const InputDecoration(
-                                labelText: 'País (Español)',
-                              ),
-                            ),
-                          ),
-                          SizedBox(
-                            width: 250,
-                            child: TextFormField(
-                              controller: _regionEnController,
-                              decoration: const InputDecoration(
-                                labelText: 'Country (English)',
-                              ),
-                            ),
-                          ),
-                        ],
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: List.generate(kCountries.length, (i) {
+                          final selected = _selectedCountryIndices.contains(i);
+                          final label = lang == 'es'
+                              ? kCountries[i].es
+                              : kCountries[i].en;
+                          return FilterChip(
+                            label: Text(label),
+                            selected: selected,
+                            onSelected: (val) {
+                              setState(() {
+                                if (val) {
+                                  _selectedCountryIndices.add(i);
+                                } else {
+                                  _selectedCountryIndices.remove(i);
+                                }
+                              });
+                            },
+                          );
+                        }),
                       ),
                       const SizedBox(height: 16),
 
