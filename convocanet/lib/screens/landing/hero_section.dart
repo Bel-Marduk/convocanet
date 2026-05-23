@@ -231,8 +231,6 @@ class _HeroSectionState extends ConsumerState<HeroSection> {
               ),
             ),
           ),
-          // ... rest of the build method (scroll indicator) remains the same
-
 
           // Scroll indicator
           Positioned(
