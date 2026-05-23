@@ -344,7 +344,7 @@ class _EditConvocatoriaScreenState
                             child: TextFormField(
                               controller: _regionEsController,
                               decoration: const InputDecoration(
-                                labelText: 'Región (Español)',
+                                labelText: 'País (Español)',
                               ),
                             ),
                           ),
@@ -353,7 +353,7 @@ class _EditConvocatoriaScreenState
                             child: TextFormField(
                               controller: _regionEnController,
                               decoration: const InputDecoration(
-                                labelText: 'Region (English)',
+                                labelText: 'Country (English)',
                               ),
                             ),
                           ),

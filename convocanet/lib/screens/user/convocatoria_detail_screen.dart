@@ -203,7 +203,7 @@ class _ConvocatoriaDetailScreenState
                       ),
                     if (conv.region(lang) != null)
                       _DetailCard(
-                        label: lang == 'es' ? 'Región' : 'Region',
+                        label: lang == 'es' ? 'País' : 'Country',
                         value: conv.region(lang)!,
                         icon: Icons.location_on,
                       ),
