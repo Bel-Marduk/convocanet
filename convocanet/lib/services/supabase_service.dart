@@ -29,7 +29,7 @@ class SupabaseService {
   // Realtime subscriptions
   static RealtimeChannel subscribeToTable(
     String table,
-    void Function(PostgresChangesResponse) onData,
+    void Function(PostgresChangePayload) onData,
   ) {
     return client
         .channel('public:$table')

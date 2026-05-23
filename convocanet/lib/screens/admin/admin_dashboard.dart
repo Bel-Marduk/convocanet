@@ -30,7 +30,7 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
       final stats = await ConvocatoriaService.getStats();
       final messageRes = await Supabase.instance.client
           .from('contact_messages')
-          .select('id', const FetchOptions(count: CountOption.exact));
+          .select('id', count: CountOption.exact);
       final messageCount = messageRes.count ?? 0;
 
       if (mounted) {

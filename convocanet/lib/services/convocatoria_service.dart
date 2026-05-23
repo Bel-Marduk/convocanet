@@ -87,14 +87,14 @@ class ConvocatoriaService {
     try {
       final activeRes = await _client
           .from('convocatorias')
-          .select('id', const FetchOptions(count: CountOption.exact))
-          .in_('status', ['active', 'permanent']);
+          .select('id', count: CountOption.exact)
+          .inFilter('status', ['active', 'permanent']);
       final activeCount = activeRes.count ?? 0;
 
       final totalAmountRes = await _client
           .from('convocatorias')
           .select('amount_usd')
-          .in_('status', ['active', 'permanent']);
+          .inFilter('status', ['active', 'permanent']);
       
       double sum = 0;
       if (totalAmountRes is List) {
@@ -108,12 +108,12 @@ class ConvocatoriaService {
 
       final profilesRes = await _client
           .from('profiles')
-          .select('id', const FetchOptions(count: CountOption.exact));
+          .select('id', count: CountOption.exact);
       final userCount = profilesRes.count ?? 0;
 
       final publishedRes = await _client
           .from('convocatorias')
-          .select('id', const FetchOptions(count: CountOption.exact));
+          .select('id', count: CountOption.exact);
       final publishedCount = publishedRes.count ?? 0;
 
       return {
