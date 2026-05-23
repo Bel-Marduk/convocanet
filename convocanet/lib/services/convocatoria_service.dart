@@ -25,7 +25,7 @@ class ConvocatoriaService {
       query = query.eq('status', status);
     } else {
       // By default, show active and permanent
-      query = query.inFilter('status', ['active', 'permanent']);
+      query = query.in_('status', ['active', 'permanent']);
     }
 
     if (categorySlug != null && categorySlug != 'todas') {
@@ -87,13 +87,13 @@ class ConvocatoriaService {
     final activeRes = await _client
         .from('convocatorias')
         .select('id', const FetchOptions(count: CountOption.exact))
-        .inFilter('status', ['active', 'permanent']);
+        .in_('status', ['active', 'permanent']);
     final activeCount = activeRes.count ?? 0;
 
     final totalAmountRes = await _client
         .from('convocatorias')
         .select('amount_usd')
-        .inFilter('status', ['active', 'permanent']);
+        .in_('status', ['active', 'permanent']);
     final totalAmount = totalAmountRes as List;
 
     double sum = 0;
