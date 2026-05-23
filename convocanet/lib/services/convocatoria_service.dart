@@ -96,35 +96,30 @@ class ConvocatoriaService {
           .select('amount_usd')
           .inFilter('status', ['active', 'permanent']);
       
-      if (res is List) {
-        activeCount = res.length;
-        for (final item in res) {
-          final amount = item['amount_usd'];
-          if (amount != null) {
-            totalAmount += (amount as num).toDouble();
-          }
+      final list = res as List;
+      activeCount = list.length;
+      for (final item in list) {
+        final amount = item['amount_usd'];
+        if (amount != null) {
+          totalAmount += (amount as num).toDouble();
         }
       }
     } catch (e) {
       print('Error fetching active stats: $e');
     }
 
-    // 2. User Count (Fallback to fake if fails)
+    // 2. User Count
     try {
       final res = await _client.from('profiles').select('id');
-      if (res is List) {
-        userCount = res.length;
-      }
+      userCount = (res as List).length;
     } catch (e) {
-      userCount = 1520;
+      userCount = 1520; // Fallback
     }
 
     // 3. Published Count
     try {
       final res = await _client.from('convocatorias').select('id');
-      if (res is List) {
-        publishedCount = res.length;
-      }
+      publishedCount = (res as List).length;
     } catch (e) {
       print('Error fetching publishedCount: $e');
     }
