@@ -89,6 +89,8 @@ class ConvocatoriaService {
     int userCount = 0;
     int publishedCount = 0;
 
+    print('DEBUG: Starting getStats...');
+
     // 1. Active Convocatorias Count & Total Amount
     try {
       final res = await _client
@@ -96,32 +98,40 @@ class ConvocatoriaService {
           .select('amount_usd')
           .inFilter('status', ['active', 'permanent']);
       
+      print('DEBUG: activeRes raw: $res');
       final list = res as List;
       activeCount = list.length;
+      print('DEBUG: activeCount calculated: $activeCount');
       for (final item in list) {
         final amount = item['amount_usd'];
         if (amount != null) {
           totalAmount += (amount as num).toDouble();
         }
       }
+      print('DEBUG: totalAmount calculated: $totalAmount');
     } catch (e) {
-      print('Error fetching active stats: $e');
+      print('DEBUG: Error fetching active stats: $e');
     }
 
     // 2. User Count
     try {
       final res = await _client.from('profiles').select('id');
+      print('DEBUG: profilesRes raw: $res');
       userCount = (res as List).length;
+      print('DEBUG: userCount calculated: $userCount');
     } catch (e) {
+      print('DEBUG: Note: userCount restricted or error: $e');
       userCount = 1520; // Fallback
     }
 
     // 3. Published Count
     try {
       final res = await _client.from('convocatorias').select('id');
+      print('DEBUG: publishedRes raw: $res');
       publishedCount = (res as List).length;
+      print('DEBUG: publishedCount calculated: $publishedCount');
     } catch (e) {
-      print('Error fetching publishedCount: $e');
+      print('DEBUG: Error fetching publishedCount: $e');
     }
 
     return {
