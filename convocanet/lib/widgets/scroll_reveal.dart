@@ -33,23 +33,14 @@ class _ScrollRevealState extends State<ScrollReveal>
     _offset = Tween<double>(begin: 30, end: 0).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
     );
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _listenToScroll();
-      _checkVisibility();
-    });
+    // Check after first layout
+    WidgetsBinding.instance.addPostFrameCallback((_) => _checkVisibility());
   }
 
   @override
   void dispose() {
-    final scrollable = Scrollable.maybeOf(context);
-    scrollable?.position.removeListener(_checkVisibility);
     _controller.dispose();
     super.dispose();
-  }
-
-  void _listenToScroll() {
-    final scrollable = Scrollable.maybeOf(context);
-    scrollable?.position.addListener(_checkVisibility);
   }
 
   void _checkVisibility() {
@@ -68,16 +59,22 @@ class _ScrollRevealState extends State<ScrollReveal>
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) => Opacity(
-        opacity: _opacity.value,
-        child: Transform.translate(
-          offset: Offset(0, _offset.value),
-          child: child,
+    return NotificationListener<ScrollNotification>(
+      onNotification: (_) {
+        _checkVisibility();
+        return false;
+      },
+      child: AnimatedBuilder(
+        animation: _controller,
+        builder: (context, child) => Opacity(
+          opacity: _opacity.value,
+          child: Transform.translate(
+            offset: Offset(0, _offset.value),
+            child: child,
+          ),
         ),
+        child: widget.child,
       ),
-      child: widget.child,
     );
   }
 }
