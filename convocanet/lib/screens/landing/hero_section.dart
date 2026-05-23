@@ -161,8 +161,8 @@ class _HeroSectionState extends ConsumerState<HeroSection>
                             ),
                             child: Text(
                               lang == 'es'
-                                  ? 'Plataforma de Convocatorias 2026'
-                                  : 'Open Calls Platform 2026',
+                                  ? 'Agregador Gratuito de Convocatorias 2026'
+                                  : 'Free Call Aggregator 2026',
                               style: theme.textTheme.bodySmall?.copyWith(
                                 fontWeight: FontWeight.w600,
                                 color: theme.colorScheme.primary,
@@ -252,8 +252,8 @@ class _HeroSectionState extends ConsumerState<HeroSection>
                             constraints: const BoxConstraints(maxWidth: 640),
                             child: Text(
                               lang == 'es'
-                                  ? 'Centralizamos las convocatorias públicas para que tu organización encuentre financiamiento, programas y alianzas estratégicas en un solo lugar.'
-                                  : 'We centralize public calls so your organization can find funding, programs, and strategic partnerships in one place.',
+                                  ? 'Buscamos y reunimos convocatorias públicas y privadas para asociaciones civiles, ONGs y público en general en México: financiamiento, programas, concursos, capacitaciones y premios. Te mostramos la información clave y un enlace directo para que te postules directamente con quien emite la convocatoria.'
+                                  : 'We find and aggregate public and private calls for civil associations, NGOs, and the general public in Mexico: funding, programs, contests, training, and awards. We show you key information and a direct link so you can apply directly with the issuing organization.',
                               style: theme.textTheme.bodyLarge?.copyWith(
                                 color: isDark
                                     ? const Color(0xFFcbd5e1)
@@ -320,8 +320,8 @@ class _HeroSectionState extends ConsumerState<HeroSection>
                                   ),
                                   child: Text(
                                     lang == 'es'
-                                        ? 'Ver Convocatorias'
-                                        : 'View Open Calls',
+                                        ? 'Explorar Convocatorias'
+                                        : 'Explore Calls',
                                     style: const TextStyle(
                                       fontWeight: FontWeight.w600,
                                       fontSize: 15.2,
@@ -382,8 +382,8 @@ class _HeroSectionState extends ConsumerState<HeroSection>
                               StatCounter(
                                 target: _activeCount,
                                 label: lang == 'es'
-                                    ? 'Convocatorias Activas'
-                                    : 'Active Calls',
+                                    ? 'Convocatorias Registradas'
+                                    : 'Registered Calls',
                                 numberStyle: theme.textTheme.headlineMedium
                                     ?.copyWith(
                                   fontWeight: FontWeight.w800,

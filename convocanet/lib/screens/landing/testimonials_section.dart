@@ -17,9 +17,9 @@ class _TestimonialsSectionState extends ConsumerState<TestimonialsSection> {
   final _testimonials = [
     _TestimonialData(
       textEs:
-          '"Gracias a ConvocaNet obtuvimos una beca que transformó nuestro programa de educación comunitaria. La plataforma es intuitiva y las alertas nos mantienen siempre informados."',
+          '"ConvocaNet nos ayudó a descubrir convocatorias de financiamiento que no conocíamos. Encontramos una beca federal que transformó nuestro programa de educación comunitaria."',
       textEn:
-          '"Thanks to ConvocaNet we obtained a grant that transformed our community education program. The platform is intuitive and the alerts keep us always informed."',
+          '"ConvocaNet helped us discover funding calls we didn\'t know about. We found a federal grant that transformed our community education program."',
       name: 'María Rodríguez',
       roleEs: 'Directora, Fundación Educar',
       roleEn: 'Director, Fundación Educar',
@@ -27,9 +27,9 @@ class _TestimonialsSectionState extends ConsumerState<TestimonialsSection> {
     ),
     _TestimonialData(
       textEs:
-          '"La red colaborativa nos permitió encontrar aliados para un proyecto ambiental que ahora impacta a 5 comunidades. Una herramienta indispensable."',
+          '"Gracias a las alertas nunca nos perdemos una convocatoria nueva. Es una herramienta gratuita que toda asociación civil en México debería usar."',
       textEn:
-          '"The collaborative network allowed us to find allies for an environmental project that now impacts 5 communities. An indispensable tool."',
+          '"Thanks to the alerts we never miss a new call. It\'s a free tool that every civil association in Mexico should use."',
       name: 'Carlos López',
       roleEs: 'Coordinador, EcoVerde A.C.',
       roleEn: 'Coordinator, EcoVerde A.C.',
@@ -37,9 +37,9 @@ class _TestimonialsSectionState extends ConsumerState<TestimonialsSection> {
     ),
     _TestimonialData(
       textEs:
-          '"El panel de seguimiento nos da claridad sobre el estado de nuestras postulaciones. Ya no perdemos oportunidades por fechas límite."',
+          '"Lo mejor es que te da el enlace directo a la convocatoria oficial. No hay intermediarios, te postulas directamente con quien la emite. Totalmente transparente."',
       textEn:
-          '"The tracking dashboard gives us clarity on the status of our applications. We no longer miss opportunities due to deadlines."',
+          '"The best part is the direct link to the official call. No intermediaries — you apply directly with the issuer. Totally transparent."',
       name: 'Ana Patricia Sánchez',
       roleEs: 'Presidenta, Manos Unidas A.C.',
       roleEn: 'President, Manos Unidas A.C.',

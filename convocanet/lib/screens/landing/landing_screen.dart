@@ -175,7 +175,7 @@ class _CTASection extends ConsumerWidget {
               Text(
                 lang == 'es'
                     ? '¿Listo para encontrar tu próxima convocatoria?'
-                    : 'Ready to find your next open call?',
+                    : 'Ready to find your next call?',
                 style: theme.textTheme.headlineMedium?.copyWith(
                   fontWeight: FontWeight.w800,
                   color: Colors.white,
@@ -186,8 +186,8 @@ class _CTASection extends ConsumerWidget {
               const SizedBox(height: 16),
               Text(
                 lang == 'es'
-                    ? 'Únete a más de 1,500 asociaciones civiles que ya están aprovechando estas oportunidades.'
-                    : 'Join 1,500+ civil associations already taking advantage of these opportunities.',
+                    ? 'Únete a miles de organizaciones y personas que ya encuentran convocatorias públicas y privadas en ConvocaNet. Totalmente gratuito.'
+                    : 'Join thousands of organizations and individuals already finding public and private calls on ConvocaNet. Completely free.',
                 style: theme.textTheme.bodyLarge?.copyWith(
                   color: Colors.white.withOpacity(0.9),
                   height: 1.6,
@@ -274,8 +274,8 @@ class _Footer extends ConsumerWidget {
                     const SizedBox(height: 20),
                     Text(
                       lang == 'es'
-                          ? 'Conectando asociaciones civiles con oportunidades de financiamiento y desarrollo desde 2024.'
-                          : 'Connecting civil associations with funding and development opportunities since 2024.',
+                          ? 'Agregador gratuito de convocatorias públicas y privadas para asociaciones civiles, ONGs y público en general en México. Enlaces directos a la fuente original.'
+                          : 'Free aggregator of public and private calls for civil associations, NGOs, and the general public in Mexico. Direct links to the original source.',
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
                         height: 1.7,

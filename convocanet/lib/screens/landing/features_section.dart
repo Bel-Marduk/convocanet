@@ -14,45 +14,45 @@ class FeaturesSection extends ConsumerWidget {
     final features = [
       _FeatureData(
         icon: Icons.search,
-        titleEs: 'Búsqueda Inteligente',
-        titleEn: 'Smart Search',
-        descEs: 'Filtra convocatorias por sector, monto, región y fecha límite.',
-        descEn: 'Filter calls by sector, amount, region, and deadline.',
+        titleEs: 'Búsqueda Centralizada',
+        titleEn: 'Centralized Search',
+        descEs: 'Encuentra convocatorias públicas, privadas, concursos, capacitaciones y premios en un solo lugar, priorizando las de México.',
+        descEn: 'Find public and private calls, contests, training, and awards in one place, with a focus on Mexico.',
+      ),
+      _FeatureData(
+        icon: Icons.open_in_new,
+        titleEs: 'Enlaces Directos',
+        titleEn: 'Direct Links',
+        descEs: 'Cada convocatoria incluye un enlace directo a la fuente oficial para que te postules sin intermediarios.',
+        descEn: 'Each call includes a direct link to the official source so you can apply without intermediaries.',
       ),
       _FeatureData(
         icon: Icons.notifications,
-        titleEs: 'Alertas por WhatsApp',
-        titleEn: 'WhatsApp Alerts',
-        descEs: 'Recibe notificaciones personalizadas cuando se publiquen nuevas convocatorias.',
-        descEn: 'Receive personalized notifications when new calls are published.',
+        titleEs: 'Alertas Personalizadas',
+        titleEn: 'Custom Alerts',
+        descEs: 'Recibe notificaciones cuando se publiquen nuevas convocatorias que coincidan con tu perfil o sector.',
+        descEn: 'Get notified when new calls matching your profile or sector are published.',
       ),
       _FeatureData(
-        icon: Icons.description,
-        titleEs: 'Gestión Documental',
-        titleEn: 'Document Management',
-        descEs: 'Almacena y organiza todos los documentos necesarios para tus postulaciones.',
-        descEn: 'Store and organize all documents needed for your applications.',
+        icon: Icons.category,
+        titleEs: 'Múltiples Categorías',
+        titleEn: 'Multiple Categories',
+        descEs: 'Financiamiento, programas gubernamentales, concursos, capacitaciones, premios y más. Para asociaciones civiles y público en general.',
+        descEn: 'Funding, government programs, contests, training, awards and more. For civil associations and the general public.',
       ),
       _FeatureData(
-        icon: Icons.dashboard,
-        titleEs: 'Panel de Seguimiento',
-        titleEn: 'Tracking Dashboard',
-        descEs: 'Monitorea el estado de todas tus postulaciones en tiempo real.',
-        descEn: 'Monitor the status of all your applications in real time.',
+        icon: Icons.flag,
+        titleEs: 'Prioridad México',
+        titleEn: 'Mexico Priority',
+        descEs: 'Damos prioridad a convocatorias disponibles para organizaciones y personas en todo México.',
+        descEn: 'We prioritize calls available to organizations and individuals across Mexico.',
       ),
       _FeatureData(
-        icon: Icons.people,
-        titleEs: 'Red Colaborativa',
-        titleEn: 'Collaborative Network',
-        descEs: 'Conecta con otras asociaciones civiles para formar alianzas estratégicas.',
-        descEn: 'Connect with other civil associations to form strategic alliances.',
-      ),
-      _FeatureData(
-        icon: Icons.shield,
-        titleEs: 'Transparencia Total',
-        titleEn: 'Full Transparency',
-        descEs: 'Cada convocatoria incluye criterios de evaluación e historial de resultados.',
-        descEn: 'Each call includes evaluation criteria and results history.',
+        icon: Icons.free_breakfast,
+        titleEs: '100% Gratuito',
+        titleEn: '100% Free',
+        descEs: 'ConvocaNet es completamente gratuito. No cobramos comisiones ni almacenamos documentos.',
+        descEn: 'ConvocaNet is completely free. We charge no commissions and do not store documents.',
       ),
     ];
 
@@ -103,7 +103,7 @@ class FeaturesSection extends ConsumerWidget {
               const SizedBox(height: 16),
               Text(
                 lang == 'es'
-                    ? 'Herramientas diseñadas para simplificar la búsqueda y postulación a convocatorias.'
+                    ? 'Todo lo que necesitas para encontrar y postularte a convocatorias de forma sencilla y sin intermediarios.'
                     : 'Tools designed to simplify searching and applying to open calls.',
                 style: theme.textTheme.bodyLarge?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,

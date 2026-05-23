@@ -108,8 +108,8 @@ class _ConvocatoriasSectionState extends ConsumerState<ConvocatoriasSection> {
               const SizedBox(height: 16),
               Text(
                 lang == 'es'
-                    ? 'Explora las convocatorias vigentes y encuentra el apoyo que tu asociación necesita.'
-                    : 'Explore current calls and find the support your association needs.',
+                    ? 'Explora las convocatorias vigentes y postúlate directamente con quien las emite.'
+                    : 'Explore current calls and apply directly with the issuing organization.',
                 style: theme.textTheme.bodyLarge?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
