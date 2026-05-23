@@ -44,20 +44,11 @@ CREATE POLICY "Admins can update any profile"
 -- ============================================
 -- CATEGORIES policies
 -- ============================================
+-- CATEGORIES policies
 -- Everyone can view categories
 CREATE POLICY "Categories are viewable by everyone"
   ON categories FOR SELECT
   USING (true);
-
--- Only admins can manage categories
-CREATE POLICY "Admins can manage categories"
-  ON categories FOR ALL
-  USING (
-    EXISTS (
-      SELECT 1 FROM profiles
-      WHERE id = auth.uid() AND role = 'admin'
-    )
-  );
 
 -- ============================================
 -- CONVOCATORIAS policies
@@ -65,16 +56,7 @@ CREATE POLICY "Admins can manage categories"
 -- Everyone can view active/permanent public convocatorias
 CREATE POLICY "Public convocatorias are viewable by everyone"
   ON convocatorias FOR SELECT
-  USING (
-    (is_public = true AND status IN ('active', 'permanent'))
-    OR
-    EXISTS (
-      SELECT 1 FROM profiles
-      WHERE id = auth.uid() AND role = 'admin'
-    )
-    OR
-    created_by = auth.uid()
-  );
+  USING (is_public = true AND status IN ('active', 'permanent'));
 
 -- Only admins can insert convocatorias
 CREATE POLICY "Admins can insert convocatorias"
