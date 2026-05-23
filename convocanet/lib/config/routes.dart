@@ -87,8 +87,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/admin',
         redirect: (context, state) {
           if (authState.value == null) return '/login';
-          final container = ProviderScope.containerOf(context);
-          if (!container.read(isAdminProvider)) return '/dashboard';
+          if (!ref.read(isAdminProvider)) return '/dashboard';
           return null;
         },
         builder: (context, state) => const AdminDashboard(),
@@ -97,6 +96,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/admin/convocatorias',
         redirect: (context, state) {
           if (authState.value == null) return '/login';
+          if (!ref.read(isAdminProvider)) return '/dashboard';
           return null;
         },
         builder: (context, state) => const ManageConvocatorias(),
@@ -105,6 +105,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/admin/convocatorias/new',
         redirect: (context, state) {
           if (authState.value == null) return '/login';
+          if (!ref.read(isAdminProvider)) return '/dashboard';
           return null;
         },
         builder: (context, state) => const EditConvocatoriaScreen(),
@@ -113,6 +114,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/admin/convocatorias/:id/edit',
         redirect: (context, state) {
           if (authState.value == null) return '/login';
+          if (!ref.read(isAdminProvider)) return '/dashboard';
           return null;
         },
         builder: (context, state) => EditConvocatoriaScreen(
@@ -123,6 +125,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/admin/users',
         redirect: (context, state) {
           if (authState.value == null) return '/login';
+          if (!ref.read(isAdminProvider)) return '/dashboard';
           return null;
         },
         builder: (context, state) => const ManageUsers(),
@@ -131,6 +134,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/admin/messages',
         redirect: (context, state) {
           if (authState.value == null) return '/login';
+          if (!ref.read(isAdminProvider)) return '/dashboard';
           return null;
         },
         builder: (context, state) => const ManageMessages(),

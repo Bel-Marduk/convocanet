@@ -45,12 +45,8 @@ class _StatsSectionState extends ConsumerState<StatsSection> {
     final lang = ref.watch(localeProvider).languageCode;
 
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 80, horizontal: 24),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF4f46e5), Color(0xFF3730a3)],
-        ),
-      ),
+      padding: const EdgeInsets.symmetric(vertical: 100, horizontal: 24),
+      color: Colors.transparent,
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 1200),
@@ -58,12 +54,12 @@ class _StatsSectionState extends ConsumerState<StatsSection> {
               ? const SizedBox(
                   height: 100,
                   child: Center(
-                    child: CircularProgressIndicator(color: Colors.white),
+                    child: CircularProgressIndicator(),
                   ),
                 )
               : Wrap(
-                  spacing: 32,
-                  runSpacing: 32,
+                  spacing: 48,
+                  runSpacing: 48,
                   alignment: WrapAlignment.spaceAround,
                   children: [
                     _StatItem(
@@ -120,25 +116,36 @@ class _StatItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return SizedBox(
-      width: 200,
+      width: 220,
       child: Column(
         children: [
-          Icon(icon, size: 32, color: Colors.white70),
-          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.primary.withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, size: 32, color: theme.colorScheme.primary),
+          ),
+          const SizedBox(height: 20),
           StatCounter(
             target: target,
             prefix: prefix,
             suffix: suffix,
             label: label,
-            numberStyle: Theme.of(context).textTheme.displaySmall?.copyWith(
-                  fontWeight: FontWeight.w900,
-                  color: Colors.white,
-                ),
-            labelStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Colors.white70,
-                  fontWeight: FontWeight.w500,
-                ),
+            numberStyle: theme.textTheme.displaySmall?.copyWith(
+              fontWeight: FontWeight.w900,
+              color: theme.colorScheme.primary,
+              letterSpacing: -1,
+            ),
+            labelStyle: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ],
       ),

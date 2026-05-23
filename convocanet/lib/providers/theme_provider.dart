@@ -3,13 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ThemeNotifier extends StateNotifier<ThemeMode> {
-  ThemeNotifier() : super(ThemeMode.system) {
+  ThemeNotifier() : super(ThemeMode.dark) {
     _loadTheme();
   }
 
   Future<void> _loadTheme() async {
     final prefs = await SharedPreferences.getInstance();
-    final themeString = prefs.getString('theme') ?? 'system';
+    final themeString = prefs.getString('theme') ?? 'dark';
     switch (themeString) {
       case 'dark':
         state = ThemeMode.dark;
@@ -18,7 +18,7 @@ class ThemeNotifier extends StateNotifier<ThemeMode> {
         state = ThemeMode.light;
         break;
       default:
-        state = ThemeMode.system;
+        state = ThemeMode.dark;
     }
   }
 

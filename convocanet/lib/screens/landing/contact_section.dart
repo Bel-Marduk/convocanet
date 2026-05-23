@@ -69,7 +69,7 @@ class _ContactSectionState extends ConsumerState<ContactSection> {
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 100, horizontal: 24),
-      color: theme.colorScheme.surfaceVariant.withOpacity(0.3),
+      color: Colors.transparent,
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 1200),

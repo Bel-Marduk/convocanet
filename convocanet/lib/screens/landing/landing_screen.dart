@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/locale_provider.dart';
 import '../../widgets/navbar.dart';
+import '../../widgets/bubble_background.dart';
 import 'hero_section.dart';
 import 'features_section.dart';
 import 'convocatorias_section.dart';
@@ -27,8 +28,6 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
   }
 
   void scrollToContact() {
-    // Approximate offset: hero(~600) + features(~400) + convocatorias(~600) + stats(~400) + testimonials(~400) + CTA(~400)
-    // We scroll to the end since contact is the last section before footer
     _scrollController.animateTo(
       _scrollController.position.maxScrollExtent,
       duration: const Duration(milliseconds: 800),
@@ -39,61 +38,65 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: NotificationListener<ScrollNotification>(
-        onNotification: (notification) {
-          return false;
-        },
-        child: CustomScrollView(
-          controller: _scrollController,
-          slivers: [
-            // Navbar
-            const SliverAppBar(
-              floating: true,
-              pinned: true,
-              automaticallyImplyLeading: false,
-              title: Navbar(),
-            ),
+      body: BubbleBackground(
+        child: NotificationListener<ScrollNotification>(
+          onNotification: (notification) {
+            return false;
+          },
+          child: CustomScrollView(
+            controller: _scrollController,
+            slivers: [
+              // Navbar
+              const SliverAppBar(
+                floating: true,
+                pinned: true,
+                automaticallyImplyLeading: false,
+                backgroundColor: Colors.transparent,
+                surfaceTintColor: Colors.transparent,
+                title: Navbar(),
+              ),
 
-            // Hero Section
-            const SliverToBoxAdapter(
-              child: HeroSection(),
-            ),
+              // Hero Section
+              const SliverToBoxAdapter(
+                child: HeroSection(),
+              ),
 
-            // Features Section
-            const SliverToBoxAdapter(
-              child: FeaturesSection(),
-            ),
+              // Features Section
+              const SliverToBoxAdapter(
+                child: FeaturesSection(),
+              ),
 
-            // Convocatorias Section
-            const SliverToBoxAdapter(
-              child: ConvocatoriasSection(),
-            ),
+              // Convocatorias Section
+              const SliverToBoxAdapter(
+                child: ConvocatoriasSection(),
+              ),
 
-            // Stats Section
-            const SliverToBoxAdapter(
-              child: StatsSection(),
-            ),
+              // Stats Section
+              const SliverToBoxAdapter(
+                child: StatsSection(),
+              ),
 
-            // Testimonials Section
-            const SliverToBoxAdapter(
-              child: TestimonialsSection(),
-            ),
+              // Testimonials Section
+              const SliverToBoxAdapter(
+                child: TestimonialsSection(),
+              ),
 
-            // CTA Section
-            SliverToBoxAdapter(
-              child: _CTASection(),
-            ),
+              // CTA Section
+              SliverToBoxAdapter(
+                child: _CTASection(),
+              ),
 
-            // Contact Section
-            const SliverToBoxAdapter(
-              child: ContactSection(),
-            ),
+              // Contact Section
+              const SliverToBoxAdapter(
+                child: ContactSection(),
+              ),
 
-            // Footer
-            SliverToBoxAdapter(
-              child: _Footer(),
-            ),
-          ],
+              // Footer
+              SliverToBoxAdapter(
+                child: _Footer(),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -103,21 +106,31 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
 class _CTASection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final lang = ref.read(localeProvider.notifier).currentLang;
+    final lang = ref.watch(localeProvider).languageCode;
     final theme = Theme.of(context);
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 100, horizontal: 24),
-      color: theme.colorScheme.surface,
+      color: Colors.transparent,
       child: Center(
         child: Container(
-          constraints: const BoxConstraints(maxWidth: 640),
+          constraints: const BoxConstraints(maxWidth: 840),
           padding: const EdgeInsets.all(64),
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [Color(0xFF4f46e5), Color(0xFF3730a3)],
+            gradient: LinearGradient(
+              colors: [
+                theme.colorScheme.primary,
+                theme.colorScheme.primary.withOpacity(0.8),
+              ],
             ),
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(32),
+            boxShadow: [
+              BoxShadow(
+                color: theme.colorScheme.primary.withOpacity(0.3),
+                blurRadius: 40,
+                offset: const Offset(0, 20),
+              ),
+            ],
           ),
           child: Column(
             children: [
@@ -125,33 +138,46 @@ class _CTASection extends ConsumerWidget {
                 lang == 'es'
                     ? '¿Listo para encontrar tu próxima convocatoria?'
                     : 'Ready to find your next open call?',
-                style: theme.textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w800,
+                style: theme.textTheme.headlineMedium?.copyWith(
+                  fontWeight: FontWeight.w900,
                   color: Colors.white,
+                  letterSpacing: -0.02,
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
               Text(
                 lang == 'es'
                     ? 'Únete a asociaciones civiles que ya están aprovechando estas oportunidades.'
                     : 'Join civil associations already taking advantage of these opportunities.',
                 style: theme.textTheme.bodyLarge?.copyWith(
                   color: Colors.white.withOpacity(0.9),
+                  height: 1.6,
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 40),
               ElevatedButton(
-                onPressed: () => _scrollToContact(context),
+                onPressed: () {
+                  // Access parent state to scroll
+                  final state = context.findAncestorStateOfType<_LandingScreenState>();
+                  state?.scrollToContact();
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,
-                  foregroundColor: const Color(0xFF4f46e5),
-                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                  foregroundColor: theme.colorScheme.primary,
+                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  elevation: 0,
                 ),
                 child: Text(
                   lang == 'es' ? 'Comenzar Ahora' : 'Get Started',
-                  style: const TextStyle(fontWeight: FontWeight.w700),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 16,
+                  ),
                 ),
               ),
             ],
@@ -160,55 +186,53 @@ class _CTASection extends ConsumerWidget {
       ),
     );
   }
-
-  void _scrollToContact(BuildContext context) {
-    // TODO: Implement smooth scroll to contact section
-  }
 }
 
 class _Footer extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final lang = ref.read(localeProvider.notifier).currentLang;
+    final lang = ref.watch(localeProvider).languageCode;
     final theme = Theme.of(context);
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(24, 60, 24, 0),
-      color: theme.colorScheme.surfaceVariant.withOpacity(0.3),
+      padding: const EdgeInsets.fromLTRB(24, 80, 24, 0),
+      color: theme.colorScheme.surface.withOpacity(0.05),
       child: Column(
         children: [
           // Footer grid
           Wrap(
-            spacing: 60,
+            spacing: 80,
             runSpacing: 40,
-            alignment: WrapAlignment.spaceBetween,
+            alignment: WrapAlignment.center,
             children: [
               // Brand
               SizedBox(
-                width: 250,
+                width: 300,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.campaign, color: theme.colorScheme.primary),
-                        const SizedBox(width: 8),
+                        Icon(Icons.campaign, color: theme.colorScheme.primary, size: 28),
+                        const SizedBox(width: 10),
                         Text(
                           'ConvocaNet',
-                          style: theme.textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.w800,
+                          style: theme.textTheme.headlineSmall?.copyWith(
+                            fontWeight: FontWeight.w900,
                             color: theme.colorScheme.primary,
+                            letterSpacing: -0.02,
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 20),
                     Text(
                       lang == 'es'
-                          ? 'Conectando asociaciones civiles con oportunidades de financiamiento y desarrollo.'
-                          : 'Connecting civil associations with funding and development opportunities.',
+                          ? 'Conectando asociaciones civiles con oportunidades de financiamiento y desarrollo en un solo lugar.'
+                          : 'Connecting civil associations with funding and development opportunities in one place.',
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
+                        height: 1.7,
                       ),
                     ),
                   ],

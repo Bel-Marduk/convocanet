@@ -50,55 +50,9 @@ class _HeroSectionState extends ConsumerState<HeroSection> {
 
     return Container(
       constraints: BoxConstraints(minHeight: size.height - 72),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            theme.colorScheme.surface,
-            theme.colorScheme.surfaceVariant.withOpacity(0.5),
-            theme.colorScheme.surface,
-          ],
-        ),
-      ),
+      color: Colors.transparent,
       child: Stack(
         children: [
-          // Background decorations
-          Positioned(
-            top: -200,
-            right: -100,
-            child: Container(
-              width: 600,
-              height: 600,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  colors: [
-                    theme.colorScheme.primary.withOpacity(0.08),
-                    Colors.transparent,
-                  ],
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: -150,
-            left: -50,
-            child: Container(
-              width: 500,
-              height: 500,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  colors: [
-                    theme.colorScheme.secondary.withOpacity(0.06),
-                    Colors.transparent,
-                  ],
-                ),
-              ),
-            ),
-          ),
-
           // Content
           Center(
             child: ConstrainedBox(
@@ -112,107 +66,126 @@ class _HeroSectionState extends ConsumerState<HeroSection> {
                     Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 20,
-                        vertical: 8,
+                        vertical: 10,
                       ),
                       decoration: BoxDecoration(
-                        color: theme.colorScheme.surface,
+                        color: theme.colorScheme.primary.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(50),
                         border: Border.all(
-                          color: theme.colorScheme.outlineVariant,
+                          color: theme.colorScheme.primary.withOpacity(0.2),
                         ),
                       ),
                       child: Text(
                         lang == 'es'
-                            ? 'Plataforma de Convocatorias 2026'
-                            : 'Open Calls Platform 2026',
+                            ? 'PLATAFORMA DE CONVOCATORIAS 2026'
+                            : 'OPEN CALLS PLATFORM 2026',
                         style: theme.textTheme.bodySmall?.copyWith(
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w800,
                           color: theme.colorScheme.primary,
+                          letterSpacing: 1.2,
                         ),
                       ),
                     ),
 
-                    const SizedBox(height: 28),
+                    const SizedBox(height: 32),
 
                     // Title
                     Text(
                       lang == 'es'
                           ? 'Conectando Asociaciones Civiles\ncon Oportunidades'
                           : 'Connecting Civil Associations\nwith Opportunities',
-                      style: theme.textTheme.displaySmall?.copyWith(
+                      style: theme.textTheme.displayMedium?.copyWith(
                         fontWeight: FontWeight.w900,
-                        height: 1.1,
-                        letterSpacing: -0.03,
+                        height: 1.05,
+                        letterSpacing: -0.04,
                       ),
                       textAlign: TextAlign.center,
                     ),
 
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 28),
 
                     // Subtitle
                     ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 640),
+                      constraints: const BoxConstraints(maxWidth: 680),
                       child: Text(
                         lang == 'es'
                             ? 'Centralizamos las convocatorias públicas y privadas para que tu organización encuentre financiamiento, programas y alianzas estratégicas en un solo lugar.'
                             : 'We centralize public and private calls so your organization can find funding, programs, and strategic partnerships in one place.',
-                        style: theme.textTheme.bodyLarge?.copyWith(
+                        style: theme.textTheme.titleLarge?.copyWith(
                           color: theme.colorScheme.onSurfaceVariant,
-                          height: 1.7,
+                          height: 1.6,
+                          fontWeight: FontWeight.w400,
                         ),
                         textAlign: TextAlign.center,
                       ),
                     ),
 
-                    const SizedBox(height: 36),
+                    const SizedBox(height: 48),
 
                     // Buttons
                     Wrap(
-                      spacing: 16,
-                      runSpacing: 16,
+                      spacing: 20,
+                      runSpacing: 20,
                       alignment: WrapAlignment.center,
                       children: [
                         ElevatedButton(
                           onPressed: () {
                             // TODO: Implement scroll to convocatorias
                           },
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 22),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                          ),
                           child: Text(
                             lang == 'es' ? 'Ver Convocatorias' : 'View Open Calls',
+                            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
                           ),
                         ),
                         OutlinedButton(
                           onPressed: () {
                             // TODO: Implement scroll to about
                           },
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 22),
+                            side: BorderSide(color: theme.colorScheme.outlineVariant, width: 2),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                          ),
                           child: Text(
                             lang == 'es' ? 'Conocer Más' : 'Learn More',
+                            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
                           ),
                         ),
                       ],
                     ),
 
-                    const SizedBox(height: 60),
+                    const SizedBox(height: 80),
 
                     // Stats
                     Wrap(
-                      spacing: 48,
-                      runSpacing: 24,
+                      spacing: 64,
+                      runSpacing: 32,
                       alignment: WrapAlignment.center,
                       children: [
                         StatCounter(
                           target: _userCount,
                           label: lang == 'es' ? 'Usuarios Registrados' : 'Registered Users',
                           numberStyle: theme.textTheme.headlineMedium?.copyWith(
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w900,
                             color: theme.colorScheme.primary,
+                            fontSize: 36,
                           ),
                         ),
                         StatCounter(
                           target: _activeCount,
                           label: lang == 'es' ? 'Convocatorias Activas' : 'Active Calls',
                           numberStyle: theme.textTheme.headlineMedium?.copyWith(
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w900,
                             color: theme.colorScheme.primary,
+                            fontSize: 36,
                           ),
                         ),
                         StatCounter(
@@ -220,8 +193,9 @@ class _HeroSectionState extends ConsumerState<HeroSection> {
                           suffix: 'M',
                           label: lang == 'es' ? 'En Financiamiento' : 'In Funding',
                           numberStyle: theme.textTheme.headlineMedium?.copyWith(
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w900,
                             color: theme.colorScheme.primary,
+                            fontSize: 36,
                           ),
                         ),
                       ],
