@@ -16,8 +16,8 @@ class FeaturesSection extends ConsumerWidget {
         icon: Icons.search,
         titleEs: 'Búsqueda Centralizada',
         titleEn: 'Centralized Search',
-        descEs: 'Encuentra convocatorias públicas, privadas, concursos, capacitaciones y premios en un solo lugar, priorizando las de México.',
-        descEn: 'Find public and private calls, contests, training, and awards in one place, with a focus on Mexico.',
+        descEs: 'Encuentra convocatorias públicas y privadas de todo el mundo: financiamiento, programas, concursos, capacitaciones y premios.',
+        descEn: 'Find public and private calls from around the world: funding, programs, contests, training, and awards.',
       ),
       _FeatureData(
         icon: Icons.open_in_new,
@@ -42,10 +42,10 @@ class FeaturesSection extends ConsumerWidget {
       ),
       _FeatureData(
         icon: Icons.flag,
-        titleEs: 'Prioridad México',
-        titleEn: 'Mexico Priority',
-        descEs: 'Damos prioridad a convocatorias disponibles para organizaciones y personas en todo México.',
-        descEn: 'We prioritize calls available to organizations and individuals across Mexico.',
+        titleEs: 'Prioridad América Latina',
+        titleEn: 'Latin America Priority',
+        descEs: 'Convocatorias de todo el mundo con prioridad a las que apliquen para México y Latinoamérica.',
+        descEn: 'Calls from around the world with priority given to those applicable in Mexico and Latin America.',
       ),
       _FeatureData(
         icon: Icons.free_breakfast,
@@ -103,7 +103,7 @@ class FeaturesSection extends ConsumerWidget {
               const SizedBox(height: 16),
               Text(
                 lang == 'es'
-                    ? 'Todo lo que necesitas para encontrar y postularte a convocatorias de forma sencilla y sin intermediarios.'
+                    ? 'Encuentra convocatorias de todo el mundo y postúlate directamente con quien las emite, sin intermediarios.'
                     : 'Tools designed to simplify searching and applying to open calls.',
                 style: theme.textTheme.bodyLarge?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,

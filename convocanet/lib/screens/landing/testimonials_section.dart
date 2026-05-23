@@ -27,9 +27,9 @@ class _TestimonialsSectionState extends ConsumerState<TestimonialsSection> {
     ),
     _TestimonialData(
       textEs:
-          '"Gracias a las alertas nunca nos perdemos una convocatoria nueva. Es una herramienta gratuita que toda asociación civil en México debería usar."',
+          '"Gracias a las alertas nunca nos perdemos una convocatoria nueva. Es una herramienta gratuita que toda asociación civil debería usar."',
       textEn:
-          '"Thanks to the alerts we never miss a new call. It\'s a free tool that every civil association in Mexico should use."',
+          '"Thanks to the alerts we never miss a new call. It\'s a free tool that every civil association should use."',
       name: 'Carlos López',
       roleEs: 'Coordinador, EcoVerde A.C.',
       roleEn: 'Coordinator, EcoVerde A.C.',

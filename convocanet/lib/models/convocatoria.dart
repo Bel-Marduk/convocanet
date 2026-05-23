@@ -121,11 +121,47 @@ class Convocatoria {
   String? region(String lang) => lang == 'es' ? regionEs : regionEn;
 
   String get formattedAmount {
+    if (amountLocal != null && currency != 'USD') {
+      final symbol = _currencySymbol(currency);
+      return '$symbol${amountLocal!.toStringAsFixed(0).replaceAllMapped(
+        RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+        (Match m) => '${m[1]},',
+      )} $currency';
+    }
     if (amountUsd == null) return 'N/A';
     return '\$${amountUsd!.toStringAsFixed(0).replaceAllMapped(
       RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
       (Match m) => '${m[1]},',
     )} USD';
+  }
+
+  static String _currencySymbol(String code) {
+    switch (code) {
+      case 'MXN': return '\$';
+      case 'EUR': return '€';
+      case 'GBP': return '£';
+      case 'CAD': return 'C\$';
+      case 'BRL': return 'R\$';
+      case 'ARS': return 'AR\$';
+      case 'COP': return 'COL\$';
+      case 'CLP': return 'CL\$';
+      case 'PEN': return 'S/';
+      case 'GTQ': return 'Q';
+      case 'CRC': return '₡';
+      case 'PAB': return 'B/.';
+      case 'BOB': return 'Bs';
+      case 'PYG': return '₲';
+      case 'UYU': return '\$U';
+      case 'VES': return 'Bs.S';
+      case 'HNL': return 'L';
+      case 'NIO': return 'C\$';
+      case 'DOP': return 'RD\$';
+      case 'CUP': return '₱';
+      case 'HTG': return 'G';
+      case 'JMD': return 'J\$';
+      case 'TTD': return 'TT\$';
+      default: return '\$';
+    }
   }
 
   bool get isActive => status == 'active';

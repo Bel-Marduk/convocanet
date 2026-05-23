@@ -161,8 +161,8 @@ class _HeroSectionState extends ConsumerState<HeroSection>
                             ),
                             child: Text(
                               lang == 'es'
-                                  ? 'Agregador Gratuito de Convocatorias 2026'
-                                  : 'Free Call Aggregator 2026',
+                                  ? 'Agregador Gratuito de Convocatorias'
+                                  : 'Free Call Aggregator',
                               style: theme.textTheme.bodySmall?.copyWith(
                                 fontWeight: FontWeight.w600,
                                 color: theme.colorScheme.primary,
@@ -252,8 +252,8 @@ class _HeroSectionState extends ConsumerState<HeroSection>
                             constraints: const BoxConstraints(maxWidth: 640),
                             child: Text(
                               lang == 'es'
-                                  ? 'Buscamos y reunimos convocatorias públicas y privadas para asociaciones civiles, ONGs y público en general en México: financiamiento, programas, concursos, capacitaciones y premios. Te mostramos la información clave y un enlace directo para que te postules directamente con quien emite la convocatoria.'
-                                  : 'We find and aggregate public and private calls for civil associations, NGOs, and the general public in Mexico: funding, programs, contests, training, and awards. We show you key information and a direct link so you can apply directly with the issuing organization.',
+                                  ? 'Encuentra convocatorias públicas y privadas de todo el mundo para asociaciones civiles, ONGs y público en general. Información clave y enlaces directos para postularte sin intermediarios.'
+                                  : 'Find public and private calls from around the world for civil associations, NGOs, and the general public. Key information and direct links to apply without intermediaries.',
                               style: theme.textTheme.bodyLarge?.copyWith(
                                 color: isDark
                                     ? const Color(0xFFcbd5e1)

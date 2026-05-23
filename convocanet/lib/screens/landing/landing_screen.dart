@@ -186,8 +186,8 @@ class _CTASection extends ConsumerWidget {
               const SizedBox(height: 16),
               Text(
                 lang == 'es'
-                    ? 'Únete a miles de organizaciones y personas que ya encuentran convocatorias públicas y privadas en ConvocaNet. Totalmente gratuito.'
-                    : 'Join thousands of organizations and individuals already finding public and private calls on ConvocaNet. Completely free.',
+                    ? 'Encuentra convocatorias de todo el mundo. Totalmente gratuito.'
+                    : 'Find calls from around the world. Completely free.',
                 style: theme.textTheme.bodyLarge?.copyWith(
                   color: Colors.white.withOpacity(0.9),
                   height: 1.6,
@@ -274,8 +274,8 @@ class _Footer extends ConsumerWidget {
                     const SizedBox(height: 20),
                     Text(
                       lang == 'es'
-                          ? 'Agregador gratuito de convocatorias públicas y privadas para asociaciones civiles, ONGs y público en general en México. Enlaces directos a la fuente original.'
-                          : 'Free aggregator of public and private calls for civil associations, NGOs, and the general public in Mexico. Direct links to the original source.',
+                          ? 'Agregador gratuito de convocatorias públicas y privadas para asociaciones civiles, ONGs y público en general. Enlaces directos a la fuente original.'
+                          : 'Free aggregator of public and private calls for civil associations, NGOs, and the general public. Direct links to the original source.',
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
                         height: 1.7,
