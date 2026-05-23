@@ -47,6 +47,7 @@ class _HeroSectionState extends ConsumerState<HeroSection> {
     final lang = ref.watch(localeProvider).languageCode;
     final theme = Theme.of(context);
     final size = MediaQuery.of(context).size;
+    final isDark = theme.brightness == Brightness.dark;
 
     return Container(
       constraints: BoxConstraints(minHeight: size.height - 72),

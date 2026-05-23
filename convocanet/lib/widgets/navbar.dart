@@ -17,14 +17,6 @@ class Navbar extends ConsumerStatefulWidget {
 }
 
 class _NavbarState extends ConsumerState<Navbar> {
-  bool _scrolled = false;
-
-  @override
-  void initState() {
-    super.initState();
-    // We'll handle scroll via NotificationListener
-  }
-
   @override
   Widget build(BuildContext context) {
     final lang = ref.watch(localeProvider).languageCode;
@@ -118,84 +110,83 @@ class _NavbarState extends ConsumerState<Navbar> {
                   const SizedBox(width: 12),
                   const ThemeToggle(),
 
-                    if (isAuthenticated) ...[
-                      const SizedBox(width: 8),
-                      PopupMenuButton<String>(
-                        icon: CircleAvatar(
-                          radius: 16,
-                          backgroundColor: theme.colorScheme.primary,
-                          child: const Icon(
-                            Icons.person,
-                            size: 18,
-                            color: Colors.white,
-                          ),
+                  if (isAuthenticated) ...[
+                    const SizedBox(width: 12),
+                    PopupMenuButton<String>(
+                      icon: CircleAvatar(
+                        radius: 18,
+                        backgroundColor: theme.colorScheme.primary,
+                        child: const Icon(
+                          Icons.person,
+                          size: 20,
+                          color: Colors.white,
                         ),
-                        onSelected: (value) async {
-                          switch (value) {
-                            case 'dashboard':
-                              context.go('/dashboard');
-                              break;
-                            case 'favorites':
-                              context.go('/favorites');
-                              break;
-                            case 'profile':
-                              context.go('/profile');
-                              break;
-                            case 'admin':
-                              context.go('/admin');
-                              break;
-                            case 'logout':
-                              await AuthService.signOut();
-                              if (context.mounted) {
-                                context.go('/');
-                              }
-                              break;
-                          }
-                        },
-                        itemBuilder: (context) => [
-                          PopupMenuItem(
-                            value: 'dashboard',
-                            child: Text(lang == 'es' ? 'Dashboard' : 'Dashboard'),
-                          ),
-                          PopupMenuItem(
-                            value: 'favorites',
-                            child: Text(lang == 'es' ? 'Favoritos' : 'Favorites'),
-                          ),
-                          PopupMenuItem(
-                            value: 'profile',
-                            child: Text(lang == 'es' ? 'Perfil' : 'Profile'),
-                          ),
-                          const PopupMenuDivider(),
-                          PopupMenuItem(
-                            value: 'logout',
-                            child: Text(lang == 'es' ? 'Cerrar sesión' : 'Sign out'),
-                          ),
-                        ],
                       ),
-                    ] else ...[
-                      const SizedBox(width: 8),
-                      TextButton(
-                        onPressed: () => context.go('/login'),
-                        child: Text(lang == 'es' ? 'Iniciar Sesión' : 'Sign In'),
-                      ),
-                      const SizedBox(width: 8),
-                      ElevatedButton(
-                        onPressed: () => context.go('/register'),
-                        child: Text(lang == 'es' ? 'Registrarse' : 'Sign Up'),
-                      ),
-                    ],
-
-                    if (ResponsiveLayout.isMobile(context)) ...[
-                      const SizedBox(width: 8),
-                      IconButton(
-                        icon: const Icon(Icons.menu),
-                        onPressed: () {
-                          _showMobileMenu(context, lang);
-                        },
-                      ),
-                    ],
+                      onSelected: (value) async {
+                        switch (value) {
+                          case 'dashboard':
+                            context.go('/dashboard');
+                            break;
+                          case 'favorites':
+                            context.go('/favorites');
+                            break;
+                          case 'profile':
+                            context.go('/profile');
+                            break;
+                          case 'admin':
+                            context.go('/admin');
+                            break;
+                          case 'logout':
+                            await AuthService.signOut();
+                            if (context.mounted) {
+                              context.go('/');
+                            }
+                            break;
+                        }
+                      },
+                      itemBuilder: (context) => [
+                        PopupMenuItem(
+                          value: 'dashboard',
+                          child: Text(lang == 'es' ? 'Dashboard' : 'Dashboard'),
+                        ),
+                        PopupMenuItem(
+                          value: 'favorites',
+                          child: Text(lang == 'es' ? 'Favoritos' : 'Favorites'),
+                        ),
+                        PopupMenuItem(
+                          value: 'profile',
+                          child: Text(lang == 'es' ? 'Perfil' : 'Profile'),
+                        ),
+                        const PopupMenuDivider(),
+                        PopupMenuItem(
+                          value: 'logout',
+                          child: Text(lang == 'es' ? 'Cerrar sesión' : 'Sign out'),
+                        ),
+                      ],
+                    ),
+                  ] else ...[
+                    const SizedBox(width: 12),
+                    TextButton(
+                      onPressed: () => context.go('/login'),
+                      child: Text(lang == 'es' ? 'Iniciar Sesión' : 'Sign In'),
+                    ),
+                    const SizedBox(width: 12),
+                    ElevatedButton(
+                      onPressed: () => context.go('/register'),
+                      child: Text(lang == 'es' ? 'Registrarse' : 'Sign Up'),
+                    ),
                   ],
-                ),
+
+                  if (ResponsiveLayout.isMobile(context)) ...[
+                    const SizedBox(width: 12),
+                    IconButton(
+                      icon: const Icon(Icons.menu),
+                      onPressed: () {
+                        _showMobileMenu(context, lang);
+                      },
+                    ),
+                  ],
+                ],
               ),
             ),
           ),
@@ -259,7 +250,7 @@ class _NavLink extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 12),
       child: MouseRegion(
         cursor: SystemMouseCursors.click,
         child: GestureDetector(
@@ -267,7 +258,7 @@ class _NavLink extends StatelessWidget {
           child: Text(
             label,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w600,
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
           ),
