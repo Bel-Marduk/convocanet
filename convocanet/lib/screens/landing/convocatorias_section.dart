@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/locale_provider.dart';
@@ -33,11 +34,12 @@ class _ConvocatoriasSectionState extends ConsumerState<ConvocatoriasSection> {
     try {
       final data = await ConvocatoriaService.getConvocatorias(
         categorySlug: categorySlug,
-        limit: 6,
       );
+      data.shuffle(Random());
+      final limited = data.take(6).toList();
       if (mounted) {
         setState(() {
-          _convocatorias = data;
+          _convocatorias = limited;
           _loading = false;
         });
       }
@@ -108,8 +110,8 @@ class _ConvocatoriasSectionState extends ConsumerState<ConvocatoriasSection> {
               const SizedBox(height: 16),
               Text(
                 lang == 'es'
-                    ? 'Explora las convocatorias vigentes y postúlate directamente con quien las emite.'
-                    : 'Explore current calls and apply directly with the issuing organization.',
+                    ? 'Explora las convocatorias vigentes y accede directamente con quien las emite.'
+                    : 'Explore current calls and access them directly from the issuing organization.',
                 style: theme.textTheme.bodyLarge?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),

@@ -41,7 +41,7 @@
   "convTitle": "Oportunidades Disponibles",
   "convSubtitle": "Explora las convocatorias vigentes y encuentra el apoyo que tu asociación necesita.",
   "filterTodas": "Todas",
-  "btnPostular": "Postular",
+  "btnPostular": "Ver más",
   "btnVerMas": "Ver más",
   "btnCompartir": "Compartir",
   "btnFavorito": "Favorito",
@@ -52,7 +52,7 @@
   "modalRegion": "Región",
   "modalCategoria": "Categoría",
   "modalTipo": "Tipo",
-  "modalPostular": "Postular a esta convocatoria",
+  "modalPostular": "Ver convocatoria",
   "modalCompartir": "Compartir por WhatsApp",
 
   "statsPublicadas": "Convocatorias Publicadas",

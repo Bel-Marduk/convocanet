@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../providers/locale_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../models/convocatoria.dart';
@@ -245,10 +246,14 @@ class _ConvocatoriaDetailScreenState
                     ),
                   ),
                   const SizedBox(height: 8),
-                  Text(
-                    conv.sourceName ?? conv.sourceUrl!,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: theme.colorScheme.primary,
+                  InkWell(
+                    onTap: () => launchUrl(Uri.parse(conv.sourceUrl!)),
+                    child: Text(
+                      conv.sourceName ?? conv.sourceUrl!,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.primary,
+                        decoration: TextDecoration.underline,
+                      ),
                     ),
                   ),
                 ],
@@ -261,15 +266,15 @@ class _ConvocatoriaDetailScreenState
                   runSpacing: 16,
                   children: [
                     ElevatedButton.icon(
-                      icon: const Icon(Icons.send),
+                      icon: const Icon(Icons.open_in_new),
                       label: Text(
                         lang == 'es'
-                            ? 'Postular a esta convocatoria'
-                            : 'Apply to this call',
+                            ? 'Ver convocatoria'
+                            : 'View call',
                       ),
-                      onPressed: () {
-                        // TODO: Open application form or external URL
-                      },
+                      onPressed: conv.sourceUrl != null
+                          ? () => launchUrl(Uri.parse(conv.sourceUrl!))
+                          : null,
                     ),
                     OutlinedButton.icon(
                       icon: const Icon(Icons.share),

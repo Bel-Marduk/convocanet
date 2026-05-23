@@ -41,7 +41,7 @@
   "convTitle": "Available Opportunities",
   "convSubtitle": "Explore current calls and find the support your association needs.",
   "filterTodas": "All",
-  "btnPostular": "Apply",
+  "btnPostular": "View more",
   "btnVerMas": "View more",
   "btnCompartir": "Share",
   "btnFavorito": "Favorite",
@@ -52,7 +52,7 @@
   "modalRegion": "Region",
   "modalCategoria": "Category",
   "modalTipo": "Type",
-  "modalPostular": "Apply to this call",
+  "modalPostular": "View call",
   "modalCompartir": "Share via WhatsApp",
 
   "statsPublicadas": "Published Calls",

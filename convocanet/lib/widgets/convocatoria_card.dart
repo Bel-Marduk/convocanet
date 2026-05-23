@@ -151,7 +151,7 @@ class ConvocatoriaCard extends ConsumerWidget {
                         foregroundColor: Colors.white,
                       ),
                       child: Text(
-                        lang == 'es' ? 'Aplicar' : 'Apply',
+                        lang == 'es' ? 'Ver más' : 'View more',
                         style: const TextStyle(
                           fontSize: 13.6,
                           fontWeight: FontWeight.w600,
