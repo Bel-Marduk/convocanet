@@ -4,12 +4,46 @@ import 'package:go_router/go_router.dart';
 import '../../providers/locale_provider.dart';
 import '../../widgets/stat_counter.dart';
 import '../../widgets/responsive_layout.dart';
+import '../../services/convocatoria_service.dart';
 
-class HeroSection extends ConsumerWidget {
+class HeroSection extends ConsumerStatefulWidget {
   const HeroSection({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HeroSection> createState() => _HeroSectionState();
+}
+
+class _HeroSectionState extends ConsumerState<HeroSection> {
+  int _userCount = 1520; // Fallback defaults
+  int _activeCount = 248;
+  int _totalAmountMillions = 45;
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadStats();
+  }
+
+  Future<void> _loadStats() async {
+    try {
+      final stats = await ConvocatoriaService.getStats();
+      if (mounted) {
+        setState(() {
+          _userCount = stats['userCount'] as int? ?? 1520;
+          _activeCount = stats['activeCount'] as int? ?? 248;
+          _totalAmountMillions =
+              ((stats['totalAmount'] as double? ?? 45000000) / 1000000).round();
+          _loading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final lang = ref.watch(localeProvider).languageCode;
     final theme = Theme.of(context);
     final size = MediaQuery.of(context).size;
@@ -140,7 +174,7 @@ class HeroSection extends ConsumerWidget {
                       children: [
                         ElevatedButton(
                           onPressed: () {
-                            // Scroll to convocatorias section
+                            // TODO: Implement scroll to convocatorias
                           },
                           child: Text(
                             lang == 'es' ? 'Ver Convocatorias' : 'View Open Calls',
@@ -148,7 +182,7 @@ class HeroSection extends ConsumerWidget {
                         ),
                         OutlinedButton(
                           onPressed: () {
-                            // Scroll to about section
+                            // TODO: Implement scroll to about
                           },
                           child: Text(
                             lang == 'es' ? 'Conocer Más' : 'Learn More',
@@ -166,7 +200,7 @@ class HeroSection extends ConsumerWidget {
                       alignment: WrapAlignment.center,
                       children: [
                         StatCounter(
-                          target: 1520,
+                          target: _userCount,
                           label: lang == 'es' ? 'Usuarios Registrados' : 'Registered Users',
                           numberStyle: theme.textTheme.headlineMedium?.copyWith(
                             fontWeight: FontWeight.w800,
@@ -174,7 +208,7 @@ class HeroSection extends ConsumerWidget {
                           ),
                         ),
                         StatCounter(
-                          target: 248,
+                          target: _activeCount,
                           label: lang == 'es' ? 'Convocatorias Activas' : 'Active Calls',
                           numberStyle: theme.textTheme.headlineMedium?.copyWith(
                             fontWeight: FontWeight.w800,
@@ -182,7 +216,7 @@ class HeroSection extends ConsumerWidget {
                           ),
                         ),
                         StatCounter(
-                          target: 45,
+                          target: _totalAmountMillions,
                           suffix: 'M',
                           label: lang == 'es' ? 'En Financiamiento' : 'In Funding',
                           numberStyle: theme.textTheme.headlineMedium?.copyWith(
@@ -197,6 +231,8 @@ class HeroSection extends ConsumerWidget {
               ),
             ),
           ),
+          // ... rest of the build method (scroll indicator) remains the same
+
 
           // Scroll indicator
           Positioned(

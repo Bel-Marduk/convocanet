@@ -4,7 +4,7 @@ import '../models/convocatoria.dart';
 import '../models/category.dart';
 
 class ConvocatoriaService {
-  static final _client = SupabaseService.client;
+  static SupabaseClient get _client => SupabaseService.client;
 
   // Get all active convocatorias with optional filters
   static Future<List<Convocatoria>> getConvocatorias({

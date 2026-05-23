@@ -39,14 +39,14 @@
 |---|-------|---------|-------------|
 | 1 | **Credenciales Supabase reales** | `lib/config/constants.dart` | Baja |
 | 2 | **Verificar rol de admin en rutas** | `lib/config/routes.dart:90` | Media |
-| 3 | **Cargar convocatorias desde Supabase** (landing) | `lib/screens/landing/convocatorias_section.dart` | Media |
-| 4 | **Cargar convocatorias desde Supabase** (dashboard) | `lib/screens/user/dashboard_screen.dart:91` | Media |
+| 3 | **Cargar convocatorias desde Supabase** (landing) | `lib/screens/landing/convocatorias_section.dart` | COMPLETO |
+| 4 | **Cargar convocatorias desde Supabase** (dashboard) | `lib/screens/user/dashboard_screen.dart:91` | COMPLETO |
 | 5 | **Pantalla Gestión de Usuarios** | `lib/screens/admin/manage_users.dart` | Alta |
 | 6 | **Pantalla Gestión de Mensajes** | `lib/screens/admin/manage_messages.dart` | Media |
-| 7 | **Formulario de contacto → Supabase** | `lib/screens/landing/contact_section.dart:36` | Baja |
+| 7 | **Formulario de contacto → Supabase** | `lib/screens/landing/contact_section.dart:36` | COMPLETO |
 | 8 | **Logout desde menú de usuario** | `lib/widgets/navbar.dart:132` | Baja |
 | 9 | **Abrir WhatsApp desde alertas** | `lib/screens/user/dashboard_screen.dart:211` | Baja |
-| 10 | **Scroll suave a contacto desde CTA** | `lib/screens/landing/landing_screen.dart:141` | Baja |
+| 10 | **Scroll suave a contacto desde CTA** | `lib/screens/landing/landing_screen.dart:141` | COMPLETO |
 
 ### Importante (post-lanzamiento):
 
