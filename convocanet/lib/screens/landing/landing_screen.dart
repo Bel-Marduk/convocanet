@@ -21,82 +21,110 @@ class LandingScreen extends ConsumerStatefulWidget {
 class _LandingScreenState extends ConsumerState<LandingScreen> {
   final ScrollController _scrollController = ScrollController();
 
+  // GlobalKeys for each section
+  final _featuresKey = GlobalKey();
+  final _convocatoriasKey = GlobalKey();
+  final _statsKey = GlobalKey();
+  final _testimonialsKey = GlobalKey();
+  final _contactKey = GlobalKey();
+
   @override
   void dispose() {
     _scrollController.dispose();
     super.dispose();
   }
 
-  void scrollToContact() {
-    _scrollController.animateTo(
-      _scrollController.position.maxScrollExtent,
-      duration: const Duration(milliseconds: 800),
-      curve: Curves.easeInOut,
-    );
+  void scrollToSection(String sectionId) {
+    GlobalKey? key;
+    switch (sectionId) {
+      case 'inicio':
+        _scrollController.animateTo(0, duration: const Duration(milliseconds: 800), curve: Curves.easeInOut);
+        return;
+      case 'caracteristicas':
+        key = _featuresKey;
+        break;
+      case 'convocatorias':
+        key = _convocatoriasKey;
+        break;
+      case 'estadisticas':
+        key = _statsKey;
+        break;
+      case 'nosotros':
+        key = _testimonialsKey;
+        break;
+      case 'contacto':
+        key = _contactKey;
+        break;
+    }
+    if (key?.currentContext != null) {
+      Scrollable.ensureVisible(
+        key!.currentContext!,
+        duration: const Duration(milliseconds: 800),
+        curve: Curves.easeInOut,
+        alignment: 0.0,
+      );
+    }
   }
+
+  void scrollToContact() => scrollToSection('contacto');
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: BubbleBackground(
-        child: NotificationListener<ScrollNotification>(
-          onNotification: (notification) {
-            return false;
-          },
-          child: CustomScrollView(
-            controller: _scrollController,
-            slivers: [
-              // Navbar
-              SliverAppBar(
-                floating: true,
-                pinned: true,
-                automaticallyImplyLeading: false,
-                backgroundColor: Colors.transparent,
-                surfaceTintColor: Colors.transparent,
-                toolbarHeight: 72,
-                flexibleSpace: const Navbar(),
-              ),
-              // Hero Section
-              const SliverToBoxAdapter(
-                child: HeroSection(),
-              ),
+        child: CustomScrollView(
+          controller: _scrollController,
+          slivers: [
+            // Navbar
+            SliverAppBar(
+              floating: true,
+              pinned: true,
+              automaticallyImplyLeading: false,
+              backgroundColor: Colors.transparent,
+              surfaceTintColor: Colors.transparent,
+              toolbarHeight: 72,
+              flexibleSpace: Navbar(onNavigate: scrollToSection),
+            ),
+            // Hero Section
+            const SliverToBoxAdapter(
+              child: HeroSection(),
+            ),
 
-              // Features Section
-              const SliverToBoxAdapter(
-                child: FeaturesSection(),
-              ),
+            // Features Section
+            SliverToBoxAdapter(
+              child: Container(key: _featuresKey, child: const FeaturesSection()),
+            ),
 
-              // Convocatorias Section
-              const SliverToBoxAdapter(
-                child: ConvocatoriasSection(),
-              ),
+            // Convocatorias Section
+            SliverToBoxAdapter(
+              child: Container(key: _convocatoriasKey, child: const ConvocatoriasSection()),
+            ),
 
-              // Stats Section
-              const SliverToBoxAdapter(
-                child: StatsSection(),
-              ),
+            // Stats Section
+            SliverToBoxAdapter(
+              child: Container(key: _statsKey, child: const StatsSection()),
+            ),
 
-              // Testimonials Section
-              const SliverToBoxAdapter(
-                child: TestimonialsSection(),
-              ),
+            // Testimonials Section
+            SliverToBoxAdapter(
+              child: Container(key: _testimonialsKey, child: const TestimonialsSection()),
+            ),
 
-              // CTA Section
-              SliverToBoxAdapter(
-                child: _CTASection(),
-              ),
+            // CTA Section
+            SliverToBoxAdapter(
+              child: _CTASection(),
+            ),
 
-              // Contact Section
-              const SliverToBoxAdapter(
-                child: ContactSection(),
-              ),
+            // Contact Section
+            SliverToBoxAdapter(
+              child: Container(key: _contactKey, child: const ContactSection()),
+            ),
 
-              // Footer
-              SliverToBoxAdapter(
-                child: _Footer(),
-              ),
-            ],
-          ),
+            // Footer
+            SliverToBoxAdapter(
+              child: _Footer(),
+            ),
+          ],
         ),
       ),
     );

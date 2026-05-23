@@ -10,7 +10,8 @@ import 'language_toggle.dart';
 import 'responsive_layout.dart';
 
 class Navbar extends ConsumerStatefulWidget {
-  const Navbar({super.key});
+  final void Function(String sectionId)? onNavigate;
+  const Navbar({super.key, this.onNavigate});
 
   @override
   ConsumerState<Navbar> createState() => _NavbarState();
@@ -91,37 +92,37 @@ class _NavbarState extends ConsumerState<Navbar> {
                     // Nav links
                     _NavLink(
                       label: lang == 'es' ? 'Inicio' : 'Home',
-                      onTap: () => context.go('/'),
+                      onTap: () => widget.onNavigate?.call('inicio'),
                       isDark: isDark,
                       theme: theme,
                     ),
                     _NavLink(
                       label: lang == 'es' ? 'Características' : 'Features',
-                      onTap: () => context.go('/#caracteristicas'),
+                      onTap: () => widget.onNavigate?.call('caracteristicas'),
                       isDark: isDark,
                       theme: theme,
                     ),
                     _NavLink(
                       label: lang == 'es' ? 'Convocatorias' : 'Open Calls',
-                      onTap: () => context.go('/#convocatorias'),
+                      onTap: () => widget.onNavigate?.call('convocatorias'),
                       isDark: isDark,
                       theme: theme,
                     ),
                     _NavLink(
                       label: lang == 'es' ? 'Estadísticas' : 'Stats',
-                      onTap: () => context.go('/#estadisticas'),
+                      onTap: () => widget.onNavigate?.call('estadisticas'),
                       isDark: isDark,
                       theme: theme,
                     ),
                     _NavLink(
                       label: lang == 'es' ? 'Nosotros' : 'About',
-                      onTap: () => context.go('/#nosotros'),
+                      onTap: () => widget.onNavigate?.call('nosotros'),
                       isDark: isDark,
                       theme: theme,
                     ),
                     _NavLink(
                       label: lang == 'es' ? 'Contacto' : 'Contact',
-                      onTap: () => context.go('/#contacto'),
+                      onTap: () => widget.onNavigate?.call('contacto'),
                       isDark: isDark,
                       theme: theme,
                     ),
@@ -236,7 +237,7 @@ class _NavbarState extends ConsumerState<Navbar> {
                 title: Text(lang == 'es' ? 'Inicio' : 'Home'),
                 onTap: () {
                   Navigator.pop(context);
-                  context.go('/');
+                  widget.onNavigate?.call('inicio');
                 },
               ),
               ListTile(
@@ -244,7 +245,7 @@ class _NavbarState extends ConsumerState<Navbar> {
                 title: Text(lang == 'es' ? 'Características' : 'Features'),
                 onTap: () {
                   Navigator.pop(context);
-                  context.go('/#caracteristicas');
+                  widget.onNavigate?.call('caracteristicas');
                 },
               ),
               ListTile(
@@ -252,7 +253,7 @@ class _NavbarState extends ConsumerState<Navbar> {
                 title: Text(lang == 'es' ? 'Convocatorias' : 'Open Calls'),
                 onTap: () {
                   Navigator.pop(context);
-                  context.go('/#convocatorias');
+                  widget.onNavigate?.call('convocatorias');
                 },
               ),
               ListTile(
@@ -260,7 +261,7 @@ class _NavbarState extends ConsumerState<Navbar> {
                 title: Text(lang == 'es' ? 'Estadísticas' : 'Stats'),
                 onTap: () {
                   Navigator.pop(context);
-                  context.go('/#estadisticas');
+                  widget.onNavigate?.call('estadisticas');
                 },
               ),
               ListTile(
@@ -268,7 +269,7 @@ class _NavbarState extends ConsumerState<Navbar> {
                 title: Text(lang == 'es' ? 'Nosotros' : 'About'),
                 onTap: () {
                   Navigator.pop(context);
-                  context.go('/#nosotros');
+                  widget.onNavigate?.call('nosotros');
                 },
               ),
               ListTile(
@@ -276,7 +277,7 @@ class _NavbarState extends ConsumerState<Navbar> {
                 title: Text(lang == 'es' ? 'Contacto' : 'Contact'),
                 onTap: () {
                   Navigator.pop(context);
-                  context.go('/#contacto');
+                  widget.onNavigate?.call('contacto');
                 },
               ),
               const Divider(),
