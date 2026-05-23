@@ -5,7 +5,7 @@ import '../../providers/locale_provider.dart';
 import '../../models/convocatoria.dart';
 import '../../models/category.dart';
 import '../../services/convocatoria_service.dart';
-import '../../config/countries.dart';
+import '../../models/country.dart';
 
 class EditConvocatoriaScreen extends ConsumerStatefulWidget {
   final String? convocatoriaId;
@@ -37,12 +37,14 @@ class _EditConvocatoriaScreenState
   bool _isLoading = false;
   bool _isEditing = false;
   List<Category> _categories = [];
+  List<Country> _countries = [];
   List<int> _selectedCountryIndices = [];
 
   @override
   void initState() {
     super.initState();
     _loadCategories();
+    _loadCountries();
     if (widget.convocatoriaId != null) {
       _isEditing = true;
       _loadConvocatoria();
@@ -52,6 +54,11 @@ class _EditConvocatoriaScreenState
   Future<void> _loadCategories() async {
     final categories = await ConvocatoriaService.getCategories();
     setState(() => _categories = categories);
+  }
+
+  Future<void> _loadCountries() async {
+    final countries = await ConvocatoriaService.getCountries();
+    setState(() => _countries = countries);
   }
 
   Future<void> _loadConvocatoria() async {
@@ -70,8 +77,8 @@ class _EditConvocatoriaScreenState
       if (conv.regionEs != null && conv.regionEs!.isNotEmpty) {
         final saved = conv.regionEs!.split(',').map((c) => c.trim()).toList();
         _selectedCountryIndices = [];
-        for (int i = 0; i < kCountries.length; i++) {
-          if (saved.contains(kCountries[i].es)) {
+        for (int i = 0; i < _countries.length; i++) {
+          if (saved.contains(_countries[i].nameEs)) {
             _selectedCountryIndices.add(i);
           }
         }
@@ -110,10 +117,10 @@ class _EditConvocatoriaScreenState
             : null,
         deadline: _deadline,
         regionEs: _selectedCountryIndices.isNotEmpty
-            ? _selectedCountryIndices.map((i) => kCountries[i].es).join(', ')
+            ? _selectedCountryIndices.map((i) => _countries[i].nameEs).join(', ')
             : null,
         regionEn: _selectedCountryIndices.isNotEmpty
-            ? _selectedCountryIndices.map((i) => kCountries[i].en).join(', ')
+            ? _selectedCountryIndices.map((i) => _countries[i].nameEn).join(', ')
             : null,
         sourceUrl: _sourceUrlController.text.trim().isNotEmpty
             ? _sourceUrlController.text.trim()
@@ -349,11 +356,9 @@ class _EditConvocatoriaScreenState
                       Wrap(
                         spacing: 8,
                         runSpacing: 8,
-                        children: List.generate(kCountries.length, (i) {
+                        children: List.generate(_countries.length, (i) {
                           final selected = _selectedCountryIndices.contains(i);
-                          final label = lang == 'es'
-                              ? kCountries[i].es
-                              : kCountries[i].en;
+                          final label = _countries[i].name(lang);
                           return FilterChip(
                             label: Text(label),
                             selected: selected,

@@ -2,6 +2,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'supabase_service.dart';
 import '../models/convocatoria.dart';
 import '../models/category.dart';
+import '../models/country.dart';
 
 class ConvocatoriaService {
   static SupabaseClient get _client => SupabaseService.client;
@@ -79,6 +80,18 @@ class ConvocatoriaService {
 
     return (response as List)
         .map((json) => Category.fromJson(json))
+        .toList();
+  }
+
+  // Get countries
+  static Future<List<Country>> getCountries() async {
+    final response = await _client
+        .from('countries')
+        .select()
+        .order('name_es');
+
+    return (response as List)
+        .map((json) => Country.fromJson(json))
         .toList();
   }
 
