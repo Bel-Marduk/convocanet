@@ -59,8 +59,10 @@ class _TestimonialsSectionState extends ConsumerState<TestimonialsSection> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
+    final isMobile = MediaQuery.of(context).size.width < 768;
+
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 100, horizontal: 24),
+      padding: EdgeInsets.symmetric(vertical: isMobile ? 60 : 100, horizontal: isMobile ? 16 : 24),
       color: isDark
           ? const Color(0xFF1e293b)
           : const Color(0xFFF8fafc),

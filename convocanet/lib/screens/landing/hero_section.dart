@@ -104,8 +104,9 @@ class _HeroSectionState extends ConsumerState<HeroSection>
     final size = MediaQuery.of(context).size;
     final isDark = theme.brightness == Brightness.dark;
 
+    final isMobile = size.width < 768;
     // Max title size: clamp(2.5rem, 6vw, 4.2rem) => max 67.2px
-    final titleFontSize = (size.width * 0.06).clamp(40.0, 67.2);
+    final titleFontSize = (size.width * 0.06).clamp(32.0, 67.2);
 
     return SelectionArea(
       child: Container(
@@ -117,7 +118,12 @@ class _HeroSectionState extends ConsumerState<HeroSection>
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 1200),
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 80, 24, 120),
+                  padding: EdgeInsets.fromLTRB(
+                    isMobile ? 16 : 24,
+                    isMobile ? 60 : 80,
+                    isMobile ? 16 : 24,
+                    isMobile ? 80 : 120,
+                  ),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -168,7 +174,7 @@ class _HeroSectionState extends ConsumerState<HeroSection>
                         ),
                       ),
 
-                      const SizedBox(height: 28),
+                      SizedBox(height: isMobile ? 20 : 28),
 
                       // Title — fadeInUp, 0.1s delay
                       FadeTransition(
@@ -229,7 +235,7 @@ class _HeroSectionState extends ConsumerState<HeroSection>
                         ),
                       ),
 
-                      const SizedBox(height: 24),
+                      SizedBox(height: isMobile ? 16 : 24),
 
                       // Subtitle — fadeInUp, 0.2s delay
                       FadeTransition(
@@ -254,7 +260,7 @@ class _HeroSectionState extends ConsumerState<HeroSection>
                                     : const Color(0xFF475569),
                                 height: 1.7,
                                 fontWeight: FontWeight.w400,
-                                fontSize: 18.4,
+                                fontSize: isMobile ? 15.2 : 18.4,
                               ),
                               textAlign: TextAlign.center,
                             ),
@@ -262,7 +268,7 @@ class _HeroSectionState extends ConsumerState<HeroSection>
                         ),
                       ),
 
-                      const SizedBox(height: 36),
+                      SizedBox(height: isMobile ? 24 : 36),
 
                       // Buttons — fadeInUp, 0.3s delay
                       FadeTransition(
@@ -276,8 +282,8 @@ class _HeroSectionState extends ConsumerState<HeroSection>
                             curve: Curves.easeOutCubic,
                           )),
                           child: Wrap(
-                            spacing: 16,
-                            runSpacing: 16,
+                            spacing: isMobile ? 12 : 16,
+                            runSpacing: 12,
                             alignment: WrapAlignment.center,
                             children: [
                               Container(
@@ -355,7 +361,7 @@ class _HeroSectionState extends ConsumerState<HeroSection>
                         ),
                       ),
 
-                      const SizedBox(height: 60),
+                      SizedBox(height: isMobile ? 40 : 60),
 
                       // Stats — fadeInUp, 0.4s delay
                       FadeTransition(
@@ -369,8 +375,8 @@ class _HeroSectionState extends ConsumerState<HeroSection>
                             curve: Curves.easeOutCubic,
                           )),
                           child: Wrap(
-                            spacing: 48,
-                            runSpacing: 40,
+                            spacing: isMobile ? 24 : 48,
+                            runSpacing: isMobile ? 24 : 40,
                             alignment: WrapAlignment.center,
                             children: [
                               StatCounter(

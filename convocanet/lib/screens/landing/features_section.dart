@@ -56,8 +56,10 @@ class FeaturesSection extends ConsumerWidget {
       ),
     ];
 
+    final isMobile = MediaQuery.of(context).size.width < 768;
+
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 100, horizontal: 24),
+      padding: EdgeInsets.symmetric(vertical: isMobile ? 60 : 100, horizontal: isMobile ? 16 : 24),
       color: theme.brightness == Brightness.dark
           ? const Color(0xFF1e293b)
           : const Color(0xFFF8fafc),
@@ -166,6 +168,8 @@ class _FeatureCardState extends State<_FeatureCard> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final cardWidth = screenWidth < 400 ? screenWidth - 48.0 : 350.0;
 
     return MouseRegion(
       cursor: SystemMouseCursors.click,
@@ -174,7 +178,7 @@ class _FeatureCardState extends State<_FeatureCard> {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeOutCubic,
-        width: 350,
+        width: cardWidth,
         padding: const EdgeInsets.all(36),
         transform: _hovering
             ? (Matrix4.identity()..translate(0.0, -4.0))

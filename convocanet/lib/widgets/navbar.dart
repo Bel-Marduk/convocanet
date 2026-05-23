@@ -40,7 +40,7 @@ class _NavbarState extends ConsumerState<Navbar> {
             ),
           ),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 32),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: SizedBox(
               height: 72,
               child: Row(
@@ -129,84 +129,88 @@ class _NavbarState extends ConsumerState<Navbar> {
 
                   const Spacer(),
 
-                  // Controls
+                  // Controls — always visible
                   const LanguageToggle(),
                   const SizedBox(width: 8),
                   const ThemeToggle(),
 
-                  if (isAuthenticated) ...[
-                    const SizedBox(width: 8),
-                    PopupMenuButton<String>(
-                      icon: CircleAvatar(
-                        radius: 18,
-                        backgroundColor: theme.colorScheme.primary,
-                        child: const Icon(
-                          Icons.person,
-                          size: 20,
-                          color: Colors.white,
+                  if (ResponsiveLayout.isDesktop(context)) ...[
+                    // Auth buttons only on desktop
+                    if (isAuthenticated) ...[
+                      const SizedBox(width: 8),
+                      PopupMenuButton<String>(
+                        icon: CircleAvatar(
+                          radius: 18,
+                          backgroundColor: theme.colorScheme.primary,
+                          child: const Icon(
+                            Icons.person,
+                            size: 20,
+                            color: Colors.white,
+                          ),
                         ),
+                        onSelected: (value) async {
+                          switch (value) {
+                            case 'dashboard':
+                              context.go('/dashboard');
+                              break;
+                            case 'favorites':
+                              context.go('/favorites');
+                              break;
+                            case 'profile':
+                              context.go('/profile');
+                              break;
+                            case 'admin':
+                              context.go('/admin');
+                              break;
+                            case 'logout':
+                              await AuthService.signOut();
+                              if (context.mounted) {
+                                context.go('/');
+                              }
+                              break;
+                          }
+                        },
+                        itemBuilder: (context) => [
+                          PopupMenuItem(
+                            value: 'dashboard',
+                            child: Text(lang == 'es' ? 'Dashboard' : 'Dashboard'),
+                          ),
+                          PopupMenuItem(
+                            value: 'favorites',
+                            child: Text(lang == 'es' ? 'Favoritos' : 'Favorites'),
+                          ),
+                          PopupMenuItem(
+                            value: 'profile',
+                            child: Text(lang == 'es' ? 'Perfil' : 'Profile'),
+                          ),
+                          const PopupMenuDivider(),
+                          PopupMenuItem(
+                            value: 'logout',
+                            child: Text(lang == 'es' ? 'Cerrar sesión' : 'Sign out'),
+                          ),
+                        ],
                       ),
-                      onSelected: (value) async {
-                        switch (value) {
-                          case 'dashboard':
-                            context.go('/dashboard');
-                            break;
-                          case 'favorites':
-                            context.go('/favorites');
-                            break;
-                          case 'profile':
-                            context.go('/profile');
-                            break;
-                          case 'admin':
-                            context.go('/admin');
-                            break;
-                          case 'logout':
-                            await AuthService.signOut();
-                            if (context.mounted) {
-                              context.go('/');
-                            }
-                            break;
-                        }
-                      },
-                      itemBuilder: (context) => [
-                        PopupMenuItem(
-                          value: 'dashboard',
-                          child: Text(lang == 'es' ? 'Dashboard' : 'Dashboard'),
-                        ),
-                        PopupMenuItem(
-                          value: 'favorites',
-                          child: Text(lang == 'es' ? 'Favoritos' : 'Favorites'),
-                        ),
-                        PopupMenuItem(
-                          value: 'profile',
-                          child: Text(lang == 'es' ? 'Perfil' : 'Profile'),
-                        ),
-                        const PopupMenuDivider(),
-                        PopupMenuItem(
-                          value: 'logout',
-                          child: Text(lang == 'es' ? 'Cerrar sesión' : 'Sign out'),
-                        ),
-                      ],
-                    ),
-                  ] else ...[
-                    const SizedBox(width: 8),
-                    TextButton(
-                      onPressed: () => context.go('/login'),
-                      child: Text(lang == 'es' ? 'Iniciar Sesión' : 'Sign In'),
-                    ),
-                    const SizedBox(width: 8),
-                    ElevatedButton(
-                      onPressed: () => context.go('/register'),
-                      child: Text(lang == 'es' ? 'Registrarse' : 'Sign Up'),
-                    ),
+                    ] else ...[
+                      const SizedBox(width: 8),
+                      TextButton(
+                        onPressed: () => context.go('/login'),
+                        child: Text(lang == 'es' ? 'Iniciar Sesión' : 'Sign In'),
+                      ),
+                      const SizedBox(width: 8),
+                      ElevatedButton(
+                        onPressed: () => context.go('/register'),
+                        child: Text(lang == 'es' ? 'Registrarse' : 'Sign Up'),
+                      ),
+                    ],
                   ],
 
-                  if (ResponsiveLayout.isMobile(context)) ...[
+                  // Hamburger on mobile/tablet
+                  if (!ResponsiveLayout.isDesktop(context)) ...[
                     const SizedBox(width: 8),
                     IconButton(
                       icon: const Icon(Icons.menu),
                       onPressed: () {
-                        _showMobileMenu(context, lang);
+                        _showMobileMenu(context, lang, isAuthenticated);
                       },
                     ),
                   ],
@@ -219,46 +223,109 @@ class _NavbarState extends ConsumerState<Navbar> {
     );
   }
 
-  void _showMobileMenu(BuildContext context, String lang) {
+  void _showMobileMenu(BuildContext context, String lang, bool isAuthenticated) {
     showModalBottomSheet(
       context: context,
       builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.home),
-              title: Text(lang == 'es' ? 'Inicio' : 'Home'),
-              onTap: () {
-                Navigator.pop(context);
-                context.go('/');
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.list),
-              title: Text(lang == 'es' ? 'Convocatorias' : 'Open Calls'),
-              onTap: () {
-                Navigator.pop(context);
-                context.go('/#convocatorias');
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.info),
-              title: Text(lang == 'es' ? 'Nosotros' : 'About'),
-              onTap: () {
-                Navigator.pop(context);
-                context.go('/#nosotros');
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.contact_mail),
-              title: Text(lang == 'es' ? 'Contacto' : 'Contact'),
-              onTap: () {
-                Navigator.pop(context);
-                context.go('/#contacto');
-              },
-            ),
-          ],
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.home),
+                title: Text(lang == 'es' ? 'Inicio' : 'Home'),
+                onTap: () {
+                  Navigator.pop(context);
+                  context.go('/');
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.star),
+                title: Text(lang == 'es' ? 'Características' : 'Features'),
+                onTap: () {
+                  Navigator.pop(context);
+                  context.go('/#caracteristicas');
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.list),
+                title: Text(lang == 'es' ? 'Convocatorias' : 'Open Calls'),
+                onTap: () {
+                  Navigator.pop(context);
+                  context.go('/#convocatorias');
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.bar_chart),
+                title: Text(lang == 'es' ? 'Estadísticas' : 'Stats'),
+                onTap: () {
+                  Navigator.pop(context);
+                  context.go('/#estadisticas');
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.info),
+                title: Text(lang == 'es' ? 'Nosotros' : 'About'),
+                onTap: () {
+                  Navigator.pop(context);
+                  context.go('/#nosotros');
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.contact_mail),
+                title: Text(lang == 'es' ? 'Contacto' : 'Contact'),
+                onTap: () {
+                  Navigator.pop(context);
+                  context.go('/#contacto');
+                },
+              ),
+              const Divider(),
+              if (isAuthenticated) ...[
+                ListTile(
+                  leading: const Icon(Icons.dashboard),
+                  title: const Text('Dashboard'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    context.go('/dashboard');
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.person),
+                  title: Text(lang == 'es' ? 'Perfil' : 'Profile'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    context.go('/profile');
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.logout),
+                  title: Text(lang == 'es' ? 'Cerrar sesión' : 'Sign out'),
+                  onTap: () async {
+                    Navigator.pop(context);
+                    await AuthService.signOut();
+                    if (context.mounted) context.go('/');
+                  },
+                ),
+              ] else ...[
+                ListTile(
+                  leading: const Icon(Icons.login),
+                  title: Text(lang == 'es' ? 'Iniciar Sesión' : 'Sign In'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    context.go('/login');
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.person_add),
+                  title: Text(lang == 'es' ? 'Registrarse' : 'Sign Up'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    context.go('/register');
+                  },
+                ),
+              ],
+            ],
+          ),
         ),
       ),
     );

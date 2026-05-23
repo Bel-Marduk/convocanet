@@ -44,8 +44,10 @@ class _StatsSectionState extends ConsumerState<StatsSection> {
   Widget build(BuildContext context) {
     final lang = ref.watch(localeProvider).languageCode;
 
+    final isMobile = MediaQuery.of(context).size.width < 768;
+
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 80, horizontal: 24),
+      padding: EdgeInsets.symmetric(vertical: isMobile ? 60 : 80, horizontal: isMobile ? 16 : 24),
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,

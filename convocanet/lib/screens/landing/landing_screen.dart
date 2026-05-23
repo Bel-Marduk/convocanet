@@ -108,9 +108,10 @@ class _CTASection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final lang = ref.watch(localeProvider).languageCode;
     final theme = Theme.of(context);
+    final isMobile = MediaQuery.of(context).size.width < 768;
 
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 100, horizontal: 24),
+      padding: EdgeInsets.symmetric(vertical: isMobile ? 60 : 100, horizontal: isMobile ? 16 : 24),
       color: theme.colorScheme.background,
       child: Center(
         child: ClipRRect(
@@ -140,7 +141,7 @@ class _CTASection extends ConsumerWidget {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 64, horizontal: 40),
+                  padding: EdgeInsets.symmetric(vertical: isMobile ? 48 : 64, horizontal: isMobile ? 24 : 40),
                   child: Column(
             children: [
               Text(

@@ -68,8 +68,10 @@ class _ContactSectionState extends ConsumerState<ContactSection> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
+    final isMobile = MediaQuery.of(context).size.width < 768;
+
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 100, horizontal: 24),
+      padding: EdgeInsets.symmetric(vertical: isMobile ? 60 : 100, horizontal: isMobile ? 16 : 24),
       color: isDark
           ? const Color(0xFF1e293b)
           : const Color(0xFFF8fafc),
@@ -77,13 +79,13 @@ class _ContactSectionState extends ConsumerState<ContactSection> {
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 1200),
           child: Wrap(
-            spacing: 60,
-            runSpacing: 40,
+            spacing: isMobile ? 24 : 60,
+            runSpacing: isMobile ? 32 : 40,
             alignment: WrapAlignment.center,
             children: [
               // Contact info
               SizedBox(
-                width: 400,
+                width: isMobile ? double.infinity : 400,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -162,7 +164,7 @@ class _ContactSectionState extends ConsumerState<ContactSection> {
 
               // Contact form
               SizedBox(
-                width: 500,
+                width: isMobile ? double.infinity : 500,
                 child: Card(
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(24),
