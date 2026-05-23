@@ -44,17 +44,21 @@ class _StatCounterState extends State<StatCounter>
       parent: _controller,
       curve: Curves.easeOutCubic,
     ));
+    _controller.forward();
   }
 
   @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void _startAnimation() {
-    if (!_hasAnimated) {
-      _hasAnimated = true;
+  void didUpdateWidget(StatCounter oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.target != widget.target) {
+      _animation = Tween<double>(
+        begin: _animation.value,
+        end: widget.target.toDouble(),
+      ).animate(CurvedAnimation(
+        parent: _controller,
+        curve: Curves.easeOutCubic,
+      ));
+      _controller.reset();
       _controller.forward();
     }
   }
