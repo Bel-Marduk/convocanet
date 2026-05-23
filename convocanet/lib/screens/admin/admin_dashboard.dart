@@ -32,7 +32,7 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
           .from('contact_messages')
           .select('id')
           .count();
-      final messageCount = messageCountRes;
+      final messageCount = messageCountRes.count ?? 0;
 
       if (mounted) {
         setState(() {

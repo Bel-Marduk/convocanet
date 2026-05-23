@@ -85,11 +85,12 @@ class ConvocatoriaService {
   // Get stats
   static Future<Map<String, dynamic>> getStats() async {
     try {
-      final activeRes = await _client
+      final activeCountRes = await _client
           .from('convocatorias')
-          .select('id', count: CountOption.exact)
-          .inFilter('status', ['active', 'permanent']);
-      final activeCount = activeRes.count ?? 0;
+          .select('id')
+          .inFilter('status', ['active', 'permanent'])
+          .count();
+      final activeCount = activeCountRes.count ?? 0;
 
       final totalAmountRes = await _client
           .from('convocatorias')
@@ -106,15 +107,17 @@ class ConvocatoriaService {
         }
       }
 
-      final profilesRes = await _client
+      final profilesCountRes = await _client
           .from('profiles')
-          .select('id', count: CountOption.exact);
-      final userCount = profilesRes.count ?? 0;
+          .select('id')
+          .count();
+      final userCount = profilesCountRes.count ?? 0;
 
-      final publishedRes = await _client
+      final publishedCountRes = await _client
           .from('convocatorias')
-          .select('id', count: CountOption.exact);
-      final publishedCount = publishedRes.count ?? 0;
+          .select('id')
+          .count();
+      final publishedCount = publishedCountRes.count ?? 0;
 
       return {
         'activeCount': activeCount,
