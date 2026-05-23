@@ -113,16 +113,29 @@ class FeaturesSection extends ConsumerWidget {
               const SizedBox(height: 56),
 
               // Features grid
-              Wrap(
-                spacing: 24,
-                runSpacing: 24,
-                alignment: WrapAlignment.center,
-                children: features
-                    .map((f) => _FeatureCard(
-                          feature: f,
-                          lang: lang,
-                        ))
-                    .toList(),
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final crossAxisCount = constraints.maxWidth < 700
+                      ? 1
+                      : constraints.maxWidth < 1050
+                          ? 2
+                          : 3;
+                  return GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: crossAxisCount,
+                      crossAxisSpacing: 24,
+                      mainAxisSpacing: 24,
+                      childAspectRatio: crossAxisCount == 1 ? 2.5 : 1.5,
+                    ),
+                    itemCount: features.length,
+                    itemBuilder: (context, i) => _FeatureCard(
+                      feature: features[i],
+                      lang: lang,
+                    ),
+                  );
+                },
               ),
             ],
           ),
@@ -168,8 +181,6 @@ class _FeatureCardState extends State<_FeatureCard> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final screenWidth = MediaQuery.of(context).size.width;
-    final cardWidth = screenWidth < 400 ? screenWidth - 48.0 : 350.0;
 
     return MouseRegion(
       cursor: SystemMouseCursors.click,
@@ -178,40 +189,46 @@ class _FeatureCardState extends State<_FeatureCard> {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeOutCubic,
-        width: cardWidth,
+        width: double.infinity,
         padding: const EdgeInsets.all(36),
         transform: _hovering
-            ? (Matrix4.identity()..translate(0.0, -4.0))
+            ? (Matrix4.identity()..translate(0.0, -6.0))
             : Matrix4.identity(),
         decoration: BoxDecoration(
           color: theme.colorScheme.surface,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: _hovering
-                ? Colors.transparent
+                ? theme.colorScheme.primary.withOpacity(0.4)
                 : theme.colorScheme.outlineVariant,
           ),
           boxShadow: _hovering
               ? [
                   BoxShadow(
-                    color: Colors.black.withOpacity(isDark ? 0.5 : 0.08),
-                    blurRadius: 15,
-                    spreadRadius: -3,
-                    offset: const Offset(0, 10),
+                    color: theme.colorScheme.primary.withOpacity(isDark ? 0.3 : 0.12),
+                    blurRadius: 24,
+                    spreadRadius: -2,
+                    offset: const Offset(0, 12),
                   ),
                   BoxShadow(
-                    color: Colors.black.withOpacity(isDark ? 0.4 : 0.05),
-                    blurRadius: 6,
+                    color: Colors.black.withOpacity(isDark ? 0.4 : 0.06),
+                    blurRadius: 8,
                     spreadRadius: -4,
                     offset: const Offset(0, 4),
                   ),
                 ]
-              : [],
+              : [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(isDark ? 0.2 : 0.03),
+                    blurRadius: 6,
+                    spreadRadius: -2,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Icon with hover scale and gradient effect
             AnimatedContainer(
               duration: const Duration(milliseconds: 300),
               width: 56,
@@ -232,13 +249,13 @@ class _FeatureCardState extends State<_FeatureCard> {
                 borderRadius: BorderRadius.circular(14),
               ),
               child: AnimatedScale(
-                scale: _hovering ? 1.1 : 1.0,
+                scale: _hovering ? 1.15 : 1.0,
                 duration: const Duration(milliseconds: 300),
                 curve: Curves.easeOutCubic,
                 child: Icon(
                   widget.feature.icon,
                   color: _hovering ? Colors.white : theme.colorScheme.primary,
-                  size: 20.8,
+                  size: 24,
                 ),
               ),
             ),
@@ -247,7 +264,7 @@ class _FeatureCardState extends State<_FeatureCard> {
               widget.feature.title(widget.lang),
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w700,
-                fontSize: 18.4,
+                fontSize: 18,
               ),
             ),
             const SizedBox(height: 10),
@@ -255,8 +272,8 @@ class _FeatureCardState extends State<_FeatureCard> {
               widget.feature.desc(widget.lang),
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
-                height: 1.7,
-                fontSize: 14.72,
+                height: 1.6,
+                fontSize: 14,
               ),
             ),
           ],

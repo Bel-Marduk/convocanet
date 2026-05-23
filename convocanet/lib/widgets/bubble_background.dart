@@ -12,7 +12,7 @@ class BubbleBackground extends StatefulWidget {
 class _BubbleBackgroundState extends State<BubbleBackground>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  final List<_Bubble> _bubbles = List.generate(20, (_) => _Bubble());
+  final List<_Bubble> _bubbles = List.generate(35, (_) => _Bubble());
 
   @override
   void initState() {
@@ -125,10 +125,16 @@ class _BubbleBackgroundState extends State<BubbleBackground>
 class _Bubble {
   double x = math.Random().nextDouble();
   double y = math.Random().nextDouble();
-  double size = math.Random().nextDouble() * 4 + 2;
-  double speed = math.Random().nextDouble() * 0.15 + 0.05;
-  double opacity = math.Random().nextDouble() * 0.15 + 0.05;
-  double rotation = math.Random().nextDouble() * 720; // 0-720deg
+  double size = math.Random().nextDouble() * 6 + 1.5;
+  double speed = math.Random().nextDouble() * 0.2 + 0.04;
+  double opacity = math.Random().nextDouble() * 0.2 + 0.05;
+  double rotation = math.Random().nextDouble() * 720;
+  // Oscillation for lateral drift
+  double oscillationAmplitude = math.Random().nextDouble() * 40 + 10;
+  double oscillationSpeed = math.Random().nextDouble() * 2 + 0.5;
+  double phaseOffset = math.Random().nextDouble() * math.pi * 2;
+  // 0 = circle, 1 = diamond, 2 = ring
+  int shape = math.Random().nextInt(3);
 }
 
 class _BubblePainter extends CustomPainter {
@@ -154,14 +160,38 @@ class _BubblePainter extends CustomPainter {
       paint.color = (math.Random().nextBool() ? primaryColor : accentColor)
           .withOpacity(bubble.opacity);
 
+      // Vertical movement (wrap around)
       final currentY = (bubble.y * size.height - (animationValue * bubble.speed * size.height)) % size.height;
-      final currentX = bubble.x * size.width;
+      // Horizontal oscillation (sine wave drift)
+      final sineOffset = math.sin(animationValue * bubble.oscillationSpeed * math.pi * 2 + bubble.phaseOffset) * bubble.oscillationAmplitude;
+      final currentX = bubble.x * size.width + sineOffset;
       final currentRotation = animationValue * bubble.rotation;
 
       canvas.save();
       canvas.translate(currentX, currentY);
       canvas.rotate(currentRotation * math.pi / 180);
-      canvas.drawCircle(Offset.zero, bubble.size, paint);
+
+      switch (bubble.shape) {
+        case 0: // Circle
+          canvas.drawCircle(Offset.zero, bubble.size, paint);
+          break;
+        case 1: // Diamond
+          final path = Path()
+            ..moveTo(0, -bubble.size)
+            ..lineTo(bubble.size, 0)
+            ..lineTo(0, bubble.size)
+            ..lineTo(-bubble.size, 0)
+            ..close();
+          canvas.drawPath(path, paint);
+          break;
+        case 2: // Ring (hollow circle)
+          paint.style = PaintingStyle.stroke;
+          paint.strokeWidth = 1.2;
+          canvas.drawCircle(Offset.zero, bubble.size, paint);
+          paint.style = PaintingStyle.fill;
+          break;
+      }
+
       canvas.restore();
     }
   }
