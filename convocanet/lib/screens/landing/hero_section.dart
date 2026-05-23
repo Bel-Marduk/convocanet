@@ -90,43 +90,61 @@ class _HeroSectionState extends ConsumerState<HeroSection> {
                     const SizedBox(height: 32),
 
                     // Title
-                    ShaderMask(
-                      shaderCallback: (bounds) => LinearGradient(
-                        colors: [
-                          theme.colorScheme.primary,
-                          theme.colorScheme.secondary,
-                        ],
-                      ).createShader(bounds),
-                      child: Text(
-                        lang == 'es'
-                            ? 'Conectando Asociaciones Civiles\ncon Oportunidades'
-                            : 'Connecting Civil Associations\nwith Opportunities',
+                    RichText(
+                      textAlign: TextAlign.center,
+                      text: TextSpan(
                         style: theme.textTheme.displayMedium?.copyWith(
                           fontWeight: FontWeight.w900,
                           height: 1.05,
                           letterSpacing: -0.05,
-                          color: Colors.white, // Required for ShaderMask
+                          color: isDark ? Colors.white : Colors.black87,
                         ),
-                        textAlign: TextAlign.center,
+                        children: [
+                          TextSpan(
+                            text: lang == 'es' ? 'Conectando ' : 'Connecting ',
+                          ),
+                          WidgetSpan(
+                            child: ShaderMask(
+                              shaderCallback: (bounds) => const LinearGradient(
+                                colors: [Color(0xFF4f46e5), Color(0xFF06b6d4)],
+                              ).createShader(bounds),
+                              child: Text(
+                                lang == 'es' ? 'Asociaciones Civiles' : 'Civil Associations',
+                                style: theme.textTheme.displayMedium?.copyWith(
+                                  fontWeight: FontWeight.w900,
+                                  color: Colors.white,
+                                  height: 1.05,
+                                  letterSpacing: -0.05,
+                                ),
+                              ),
+                            ),
+                          ),
+                          TextSpan(
+                            text: lang == 'es' ? '\ncon Oportunidades' : '\nwith Opportunities',
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 28),
+
+                    const SizedBox(height: 32),
 
                     // Subtitle
                     ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 680),
+                      constraints: const BoxConstraints(maxWidth: 720),
                       child: Text(
                         lang == 'es'
-                            ? 'Centralizamos las convocatorias públicas y privadas para que tu organización encuentre financiamiento, programas y alianzas estratégicas en un solo lugar.'
-                            : 'We centralize public and private calls so your organization can find funding, programs, and strategic partnerships in one place.',
+                            ? 'Centralizamos las convocatorias públicas para que tu organización encuentre financiamiento, programas y alianzas estratégicas en un solo lugar.'
+                            : 'We centralize public calls so your organization can find funding, programs, and strategic partnerships in one place.',
                         style: theme.textTheme.titleLarge?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
-                          height: 1.6,
+                          color: theme.colorScheme.onSurfaceVariant.withOpacity(0.8),
+                          height: 1.7,
                           fontWeight: FontWeight.w400,
+                          fontSize: 20,
                         ),
                         textAlign: TextAlign.center,
                       ),
                     ),
+
 
                     const SizedBox(height: 48),
 

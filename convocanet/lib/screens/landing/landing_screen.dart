@@ -47,15 +47,15 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
             controller: _scrollController,
             slivers: [
               // Navbar
-              const SliverAppBar(
+              SliverAppBar(
                 floating: true,
                 pinned: true,
                 automaticallyImplyLeading: false,
                 backgroundColor: Colors.transparent,
                 surfaceTintColor: Colors.transparent,
-                title: Navbar(),
+                toolbarHeight: 80,
+                flexibleSpace: const Navbar(),
               ),
-
               // Hero Section
               const SliverToBoxAdapter(
                 child: HeroSection(),

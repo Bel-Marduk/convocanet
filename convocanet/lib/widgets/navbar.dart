@@ -30,78 +30,93 @@ class _NavbarState extends ConsumerState<Navbar> {
     final lang = ref.watch(localeProvider).languageCode;
     final isAuthenticated = ref.watch(isAuthenticatedProvider);
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface.withOpacity(_scrolled ? 0.95 : 0.8),
-        border: Border(
-          bottom: BorderSide(
-            color: theme.colorScheme.outlineVariant.withOpacity(0.2),
+    return ClipRRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+        child: Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surface.withOpacity(isDark ? 0.7 : 0.8),
+            border: Border(
+              bottom: BorderSide(
+                color: theme.colorScheme.outlineVariant.withOpacity(0.2),
+              ),
+            ),
           ),
-        ),
-      ),
-      child: ClipRRect(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-          child: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: SizedBox(
-                height: 72,
-                child: Row(
-                  children: [
-                    // Logo
-                    MouseRegion(
-                      cursor: SystemMouseCursors.click,
-                      child: GestureDetector(
-                        onTap: () => context.go('/'),
-                        child: Row(
-                          children: [
-                            Icon(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: SizedBox(
+              height: 80,
+              child: Row(
+                children: [
+                  // Logo
+                  MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: GestureDetector(
+                      onTap: () => context.go('/'),
+                      child: Row(
+                        children: [
+                          ShaderMask(
+                            shaderCallback: (bounds) => const LinearGradient(
+                              colors: [Color(0xFF4f46e5), Color(0xFF06b6d4)],
+                            ).createShader(bounds),
+                            child: const Icon(
                               Icons.campaign,
-                              color: theme.colorScheme.primary,
-                              size: 28,
+                              color: Colors.white,
+                              size: 32,
                             ),
-                            const SizedBox(width: 10),
-                            Text(
-                              'ConvocaNet',
-                              style: theme.textTheme.titleLarge?.copyWith(
-                                fontWeight: FontWeight.w800,
-                                color: theme.colorScheme.primary,
-                              ),
+                          ),
+                          const SizedBox(width: 12),
+                          Text(
+                            'ConvocaNet',
+                            style: theme.textTheme.headlineSmall?.copyWith(
+                              fontWeight: FontWeight.w900,
+                              color: isDark ? Colors.white : theme.colorScheme.primary,
+                              letterSpacing: -0.5,
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
+                  ),
 
-                    if (ResponsiveLayout.isDesktop(context)) ...[
-                      const Spacer(),
-                      // Nav links
-                      _NavLink(
-                        label: lang == 'es' ? 'Inicio' : 'Home',
-                        onTap: () => context.go('/'),
-                      ),
-                      _NavLink(
-                        label: lang == 'es' ? 'Convocatorias' : 'Open Calls',
-                        onTap: () => context.go('/#convocatorias'),
-                      ),
-                      _NavLink(
-                        label: lang == 'es' ? 'Nosotros' : 'About',
-                        onTap: () => context.go('/#nosotros'),
-                      ),
-                      _NavLink(
-                        label: lang == 'es' ? 'Contacto' : 'Contact',
-                        onTap: () => context.go('/#contacto'),
-                      ),
-                      const Spacer(),
-                    ] else
-                      const Spacer(),
+                  if (ResponsiveLayout.isDesktop(context)) ...[
+                    const SizedBox(width: 48),
+                    // Nav links
+                    _NavLink(
+                      label: lang == 'es' ? 'Inicio' : 'Home',
+                      onTap: () => context.go('/'),
+                    ),
+                    _NavLink(
+                      label: lang == 'es' ? 'Características' : 'Features',
+                      onTap: () => context.go('/#caracteristicas'),
+                    ),
+                    _NavLink(
+                      label: lang == 'es' ? 'Convocatorias' : 'Open Calls',
+                      onTap: () => context.go('/#convocatorias'),
+                    ),
+                    _NavLink(
+                      label: lang == 'es' ? 'Estadísticas' : 'Stats',
+                      onTap: () => context.go('/#estadisticas'),
+                    ),
+                    _NavLink(
+                      label: lang == 'es' ? 'Nosotros' : 'About',
+                      onTap: () => context.go('/#nosotros'),
+                    ),
+                    _NavLink(
+                      label: lang == 'es' ? 'Contacto' : 'Contact',
+                      onTap: () => context.go('/#contacto'),
+                    ),
+                  ],
 
-                    // Controls
-                    const LanguageToggle(),
-                    const SizedBox(width: 8),
-                    const ThemeToggle(),
+                  const Spacer(),
+
+                  // Controls
+                  const LanguageToggle(),
+                  const SizedBox(width: 12),
+                  const ThemeToggle(),
 
                     if (isAuthenticated) ...[
                       const SizedBox(width: 8),
