@@ -25,7 +25,7 @@ class ConvocatoriaService {
       query = query.eq('status', status);
     } else {
       // By default, show active and permanent
-      query = query.in_('status', ['active', 'permanent']);
+      query = query.inFilter('status', ['active', 'permanent']);
     }
 
     if (categorySlug != null && categorySlug != 'todas') {
