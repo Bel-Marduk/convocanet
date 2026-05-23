@@ -90,18 +90,26 @@ class _HeroSectionState extends ConsumerState<HeroSection> {
                     const SizedBox(height: 32),
 
                     // Title
-                    Text(
-                      lang == 'es'
-                          ? 'Conectando Asociaciones Civiles\ncon Oportunidades'
-                          : 'Connecting Civil Associations\nwith Opportunities',
-                      style: theme.textTheme.displayMedium?.copyWith(
-                        fontWeight: FontWeight.w900,
-                        height: 1.05,
-                        letterSpacing: -0.04,
+                    ShaderMask(
+                      shaderCallback: (bounds) => LinearGradient(
+                        colors: [
+                          theme.colorScheme.primary,
+                          theme.colorScheme.secondary,
+                        ],
+                      ).createShader(bounds),
+                      child: Text(
+                        lang == 'es'
+                            ? 'Conectando Asociaciones Civiles\ncon Oportunidades'
+                            : 'Connecting Civil Associations\nwith Opportunities',
+                        style: theme.textTheme.displayMedium?.copyWith(
+                          fontWeight: FontWeight.w900,
+                          height: 1.05,
+                          letterSpacing: -0.05,
+                          color: Colors.white, // Required for ShaderMask
+                        ),
+                        textAlign: TextAlign.center,
                       ),
-                      textAlign: TextAlign.center,
                     ),
-
                     const SizedBox(height: 28),
 
                     // Subtitle
