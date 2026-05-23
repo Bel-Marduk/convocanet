@@ -12,13 +12,13 @@ class BubbleBackground extends StatefulWidget {
 class _BubbleBackgroundState extends State<BubbleBackground>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  final List<_Bubble> _bubbles = List.generate(15, (_) => _Bubble());
+  final List<_Bubble> _bubbles = List.generate(40, (_) => _Bubble());
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: const Duration(seconds: 10),
+      duration: const Duration(seconds: 20),
       vsync: this,
     )..repeat();
   }
@@ -59,7 +59,7 @@ class _BubbleBackgroundState extends State<BubbleBackground>
           ),
         ),
 
-        // Animated Bubbles
+        // Animated Particles
         Positioned.fill(
           child: AnimatedBuilder(
             animation: _controller,
@@ -77,7 +77,7 @@ class _BubbleBackgroundState extends State<BubbleBackground>
           ),
         ),
 
-        // Glow effects (similar to CSS ::before and ::after)
+        // Subtle glows
         Positioned(
           top: -200,
           right: -100,
@@ -88,24 +88,7 @@ class _BubbleBackgroundState extends State<BubbleBackground>
               shape: BoxShape.circle,
               gradient: RadialGradient(
                 colors: [
-                  theme.colorScheme.primary.withOpacity(isDark ? 0.12 : 0.05),
-                  Colors.transparent,
-                ],
-              ),
-            ),
-          ),
-        ),
-        Positioned(
-          bottom: -150,
-          left: -50,
-          child: Container(
-            width: 500,
-            height: 500,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: RadialGradient(
-                colors: [
-                  theme.colorScheme.secondary.withOpacity(isDark ? 0.08 : 0.03),
+                  theme.colorScheme.primary.withOpacity(isDark ? 0.1 : 0.04),
                   Colors.transparent,
                 ],
               ),
@@ -123,9 +106,9 @@ class _BubbleBackgroundState extends State<BubbleBackground>
 class _Bubble {
   double x = math.Random().nextDouble();
   double y = math.Random().nextDouble();
-  double size = math.Random().nextDouble() * 100 + 50;
-  double speed = math.Random().nextDouble() * 0.2 + 0.1;
-  double opacity = math.Random().nextDouble() * 0.1 + 0.05;
+  double size = math.Random().nextDouble() * 5 + 2;
+  double speed = math.Random().nextDouble() * 0.1 + 0.05;
+  double opacity = math.Random().nextDouble() * 0.2 + 0.1;
 }
 
 class _BubblePainter extends CustomPainter {
@@ -145,13 +128,14 @@ class _BubblePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    final paint = Paint()..style = PaintingStyle.fill;
+
     for (var bubble in bubbles) {
-      final paint = Paint()
-        ..color = (math.Random().nextBool() ? primaryColor : accentColor)
-            .withOpacity(bubble.opacity);
+      paint.color = (math.Random().nextBool() ? primaryColor : accentColor)
+          .withOpacity(bubble.opacity);
       
       final currentY = (bubble.y * size.height - (animationValue * bubble.speed * size.height)) % size.height;
-      final currentX = bubble.x * size.width + math.sin(animationValue * math.pi * 2 + bubble.y * 10) * 20;
+      final currentX = (bubble.x * size.width + math.sin(animationValue * math.pi * 2 + bubble.y * 10) * 30) % size.width;
 
       canvas.drawCircle(Offset(currentX, currentY), bubble.size, paint);
     }
