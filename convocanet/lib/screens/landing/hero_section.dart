@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../providers/locale_provider.dart';
 import '../../widgets/stat_counter.dart';
 import '../../widgets/responsive_layout.dart';
@@ -183,7 +184,7 @@ class _HeroSectionState extends ConsumerState<HeroSection>
                           child: RichText(
                             textAlign: TextAlign.center,
                             text: TextSpan(
-                              style: theme.textTheme.displayLarge?.copyWith(
+                              style: GoogleFonts.inter(
                                 fontWeight: FontWeight.w900,
                                 height: 1.1,
                                 letterSpacing: -titleFontSize * 0.03,
@@ -207,8 +208,7 @@ class _HeroSectionState extends ConsumerState<HeroSection>
                                       lang == 'es'
                                           ? 'Asociaciones Civiles'
                                           : 'Civil Associations',
-                                      style: theme.textTheme.displayLarge
-                                          ?.copyWith(
+                                      style: GoogleFonts.inter(
                                         fontWeight: FontWeight.w900,
                                         color: Colors.white,
                                         height: 1.1,
