@@ -84,42 +84,52 @@ class ConvocatoriaService {
 
   // Get stats
   static Future<Map<String, dynamic>> getStats() async {
-    final activeRes = await _client
-        .from('convocatorias')
-        .select('id', const FetchOptions(count: CountOption.exact))
-        .in_('status', ['active', 'permanent']);
-    final activeCount = activeRes.count ?? 0;
+    try {
+      final activeRes = await _client
+          .from('convocatorias')
+          .select('id', const FetchOptions(count: CountOption.exact))
+          .in_('status', ['active', 'permanent']);
+      final activeCount = activeRes.count ?? 0;
 
-    final totalAmountRes = await _client
-        .from('convocatorias')
-        .select('amount_usd')
-        .in_('status', ['active', 'permanent']);
-    final totalAmount = totalAmountRes as List;
-
-    double sum = 0;
-    for (final item in totalAmount) {
-      final amount = item['amount_usd'];
-      if (amount != null) {
-        sum += (amount as num).toDouble();
+      final totalAmountRes = await _client
+          .from('convocatorias')
+          .select('amount_usd')
+          .in_('status', ['active', 'permanent']);
+      
+      double sum = 0;
+      if (totalAmountRes is List) {
+        for (final item in totalAmountRes) {
+          final amount = item['amount_usd'];
+          if (amount != null) {
+            sum += (amount as num).toDouble();
+          }
+        }
       }
+
+      final profilesRes = await _client
+          .from('profiles')
+          .select('id', const FetchOptions(count: CountOption.exact));
+      final userCount = profilesRes.count ?? 0;
+
+      final publishedRes = await _client
+          .from('convocatorias')
+          .select('id', const FetchOptions(count: CountOption.exact));
+      final publishedCount = publishedRes.count ?? 0;
+
+      return {
+        'activeCount': activeCount,
+        'totalAmount': sum,
+        'userCount': userCount,
+        'publishedCount': publishedCount,
+      };
+    } catch (e) {
+      return {
+        'activeCount': 0,
+        'totalAmount': 0.0,
+        'userCount': 0,
+        'publishedCount': 0,
+      };
     }
-
-    final profilesRes = await _client
-        .from('profiles')
-        .select('id', const FetchOptions(count: CountOption.exact));
-    final userCount = profilesRes.count ?? 0;
-
-    final publishedRes = await _client
-        .from('convocatorias')
-        .select('id', const FetchOptions(count: CountOption.exact));
-    final publishedCount = publishedRes.count ?? 0;
-
-    return {
-      'activeCount': activeCount,
-      'totalAmount': sum,
-      'userCount': userCount,
-      'publishedCount': publishedCount,
-    };
   }
 
   // Admin: Create convocatoria
