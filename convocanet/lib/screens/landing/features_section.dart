@@ -16,8 +16,8 @@ class FeaturesSection extends ConsumerWidget {
         icon: Icons.search,
         titleEs: 'Búsqueda Centralizada',
         titleEn: 'Centralized Search',
-        descEs: 'Encuentra convocatorias públicas y privadas de todo el mundo: financiamiento, programas, concursos, capacitaciones y premios.',
-        descEn: 'Find public and private calls from around the world: funding, programs, contests, training, and awards.',
+        descEs: 'Encuentra convocatorias públicas y privadas de todo el mundo: financiamiento, programas y capacitaciones.',
+        descEn: 'Find public and private calls from around the world: funding, programs and training.',
       ),
       _FeatureData(
         icon: Icons.open_in_new,
@@ -37,8 +37,8 @@ class FeaturesSection extends ConsumerWidget {
         icon: Icons.category,
         titleEs: 'Múltiples Categorías',
         titleEn: 'Multiple Categories',
-        descEs: 'Financiamiento, programas gubernamentales, concursos, capacitaciones, premios y más. Para asociaciones civiles y público en general.',
-        descEn: 'Funding, government programs, contests, training, awards and more. For civil associations and the general public.',
+        descEs: 'Financiamiento, programas, capacitaciones y más. Para asociaciones civiles, ONGs y público en general.',
+        descEn: 'Funding, programs, training and more. For civil associations, NGOs, and the general public.',
       ),
       _FeatureData(
         icon: Icons.flag,

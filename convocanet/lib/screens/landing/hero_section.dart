@@ -252,8 +252,8 @@ class _HeroSectionState extends ConsumerState<HeroSection>
                             constraints: const BoxConstraints(maxWidth: 640),
                             child: Text(
                               lang == 'es'
-                                  ? 'Encuentra convocatorias públicas y privadas de todo el mundo para asociaciones civiles, ONGs y público en general. Información clave y enlaces directos para postularte sin intermediarios.'
-                                  : 'Find public and private calls from around the world for civil associations, NGOs, and the general public. Key information and direct links to apply without intermediaries.',
+                                  ? 'Encuentra convocatorias públicas y privadas de todo el mundo para asociaciones civiles, ONGs y público en general. Financiamiento, programas y capacitaciones con información clave y enlaces directos para postularte sin intermediarios.'
+                                  : 'Find public and private calls from around the world for civil associations, NGOs, and the general public. Funding, programs and training with key information and direct links to apply without intermediaries.',
                               style: theme.textTheme.bodyLarge?.copyWith(
                                 color: isDark
                                     ? const Color(0xFFcbd5e1)
