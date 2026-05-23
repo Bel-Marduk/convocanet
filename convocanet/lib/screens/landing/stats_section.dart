@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/locale_provider.dart';
 import '../../widgets/stat_counter.dart';
+import '../../widgets/scroll_reveal.dart';
 import '../../services/convocatoria_service.dart';
 
 class StatsSection extends ConsumerStatefulWidget {
@@ -45,55 +46,90 @@ class _StatsSectionState extends ConsumerState<StatsSection> {
     final lang = ref.watch(localeProvider).languageCode;
 
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 100, horizontal: 24),
-      color: Colors.transparent,
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 1200),
-          child: _loading
-              ? const SizedBox(
-                  height: 100,
-                  child: Center(
-                    child: CircularProgressIndicator(),
-                  ),
-                )
-              : Wrap(
-                  spacing: 48,
-                  runSpacing: 48,
+      padding: const EdgeInsets.symmetric(vertical: 80, horizontal: 24),
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF4f46e5), Color(0xFF3730a3)],
+        ),
+      ),
+      child: Stack(
+        children: [
+          // Decorative circle (top-right)
+          Positioned(
+            top: -250,
+            right: -100,
+            child: Container(
+              width: 500,
+              height: 500,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withOpacity(0.05),
+              ),
+            ),
+          ),
+          Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 1200),
+              child: _loading
+                  ? const SizedBox(
+                      height: 100,
+                      child: Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                    )
+                  : Wrap(
+                  spacing: 32,
+                  runSpacing: 32,
                   alignment: WrapAlignment.spaceAround,
                   children: [
-                    _StatItem(
-                      icon: Icons.campaign,
-                      target: _publishedCount,
-                      label: lang == 'es'
-                          ? 'Convocatorias Publicadas'
-                          : 'Published Calls',
+                    ScrollReveal(
+                      delay: Duration.zero,
+                      child: _StatItem(
+                        icon: Icons.campaign,
+                        target: _publishedCount,
+                        label: lang == 'es'
+                            ? 'Convocatorias Publicadas'
+                            : 'Published Calls',
+                      ),
                     ),
-                    _StatItem(
-                      icon: Icons.attach_money,
-                      target: _totalAmountMillions,
-                      suffix: 'M',
-                      prefix: '\$',
-                      label:
-                          lang == 'es' ? 'En Financiamiento' : 'In Funding',
+                    ScrollReveal(
+                      delay: const Duration(milliseconds: 100),
+                      child: _StatItem(
+                        icon: Icons.attach_money,
+                        target: _totalAmountMillions,
+                        suffix: 'M',
+                        prefix: '\$',
+                        label:
+                            lang == 'es' ? 'En Financiamiento' : 'In Funding',
+                      ),
                     ),
-                    _StatItem(
-                      icon: Icons.business,
-                      target: _userCount,
-                      label: lang == 'es'
-                          ? 'Organizaciones Activas'
-                          : 'Active Organizations',
+                    ScrollReveal(
+                      delay: const Duration(milliseconds: 200),
+                      child: _StatItem(
+                        icon: Icons.business,
+                        target: _userCount,
+                        label: lang == 'es'
+                            ? 'Organizaciones Activas'
+                            : 'Active Organizations',
+                      ),
                     ),
-                    _StatItem(
-                      icon: Icons.public,
-                      target: 18,
-                      label: lang == 'es'
-                          ? 'Estados Conectados'
-                          : 'Connected States',
+                    ScrollReveal(
+                      delay: const Duration(milliseconds: 300),
+                      child: _StatItem(
+                        icon: Icons.public,
+                        target: 18,
+                        label: lang == 'es'
+                            ? 'Estados Conectados'
+                            : 'Connected States',
+                      ),
                     ),
                   ],
                 ),
-        ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -123,15 +159,8 @@ class _StatItem extends StatelessWidget {
       width: 220,
       child: Column(
         children: [
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.primary.withOpacity(0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, size: 32, color: theme.colorScheme.primary),
-          ),
-          const SizedBox(height: 20),
+          Icon(icon, size: 32, color: Colors.white.withOpacity(0.8)),
+          const SizedBox(height: 12),
           StatCounter(
             target: target,
             prefix: prefix,
@@ -139,12 +168,15 @@ class _StatItem extends StatelessWidget {
             label: label,
             numberStyle: theme.textTheme.displaySmall?.copyWith(
               fontWeight: FontWeight.w900,
-              color: theme.colorScheme.primary,
+              color: Colors.white,
+              fontSize: 44.8,
               letterSpacing: -1,
+              height: 1.1,
             ),
             labelStyle: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-              fontWeight: FontWeight.w600,
+              color: Colors.white.withOpacity(0.85),
+              fontWeight: FontWeight.w500,
+              fontSize: 14.4,
             ),
           ),
         ],

@@ -39,7 +39,7 @@ class AppTheme {
         backgroundColor: Colors.white.withOpacity(0.8),
         surfaceTintColor: Colors.transparent,
         titleTextStyle: GoogleFonts.inter(
-          fontSize: 1.2,
+          fontSize: 20,
           fontWeight: FontWeight.w800,
           color: const Color(0xFF0f172a),
         ),
@@ -60,7 +60,7 @@ class AppTheme {
             borderRadius: BorderRadius.circular(12),
           ),
           textStyle: GoogleFonts.inter(
-            fontSize: 0.95,
+            fontSize: 15.2,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -73,7 +73,7 @@ class AppTheme {
           ),
           side: const BorderSide(color: Color(0xFFE2e8f0)),
           textStyle: GoogleFonts.inter(
-            fontSize: 0.95,
+            fontSize: 15.2,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -118,7 +118,7 @@ class AppTheme {
         backgroundColor: const Color(0xFF0f172a).withOpacity(0.85),
         surfaceTintColor: Colors.transparent,
         titleTextStyle: GoogleFonts.inter(
-          fontSize: 1.2,
+          fontSize: 20,
           fontWeight: FontWeight.w800,
           color: const Color(0xFFF1f5f9),
         ),
@@ -140,7 +140,7 @@ class AppTheme {
             borderRadius: BorderRadius.circular(12),
           ),
           textStyle: GoogleFonts.inter(
-            fontSize: 0.95,
+            fontSize: 15.2,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -153,7 +153,7 @@ class AppTheme {
           ),
           side: const BorderSide(color: Color(0xFF334155)),
           textStyle: GoogleFonts.inter(
-            fontSize: 0.95,
+            fontSize: 15.2,
             fontWeight: FontWeight.w600,
           ),
         ),

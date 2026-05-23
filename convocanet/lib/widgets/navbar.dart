@@ -30,7 +30,9 @@ class _NavbarState extends ConsumerState<Navbar> {
         child: Container(
           width: double.infinity,
           decoration: BoxDecoration(
-            color: theme.colorScheme.surface.withOpacity(isDark ? 0.7 : 0.8),
+            color: isDark
+                ? const Color(0xFF0f172a).withOpacity(0.85)
+                : theme.colorScheme.surface.withOpacity(0.8),
             border: Border(
               bottom: BorderSide(
                 color: theme.colorScheme.outlineVariant.withOpacity(0.2),
@@ -40,7 +42,7 @@ class _NavbarState extends ConsumerState<Navbar> {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 32),
             child: SizedBox(
-              height: 80,
+              height: 72,
               child: Row(
                 children: [
                   // Logo
@@ -52,30 +54,30 @@ class _NavbarState extends ConsumerState<Navbar> {
                         children: [
                           ShaderMask(
                             shaderCallback: (bounds) => const LinearGradient(
-                              colors: [Color(0xFF6366f1), Color(0xFF06b6d4)],
+                              colors: [Color(0xFF4f46e5), Color(0xFF06b6d4)],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                             ).createShader(bounds),
                             child: const Icon(
                               Icons.campaign,
                               color: Colors.white,
-                              size: 28,
+                              size: 20.8,
                             ),
                           ),
-                          const SizedBox(width: 8),
+                          const SizedBox(width: 10),
                           ShaderMask(
                             shaderCallback: (bounds) => const LinearGradient(
-                              colors: [Color(0xFF6366f1), Color(0xFF06b6d4)],
+                              colors: [Color(0xFF4f46e5), Color(0xFF06b6d4)],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                             ).createShader(bounds),
                             child: Text(
                               'ConvocaNet',
                               style: theme.textTheme.titleLarge?.copyWith(
-                                fontWeight: FontWeight.w900,
+                                fontWeight: FontWeight.w800,
                                 color: Colors.white,
                                 letterSpacing: -0.8,
-                                fontSize: 24,
+                                fontSize: 22.4,
                               ),
                             ),
                           ),
@@ -90,26 +92,38 @@ class _NavbarState extends ConsumerState<Navbar> {
                     _NavLink(
                       label: lang == 'es' ? 'Inicio' : 'Home',
                       onTap: () => context.go('/'),
+                      isDark: isDark,
+                      theme: theme,
                     ),
                     _NavLink(
                       label: lang == 'es' ? 'Características' : 'Features',
                       onTap: () => context.go('/#caracteristicas'),
+                      isDark: isDark,
+                      theme: theme,
                     ),
                     _NavLink(
                       label: lang == 'es' ? 'Convocatorias' : 'Open Calls',
                       onTap: () => context.go('/#convocatorias'),
+                      isDark: isDark,
+                      theme: theme,
                     ),
                     _NavLink(
                       label: lang == 'es' ? 'Estadísticas' : 'Stats',
                       onTap: () => context.go('/#estadisticas'),
+                      isDark: isDark,
+                      theme: theme,
                     ),
                     _NavLink(
                       label: lang == 'es' ? 'Nosotros' : 'About',
                       onTap: () => context.go('/#nosotros'),
+                      isDark: isDark,
+                      theme: theme,
                     ),
                     _NavLink(
                       label: lang == 'es' ? 'Contacto' : 'Contact',
                       onTap: () => context.go('/#contacto'),
+                      isDark: isDark,
+                      theme: theme,
                     ),
                   ],
 
@@ -117,11 +131,11 @@ class _NavbarState extends ConsumerState<Navbar> {
 
                   // Controls
                   const LanguageToggle(),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 8),
                   const ThemeToggle(),
 
                   if (isAuthenticated) ...[
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 8),
                     PopupMenuButton<String>(
                       icon: CircleAvatar(
                         radius: 18,
@@ -175,12 +189,12 @@ class _NavbarState extends ConsumerState<Navbar> {
                       ],
                     ),
                   ] else ...[
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 8),
                     TextButton(
                       onPressed: () => context.go('/login'),
                       child: Text(lang == 'es' ? 'Iniciar Sesión' : 'Sign In'),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 8),
                     ElevatedButton(
                       onPressed: () => context.go('/register'),
                       child: Text(lang == 'es' ? 'Registrarse' : 'Sign Up'),
@@ -188,7 +202,7 @@ class _NavbarState extends ConsumerState<Navbar> {
                   ],
 
                   if (ResponsiveLayout.isMobile(context)) ...[
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 8),
                     IconButton(
                       icon: const Icon(Icons.menu),
                       onPressed: () {
@@ -251,27 +265,57 @@ class _NavbarState extends ConsumerState<Navbar> {
   }
 }
 
-class _NavLink extends StatelessWidget {
+class _NavLink extends StatefulWidget {
   final String label;
   final VoidCallback onTap;
+  final bool isDark;
+  final ThemeData theme;
 
-  const _NavLink({required this.label, required this.onTap});
+  const _NavLink({
+    required this.label,
+    required this.onTap,
+    required this.isDark,
+    required this.theme,
+  });
+
+  @override
+  State<_NavLink> createState() => _NavLinkState();
+}
+
+class _NavLinkState extends State<_NavLink> {
+  bool _hovering = false;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 4),
       child: MouseRegion(
         cursor: SystemMouseCursors.click,
+        onEnter: (_) => setState(() => _hovering = true),
+        onExit: (_) => setState(() => _hovering = false),
         child: GestureDetector(
-          onTap: onTap,
-          child: Text(
-            label,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white.withOpacity(0.9),
-                  fontSize: 15,
-                ),
+          onTap: widget.onTap,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: _hovering
+                  ? (widget.isDark
+                      ? const Color(0xFF1e293b)
+                      : const Color(0xFFf1f5f9))
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              widget.label,
+              style: widget.theme.textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w500,
+                color: widget.isDark
+                    ? const Color(0xFFcbd5e1)
+                    : const Color(0xFF475569),
+                fontSize: 14.4,
+              ),
+            ),
           ),
         ),
       ),

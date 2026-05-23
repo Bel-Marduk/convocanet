@@ -53,7 +53,7 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
                 automaticallyImplyLeading: false,
                 backgroundColor: Colors.transparent,
                 surfaceTintColor: Colors.transparent,
-                toolbarHeight: 80,
+                toolbarHeight: 72,
                 flexibleSpace: const Navbar(),
               ),
               // Hero Section
@@ -111,78 +111,92 @@ class _CTASection extends ConsumerWidget {
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 100, horizontal: 24),
-      color: Colors.transparent,
+      color: theme.colorScheme.background,
       child: Center(
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 840),
-          padding: const EdgeInsets.all(64),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                theme.colorScheme.primary,
-                theme.colorScheme.primary.withOpacity(0.8),
-              ],
-            ),
-            borderRadius: BorderRadius.circular(32),
-            boxShadow: [
-              BoxShadow(
-                color: theme.colorScheme.primary.withOpacity(0.3),
-                blurRadius: 40,
-                offset: const Offset(0, 20),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(24),
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 640),
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Color(0xFF4f46e5), Color(0xFF3730a3)],
               ),
-            ],
-          ),
-          child: Column(
+            ),
+            child: Stack(
+              children: [
+                // Decorative circle
+                Positioned(
+                  top: -100,
+                  right: -100,
+                  child: Container(
+                    width: 400,
+                    height: 400,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white.withOpacity(0.08),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 64, horizontal: 40),
+                  child: Column(
             children: [
               Text(
                 lang == 'es'
                     ? '¿Listo para encontrar tu próxima convocatoria?'
                     : 'Ready to find your next open call?',
                 style: theme.textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w800,
                   color: Colors.white,
                   letterSpacing: -0.02,
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
               Text(
                 lang == 'es'
-                    ? 'Únete a asociaciones civiles que ya están aprovechando estas oportunidades.'
-                    : 'Join civil associations already taking advantage of these opportunities.',
+                    ? 'Únete a más de 1,500 asociaciones civiles que ya están aprovechando estas oportunidades.'
+                    : 'Join 1,500+ civil associations already taking advantage of these opportunities.',
                 style: theme.textTheme.bodyLarge?.copyWith(
                   color: Colors.white.withOpacity(0.9),
                   height: 1.6,
+                  fontSize: 16.8,
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 32),
               ElevatedButton(
                 onPressed: () {
-                  // Access parent state to scroll
                   final state = context.findAncestorStateOfType<_LandingScreenState>();
                   state?.scrollToContact();
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,
-                  foregroundColor: theme.colorScheme.primary,
-                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+                  foregroundColor: const Color(0xFF4f46e5),
+                  padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  elevation: 0,
+                  elevation: 4,
+                  shadowColor: Colors.black.withOpacity(0.15),
                 ),
                 child: Text(
                   lang == 'es' ? 'Comenzar Ahora' : 'Get Started',
                   style: const TextStyle(
-                    fontWeight: FontWeight.w800,
-                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 15.2,
                   ),
+                ),
+              ),
+                  ],
                 ),
               ),
             ],
           ),
         ),
+      ),
       ),
     );
   }
@@ -194,14 +208,16 @@ class _Footer extends ConsumerWidget {
     final lang = ref.watch(localeProvider).languageCode;
     final theme = Theme.of(context);
 
+    final isDark = theme.brightness == Brightness.dark;
+
     return Container(
-      padding: const EdgeInsets.fromLTRB(24, 80, 24, 0),
-      color: theme.colorScheme.surface.withOpacity(0.05),
+      padding: const EdgeInsets.fromLTRB(24, 60, 24, 0),
+      color: isDark ? const Color(0xFF1e293b) : const Color(0xFFf1f5f9),
       child: Column(
         children: [
           // Footer grid
           Wrap(
-            spacing: 80,
+            spacing: 40,
             runSpacing: 40,
             alignment: WrapAlignment.center,
             children: [
@@ -213,14 +229,15 @@ class _Footer extends ConsumerWidget {
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.campaign, color: theme.colorScheme.primary, size: 28),
+                        Icon(Icons.campaign, color: theme.colorScheme.primary, size: 20.8),
                         const SizedBox(width: 10),
                         Text(
                           'ConvocaNet',
                           style: theme.textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.w900,
+                            fontWeight: FontWeight.w800,
                             color: theme.colorScheme.primary,
-                            letterSpacing: -0.02,
+                            fontSize: 22.4,
+                            letterSpacing: -0.8,
                           ),
                         ),
                       ],
@@ -228,11 +245,12 @@ class _Footer extends ConsumerWidget {
                     const SizedBox(height: 20),
                     Text(
                       lang == 'es'
-                          ? 'Conectando asociaciones civiles con oportunidades de financiamiento y desarrollo en un solo lugar.'
-                          : 'Connecting civil associations with funding and development opportunities in one place.',
+                          ? 'Conectando asociaciones civiles con oportunidades de financiamiento y desarrollo desde 2024.'
+                          : 'Connecting civil associations with funding and development opportunities since 2024.',
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
                         height: 1.7,
+                        fontSize: 14.4,
                       ),
                     ),
                   ],
@@ -255,8 +273,8 @@ class _Footer extends ConsumerWidget {
                 title: lang == 'es' ? 'Recursos' : 'Resources',
                 links: [
                   ('Blog', () {}),
-                  (lang == 'es' ? 'Guías' : 'Guides', () {}),
-                  ('FAQ', () {}),
+                  (lang == 'es' ? 'Guías de Postulación' : 'Application Guides', () {}),
+                  (lang == 'es' ? 'Preguntas Frecuentes' : 'FAQ', () {}),
                   ('API', () {}),
                 ],
               ),
@@ -266,7 +284,7 @@ class _Footer extends ConsumerWidget {
                 title: lang == 'es' ? 'Legal' : 'Legal',
                 links: [
                   (lang == 'es' ? 'Privacidad' : 'Privacy', () {}),
-                  (lang == 'es' ? 'Términos' : 'Terms', () {}),
+                  (lang == 'es' ? 'Términos de Uso' : 'Terms of Use', () {}),
                   ('Cookies', () {}),
                 ],
               ),
@@ -292,6 +310,7 @@ class _Footer extends ConsumerWidget {
                     : '© 2026 ConvocaNet. All rights reserved.',
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
+                  fontSize: 13.6,
                 ),
               ),
             ),
@@ -318,11 +337,12 @@ class _FooterColumn extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            title,
+            title.toUpperCase(),
             style: theme.textTheme.titleSmall?.copyWith(
               fontWeight: FontWeight.w700,
               color: theme.colorScheme.onSurfaceVariant,
               letterSpacing: 0.05,
+              fontSize: 14.4,
             ),
           ),
           const SizedBox(height: 16),
@@ -336,6 +356,7 @@ class _FooterColumn extends StatelessWidget {
                       link.$1,
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
+                        fontSize: 14.4,
                       ),
                     ),
                   ),

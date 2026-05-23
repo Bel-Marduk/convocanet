@@ -33,7 +33,7 @@ class ConvocatoriaCard extends ConsumerWidget {
           children: [
             // Header with category and status
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+              padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
               child: Row(
                 children: [
                   _CategoryChip(
@@ -49,7 +49,7 @@ class ConvocatoriaCard extends ConsumerWidget {
 
             // Body
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+              padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -97,7 +97,7 @@ class ConvocatoriaCard extends ConsumerWidget {
 
             // Footer
             Container(
-              padding: const EdgeInsets.fromLTRB(20, 12, 12, 12),
+              padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
               decoration: BoxDecoration(
                 border: Border(
                   top: BorderSide(
@@ -132,12 +132,31 @@ class ConvocatoriaCard extends ConsumerWidget {
                     ),
                     tooltip: 'Compartir por WhatsApp',
                   ),
-                  TextButton(
-                    onPressed: onTap ??
-                        () => context
-                            .push('/convocatoria/${convocatoria.id}'),
-                    child: Text(
-                      lang == 'es' ? 'Ver más' : 'View more',
+                  Container(
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF4f46e5), Color(0xFF3730a3)],
+                      ),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: TextButton(
+                      onPressed: onTap ??
+                          () => context
+                              .push('/convocatoria/${convocatoria.id}'),
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        foregroundColor: Colors.white,
+                      ),
+                      child: Text(
+                        lang == 'es' ? 'Aplicar' : 'Apply',
+                        style: const TextStyle(
+                          fontSize: 13.6,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -180,10 +199,11 @@ class _CategoryChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withOpacity(isDark ? 0.15 : 0.1),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Row(
@@ -196,7 +216,7 @@ class _CategoryChip extends StatelessWidget {
           Text(
             label,
             style: TextStyle(
-              fontSize: 0.78,
+              fontSize: 12.48,
               fontWeight: FontWeight.w600,
               color: color,
             ),
@@ -238,17 +258,18 @@ class _StatusBadge extends StatelessWidget {
       'expired' => (lang == 'es' ? 'Vencida' : 'Expired', const Color(0xFFEf4444)),
       _ => (status, Colors.grey),
     };
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withOpacity(isDark ? 0.15 : 0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
         label,
         style: TextStyle(
-          fontSize: 0.75,
+          fontSize: 12.0,
           fontWeight: FontWeight.w700,
           color: color,
           letterSpacing: 0.03,

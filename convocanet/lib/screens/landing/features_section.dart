@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/locale_provider.dart';
+import '../../widgets/scroll_reveal.dart';
 
 class FeaturesSection extends ConsumerWidget {
   const FeaturesSection({super.key});
@@ -9,6 +10,7 @@ class FeaturesSection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final lang = ref.watch(localeProvider).languageCode;
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     final features = [
       _FeatureData(
@@ -57,7 +59,9 @@ class FeaturesSection extends ConsumerWidget {
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 100, horizontal: 24),
-      color: Colors.transparent,
+      color: theme.brightness == Brightness.dark
+          ? const Color(0xFF1e293b)
+          : const Color(0xFFF8fafc),
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 1200),
@@ -69,8 +73,8 @@ class FeaturesSection extends ConsumerWidget {
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      theme.colorScheme.primary.withOpacity(0.1),
-                      theme.colorScheme.secondary.withOpacity(0.1),
+                      theme.colorScheme.primary.withOpacity(isDark ? 0.2 : 0.1),
+                      theme.colorScheme.secondary.withOpacity(isDark ? 0.2 : 0.1),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(50),
@@ -107,17 +111,20 @@ class FeaturesSection extends ConsumerWidget {
               ),
               const SizedBox(height: 56),
 
-              // Features grid
+              // Features grid with scroll-triggered staggered fade-up
               Wrap(
                 spacing: 24,
                 runSpacing: 24,
                 alignment: WrapAlignment.center,
-                children: features
-                    .map((f) => _FeatureCard(
-                          feature: f,
-                          lang: lang,
-                        ))
-                    .toList(),
+                children: List.generate(features.length, (i) {
+                  return ScrollReveal(
+                    delay: Duration(milliseconds: i * 100),
+                    child: _FeatureCard(
+                      feature: features[i],
+                      lang: lang,
+                    ),
+                  );
+                }),
               ),
             ],
           ),
@@ -146,64 +153,110 @@ class _FeatureData {
   String desc(String lang) => lang == 'es' ? descEs : descEn;
 }
 
-class _FeatureCard extends StatelessWidget {
+class _FeatureCard extends StatefulWidget {
   final _FeatureData feature;
   final String lang;
 
   const _FeatureCard({required this.feature, required this.lang});
 
   @override
+  State<_FeatureCard> createState() => _FeatureCardState();
+}
+
+class _FeatureCardState extends State<_FeatureCard> {
+  bool _hovering = false;
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return MouseRegion(
       cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _hovering = true),
+      onExit: (_) => setState(() => _hovering = false),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOutCubic,
         width: 350,
         padding: const EdgeInsets.all(36),
+        transform: _hovering
+            ? (Matrix4.identity()..translate(0.0, -4.0))
+            : Matrix4.identity(),
         decoration: BoxDecoration(
           color: theme.colorScheme.surface,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: theme.colorScheme.outlineVariant,
+            color: _hovering
+                ? Colors.transparent
+                : theme.colorScheme.outlineVariant,
           ),
+          boxShadow: _hovering
+              ? [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(isDark ? 0.5 : 0.08),
+                    blurRadius: 15,
+                    spreadRadius: -3,
+                    offset: const Offset(0, 10),
+                  ),
+                  BoxShadow(
+                    color: Colors.black.withOpacity(isDark ? 0.4 : 0.05),
+                    blurRadius: 6,
+                    spreadRadius: -4,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
+              : [],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Icon
-            Container(
+            // Icon with hover scale and gradient effect
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
               width: 56,
               height: 56,
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    theme.colorScheme.primary.withOpacity(0.1),
-                    theme.colorScheme.secondary.withOpacity(0.1),
-                  ],
-                ),
+                gradient: _hovering
+                    ? const LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [Color(0xFF4f46e5), Color(0xFF06b6d4)],
+                      )
+                    : LinearGradient(
+                        colors: [
+                          theme.colorScheme.primary.withOpacity(isDark ? 0.2 : 0.1),
+                          theme.colorScheme.secondary.withOpacity(isDark ? 0.2 : 0.1),
+                        ],
+                      ),
                 borderRadius: BorderRadius.circular(14),
               ),
-              child: Icon(
-                feature.icon,
-                color: theme.colorScheme.primary,
-                size: 26,
+              child: AnimatedScale(
+                scale: _hovering ? 1.1 : 1.0,
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeOutCubic,
+                child: Icon(
+                  widget.feature.icon,
+                  color: _hovering ? Colors.white : theme.colorScheme.primary,
+                  size: 20.8,
+                ),
               ),
             ),
             const SizedBox(height: 20),
             Text(
-              feature.title(lang),
+              widget.feature.title(widget.lang),
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w700,
+                fontSize: 18.4,
               ),
             ),
             const SizedBox(height: 10),
             Text(
-              feature.desc(lang),
+              widget.feature.desc(widget.lang),
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
                 height: 1.7,
+                fontSize: 14.72,
               ),
             ),
           ],

@@ -66,10 +66,13 @@ class _ContactSectionState extends ConsumerState<ContactSection> {
   Widget build(BuildContext context) {
     final lang = ref.watch(localeProvider).languageCode;
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 100, horizontal: 24),
-      color: Colors.transparent,
+      color: isDark
+          ? const Color(0xFF1e293b)
+          : const Color(0xFFF8fafc),
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 1200),
@@ -92,8 +95,8 @@ class _ContactSectionState extends ConsumerState<ContactSection> {
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
-                            theme.colorScheme.primary.withOpacity(0.1),
-                            theme.colorScheme.secondary.withOpacity(0.1),
+                            theme.colorScheme.primary.withOpacity(isDark ? 0.2 : 0.1),
+                            theme.colorScheme.secondary.withOpacity(isDark ? 0.2 : 0.1),
                           ],
                         ),
                         borderRadius: BorderRadius.circular(50),
@@ -161,7 +164,32 @@ class _ContactSectionState extends ConsumerState<ContactSection> {
               SizedBox(
                 width: 500,
                 child: Card(
-                  child: Padding(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                  elevation: 0,
+                  shadowColor: Colors.black.withOpacity(0.08),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(24),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.08),
+                          blurRadius: 15,
+                          spreadRadius: -3,
+                          offset: const Offset(0, 10),
+                        ),
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 6,
+                          spreadRadius: -4,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(24),
+                      child: Padding(
                     padding: const EdgeInsets.all(40),
                     child: Form(
                       key: _formKey,
@@ -256,6 +284,8 @@ class _ContactSectionState extends ConsumerState<ContactSection> {
                       ),
                     ),
                   ),
+                  ),
+                ),
                 ),
               ),
             ],
@@ -290,7 +320,7 @@ class _ContactItem extends StatelessWidget {
             ),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Icon(icon, color: theme.colorScheme.primary, size: 20),
+          child: Icon(icon, color: theme.colorScheme.primary, size: 16),
         ),
         const SizedBox(width: 14),
         Text(
@@ -304,11 +334,18 @@ class _ContactItem extends StatelessWidget {
   }
 }
 
-class _SocialIcon extends StatelessWidget {
+class _SocialIcon extends StatefulWidget {
   final IconData icon;
   final String url;
 
   const _SocialIcon({required this.icon, required this.url});
+
+  @override
+  State<_SocialIcon> createState() => _SocialIconState();
+}
+
+class _SocialIconState extends State<_SocialIcon> {
+  bool _hovering = false;
 
   @override
   Widget build(BuildContext context) {
@@ -316,20 +353,37 @@ class _SocialIcon extends StatelessWidget {
 
     return MouseRegion(
       cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _hovering = true),
+      onExit: (_) => setState(() => _hovering = false),
       child: GestureDetector(
         onTap: () {
           // TODO: launch URL
         },
-        child: Container(
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
           width: 44,
           height: 44,
+          transform: _hovering
+              ? (Matrix4.identity()..translate(0.0, -3.0))
+              : Matrix4.identity(),
           decoration: BoxDecoration(
+            color: _hovering
+                ? theme.colorScheme.primary
+                : Colors.transparent,
             border: Border.all(
-              color: theme.colorScheme.outlineVariant,
+              color: _hovering
+                  ? theme.colorScheme.primary
+                  : theme.colorScheme.outlineVariant,
             ),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Icon(icon, color: theme.colorScheme.onSurfaceVariant, size: 20),
+          child: Icon(
+            widget.icon,
+            color: _hovering
+                ? Colors.white
+                : theme.colorScheme.onSurfaceVariant,
+            size: 20,
+          ),
         ),
       ),
     );

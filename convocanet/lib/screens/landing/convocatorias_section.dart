@@ -55,6 +55,7 @@ class _ConvocatoriasSectionState extends ConsumerState<ConvocatoriasSection> {
   Widget build(BuildContext context) {
     final lang = ref.watch(localeProvider).languageCode;
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     final filters = [
       ('todas', lang == 'es' ? 'Todas' : 'All'),
@@ -78,8 +79,8 @@ class _ConvocatoriasSectionState extends ConsumerState<ConvocatoriasSection> {
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      theme.colorScheme.primary.withOpacity(0.1),
-                      theme.colorScheme.secondary.withOpacity(0.1),
+                      theme.colorScheme.primary.withOpacity(isDark ? 0.2 : 0.1),
+                      theme.colorScheme.secondary.withOpacity(isDark ? 0.2 : 0.1),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(50),
