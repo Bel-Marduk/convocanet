@@ -94,11 +94,12 @@ class _HeroSectionState extends ConsumerState<HeroSection> {
                     RichText(
                       textAlign: TextAlign.center,
                       text: TextSpan(
-                        style: theme.textTheme.displayMedium?.copyWith(
+                        style: theme.textTheme.displayLarge?.copyWith(
                           fontWeight: FontWeight.w900,
-                          height: 1.05,
-                          letterSpacing: -0.05,
-                          color: isDark ? Colors.white : Colors.black87,
+                          height: 1.1,
+                          letterSpacing: -1.2,
+                          color: Colors.white,
+                          fontSize: 72,
                         ),
                         children: [
                           TextSpan(
@@ -107,15 +108,16 @@ class _HeroSectionState extends ConsumerState<HeroSection> {
                           WidgetSpan(
                             child: ShaderMask(
                               shaderCallback: (bounds) => const LinearGradient(
-                                colors: [Color(0xFF4f46e5), Color(0xFF06b6d4)],
+                                colors: [Color(0xFF6366f1), Color(0xFF06b6d4)],
                               ).createShader(bounds),
                               child: Text(
                                 lang == 'es' ? 'Asociaciones Civiles' : 'Civil Associations',
-                                style: theme.textTheme.displayMedium?.copyWith(
+                                style: theme.textTheme.displayLarge?.copyWith(
                                   fontWeight: FontWeight.w900,
                                   color: Colors.white,
-                                  height: 1.05,
-                                  letterSpacing: -0.05,
+                                  height: 1.1,
+                                  letterSpacing: -1.2,
+                                  fontSize: 72,
                                 ),
                               ),
                             ),
@@ -127,18 +129,18 @@ class _HeroSectionState extends ConsumerState<HeroSection> {
                       ),
                     ),
 
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 40),
 
                     // Subtitle
                     ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 720),
+                      constraints: const BoxConstraints(maxWidth: 800),
                       child: Text(
                         lang == 'es'
                             ? 'Centralizamos las convocatorias públicas para que tu organización encuentre financiamiento, programas y alianzas estratégicas en un solo lugar.'
                             : 'We centralize public calls so your organization can find funding, programs, and strategic partnerships in one place.',
-                        style: theme.textTheme.titleLarge?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant.withOpacity(0.8),
-                          height: 1.7,
+                        style: theme.textTheme.headlineSmall?.copyWith(
+                          color: Colors.white.withOpacity(0.7),
+                          height: 1.6,
                           fontWeight: FontWeight.w400,
                           fontSize: 20,
                         ),
@@ -146,48 +148,55 @@ class _HeroSectionState extends ConsumerState<HeroSection> {
                       ),
                     ),
 
-
-                    const SizedBox(height: 48),
+                    const SizedBox(height: 56),
 
                     // Buttons
                     Wrap(
-                      spacing: 20,
+                      spacing: 24,
                       runSpacing: 20,
                       alignment: WrapAlignment.center,
                       children: [
                         ElevatedButton(
                           onPressed: () {
-                            // TODO: Implement scroll to convocatorias
+                            // TODO: Implement scroll
                           },
                           style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 22),
+                            backgroundColor: const Color(0xFF4f46e5),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 24),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(16),
                             ),
+                            elevation: 0,
                           ),
                           child: Text(
                             lang == 'es' ? 'Ver Convocatorias' : 'View Open Calls',
-                            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
+                            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
                           ),
                         ),
                         OutlinedButton(
                           onPressed: () {
-                            // TODO: Implement scroll to about
+                            // TODO: Implement scroll
                           },
                           style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 22),
-                            side: BorderSide(color: theme.colorScheme.outlineVariant, width: 2),
+                            padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 24),
+                            side: BorderSide(color: Colors.white.withOpacity(0.2), width: 2),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(16),
                             ),
                           ),
                           child: Text(
                             lang == 'es' ? 'Conocer Más' : 'Learn More',
-                            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w700, 
+                              fontSize: 18,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
                       ],
                     ),
+
 
                     const SizedBox(height: 80),
 
