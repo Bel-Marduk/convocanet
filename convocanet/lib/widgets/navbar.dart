@@ -52,21 +52,31 @@ class _NavbarState extends ConsumerState<Navbar> {
                         children: [
                           ShaderMask(
                             shaderCallback: (bounds) => const LinearGradient(
-                              colors: [Color(0xFF4f46e5), Color(0xFF06b6d4)],
+                              colors: [Color(0xFF6366f1), Color(0xFF06b6d4)],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
                             ).createShader(bounds),
                             child: const Icon(
                               Icons.campaign,
                               color: Colors.white,
-                              size: 32,
+                              size: 28,
                             ),
                           ),
-                          const SizedBox(width: 12),
-                          Text(
-                            'ConvocaNet',
-                            style: theme.textTheme.headlineSmall?.copyWith(
-                              fontWeight: FontWeight.w900,
-                              color: isDark ? Colors.white : theme.colorScheme.primary,
-                              letterSpacing: -0.5,
+                          const SizedBox(width: 8),
+                          ShaderMask(
+                            shaderCallback: (bounds) => const LinearGradient(
+                              colors: [Color(0xFF6366f1), Color(0xFF06b6d4)],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ).createShader(bounds),
+                            child: Text(
+                              'ConvocaNet',
+                              style: theme.textTheme.titleLarge?.copyWith(
+                                fontWeight: FontWeight.w900,
+                                color: Colors.white,
+                                letterSpacing: -0.8,
+                                fontSize: 24,
+                              ),
                             ),
                           ),
                         ],
@@ -75,7 +85,7 @@ class _NavbarState extends ConsumerState<Navbar> {
                   ),
 
                   if (ResponsiveLayout.isDesktop(context)) ...[
-                    const SizedBox(width: 48),
+                    const SizedBox(width: 60),
                     // Nav links
                     _NavLink(
                       label: lang == 'es' ? 'Inicio' : 'Home',
@@ -250,7 +260,7 @@ class _NavLink extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: MouseRegion(
         cursor: SystemMouseCursors.click,
         child: GestureDetector(
@@ -259,7 +269,8 @@ class _NavLink extends StatelessWidget {
             label,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   fontWeight: FontWeight.w600,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  color: Colors.white.withOpacity(0.9),
+                  fontSize: 15,
                 ),
           ),
         ),
