@@ -89,25 +89,15 @@ class ConvocatoriaService {
     int userCount = 0;
     int publishedCount = 0;
 
-    // 1. Active Convocatorias Count
-    try {
-      final res = await _client
-          .from('convocatorias')
-          .select('id')
-          .inFilter('status', ['active', 'permanent'])
-          .count();
-      activeCount = res.count ?? 0;
-    } catch (e) {
-      print('Error fetching activeCount: $e');
-    }
-
-    // 2. Total Amount
+    // 1. Active Convocatorias Count & Total Amount
     try {
       final res = await _client
           .from('convocatorias')
           .select('amount_usd')
           .inFilter('status', ['active', 'permanent']);
+      
       if (res is List) {
+        activeCount = res.length;
         for (final item in res) {
           final amount = item['amount_usd'];
           if (amount != null) {
@@ -116,28 +106,25 @@ class ConvocatoriaService {
         }
       }
     } catch (e) {
-      print('Error fetching totalAmount: $e');
+      print('Error fetching active stats: $e');
     }
 
-    // 3. User Count (Might fail due to RLS)
+    // 2. User Count (Fallback to fake if fails)
     try {
-      final res = await _client
-          .from('profiles')
-          .select('id')
-          .count();
-      userCount = res.count ?? 0;
+      final res = await _client.from('profiles').select('id');
+      if (res is List) {
+        userCount = res.length;
+      }
     } catch (e) {
-      print('Note: userCount restricted or error: $e');
-      userCount = 1520; // Fallback to a fake number if restricted
+      userCount = 1520;
     }
 
-    // 4. Published Count
+    // 3. Published Count
     try {
-      final res = await _client
-          .from('convocatorias')
-          .select('id')
-          .count();
-      publishedCount = res.count ?? 0;
+      final res = await _client.from('convocatorias').select('id');
+      if (res is List) {
+        publishedCount = res.length;
+      }
     } catch (e) {
       print('Error fetching publishedCount: $e');
     }

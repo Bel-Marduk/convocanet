@@ -28,11 +28,10 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
   Future<void> _loadStats() async {
     try {
       final stats = await ConvocatoriaService.getStats();
-      final messageCountRes = await Supabase.instance.client
+      final messageRes = await Supabase.instance.client
           .from('contact_messages')
-          .select('id')
-          .count();
-      final messageCount = messageCountRes.count ?? 0;
+          .select('id');
+      final messageCount = (messageRes as List).length;
 
       if (mounted) {
         setState(() {
