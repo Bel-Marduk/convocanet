@@ -244,4 +244,27 @@ class ConvocatoriaService {
       'message': message,
     });
   }
+
+  // Newsletter subscription
+  static Future<bool> subscribeNewsletter(String email) async {
+    // Check if email already exists
+    final existing = await _client
+        .from('contact_messages')
+        .select('id')
+        .eq('email', email)
+        .eq('organization', 'newsletter')
+        .maybeSingle();
+
+    if (existing != null) {
+      return false; // Already subscribed
+    }
+
+    await _client.from('contact_messages').insert({
+      'name': 'Newsletter Subscriber',
+      'email': email,
+      'organization': 'newsletter',
+      'message': 'Suscripción al newsletter desde landing page',
+    });
+    return true;
+  }
 }

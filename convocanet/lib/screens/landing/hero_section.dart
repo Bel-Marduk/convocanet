@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import '../../providers/locale_provider.dart';
 import '../../widgets/stat_counter.dart';
-import '../../widgets/responsive_layout.dart';
 import '../../services/convocatoria_service.dart';
 
 class HeroSection extends ConsumerStatefulWidget {
-  const HeroSection({super.key});
+  final void Function(String sectionId)? onNavigate;
+
+  const HeroSection({super.key, this.onNavigate});
 
   @override
   ConsumerState<HeroSection> createState() => _HeroSectionState();
@@ -18,7 +19,7 @@ class _HeroSectionState extends ConsumerState<HeroSection>
     with TickerProviderStateMixin {
   int _userCount = 1520;
   int _activeCount = 248;
-  int _totalAmountMillions = 45;
+  double _totalAmount = 45000000;
   bool _loading = true;
 
   // Staggered entrance animations matching static CSS
@@ -27,6 +28,7 @@ class _HeroSectionState extends ConsumerState<HeroSection>
   late final AnimationController _subtitleCtrl;
   late final AnimationController _buttonsCtrl;
   late final AnimationController _statsCtrl;
+  late final AnimationController _amountCtrl;
 
   @override
   void initState() {
@@ -53,8 +55,12 @@ class _HeroSectionState extends ConsumerState<HeroSection>
       vsync: this,
       duration: const Duration(milliseconds: 800),
     );
+    _amountCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
 
-    // Stagger: badge 0ms, title 100ms, subtitle 200ms, buttons 300ms, stats 400ms
+    // Stagger: badge 0ms, title 100ms, subtitle 200ms, buttons 300ms, stats 400ms, amount 500ms
     _badgeCtrl.forward();
     Future.delayed(const Duration(milliseconds: 100), () {
       if (mounted) _titleCtrl.forward();
@@ -68,6 +74,9 @@ class _HeroSectionState extends ConsumerState<HeroSection>
     Future.delayed(const Duration(milliseconds: 400), () {
       if (mounted) _statsCtrl.forward();
     });
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (mounted) _amountCtrl.forward();
+    });
   }
 
   @override
@@ -77,6 +86,7 @@ class _HeroSectionState extends ConsumerState<HeroSection>
     _subtitleCtrl.dispose();
     _buttonsCtrl.dispose();
     _statsCtrl.dispose();
+    _amountCtrl.dispose();
     super.dispose();
   }
 
@@ -87,8 +97,7 @@ class _HeroSectionState extends ConsumerState<HeroSection>
         setState(() {
           _userCount = stats['userCount'] as int? ?? 1520;
           _activeCount = stats['activeCount'] as int? ?? 248;
-          _totalAmountMillions =
-              ((stats['totalAmount'] as double? ?? 45000000) / 1000000).round();
+          _totalAmount = stats['totalAmount'] as double? ?? 45000000;
           _loading = false;
         });
       }
@@ -379,59 +388,135 @@ class _HeroSectionState extends ConsumerState<HeroSection>
                             runSpacing: isMobile ? 24 : 40,
                             alignment: WrapAlignment.center,
                             children: [
-                              StatCounter(
-                                target: _activeCount,
-                                label: lang == 'es'
-                                    ? 'Convocatorias Registradas'
-                                    : 'Registered Calls',
-                                numberStyle: theme.textTheme.headlineMedium
-                                    ?.copyWith(
-                                  fontWeight: FontWeight.w800,
-                                  color: theme.colorScheme.primary,
-                                  fontSize: 35.2,
-                                  height: 1.2,
-                                ),
-                                labelStyle: theme.textTheme.bodySmall?.copyWith(
-                                  color: theme.colorScheme.onSurfaceVariant,
-                                  fontSize: 13.6,
-                                ),
-                              ),
-                              StatCounter(
-                                target: _userCount,
-                                label: lang == 'es'
-                                    ? 'Asociaciones Registradas'
-                                    : 'Registered Associations',
-                                numberStyle: theme.textTheme.headlineMedium
-                                    ?.copyWith(
-                                  fontWeight: FontWeight.w800,
-                                  color: theme.colorScheme.primary,
-                                  fontSize: 35.2,
-                                  height: 1.2,
-                                ),
-                                labelStyle: theme.textTheme.bodySmall?.copyWith(
-                                  color: theme.colorScheme.onSurfaceVariant,
-                                  fontSize: 13.6,
+                              _ClickableStat(
+                                onTap: () => widget.onNavigate?.call('convocatorias'),
+                                child: StatCounter(
+                                  target: _activeCount,
+                                  label: lang == 'es'
+                                      ? 'Convocatorias Registradas'
+                                      : 'Registered Calls',
+                                  numberStyle: theme.textTheme.headlineMedium
+                                      ?.copyWith(
+                                    fontWeight: FontWeight.w800,
+                                    color: theme.colorScheme.primary,
+                                    fontSize: 35.2,
+                                    height: 1.2,
+                                  ),
+                                  labelStyle: theme.textTheme.bodySmall?.copyWith(
+                                    color: theme.colorScheme.onSurfaceVariant,
+                                    fontSize: 13.6,
+                                  ),
                                 ),
                               ),
-                              StatCounter(
-                                target: 89,
-                                suffix: '%',
-                                label: lang == 'es'
-                                    ? 'Tasa de Éxito'
-                                    : 'Success Rate',
-                                numberStyle: theme.textTheme.headlineMedium
-                                    ?.copyWith(
-                                  fontWeight: FontWeight.w800,
-                                  color: theme.colorScheme.primary,
-                                  fontSize: 35.2,
-                                  height: 1.2,
+                              _ClickableStat(
+                                onTap: () => widget.onNavigate?.call('nosotros'),
+                                child: StatCounter(
+                                  target: _userCount,
+                                  label: lang == 'es'
+                                      ? 'Asociaciones Registradas'
+                                      : 'Registered Associations',
+                                  numberStyle: theme.textTheme.headlineMedium
+                                      ?.copyWith(
+                                    fontWeight: FontWeight.w800,
+                                    color: theme.colorScheme.primary,
+                                    fontSize: 35.2,
+                                    height: 1.2,
+                                  ),
+                                  labelStyle: theme.textTheme.bodySmall?.copyWith(
+                                    color: theme.colorScheme.onSurfaceVariant,
+                                    fontSize: 13.6,
+                                  ),
                                 ),
-                                labelStyle: theme.textTheme.bodySmall?.copyWith(
-                                  color: theme.colorScheme.onSurfaceVariant,
-                                  fontSize: 13.6,
+                              ),
+                              _ClickableStat(
+                                onTap: () => widget.onNavigate?.call('caracteristicas'),
+                                child: StatCounter(
+                                  target: 89,
+                                  suffix: '%',
+                                  label: lang == 'es'
+                                      ? 'Tasa de Éxito'
+                                      : 'Success Rate',
+                                  numberStyle: theme.textTheme.headlineMedium
+                                      ?.copyWith(
+                                    fontWeight: FontWeight.w800,
+                                    color: theme.colorScheme.primary,
+                                    fontSize: 35.2,
+                                    height: 1.2,
+                                  ),
+                                  labelStyle: theme.textTheme.bodySmall?.copyWith(
+                                    color: theme.colorScheme.onSurfaceVariant,
+                                    fontSize: 13.6,
+                                  ),
                                 ),
                               ),
                             ],
+                          ),
+                        ),
+                      ),
+
+                      SizedBox(height: isMobile ? 32 : 40),
+
+                      // Total amount — fadeInUp, 0.5s delay
+                      FadeTransition(
+                        opacity: _amountCtrl,
+                        child: SlideTransition(
+                          position: Tween<Offset>(
+                            begin: const Offset(0, 0.3),
+                            end: Offset.zero,
+                          ).animate(CurvedAnimation(
+                            parent: _amountCtrl,
+                            curve: Curves.easeOutCubic,
+                          )),
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 640),
+                            child: Column(
+                              children: [
+                                Text(
+                                  lang == 'es'
+                                      ? 'Son más de'
+                                      : 'More than',
+                                  style: theme.textTheme.headlineSmall?.copyWith(
+                                    color: theme.colorScheme.onSurfaceVariant,
+                                    fontWeight: FontWeight.w400,
+                                    fontSize: isMobile ? 18 : 22,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(height: 8),
+                                ShaderMask(
+                                  shaderCallback: (bounds) =>
+                                      const LinearGradient(
+                                    colors: [
+                                      Color(0xFF4f46e5),
+                                      Color(0xFF06b6d4),
+                                    ],
+                                  ).createShader(bounds),
+                                  child: Text(
+                                    'USD\$${NumberFormat('#,###').format(_totalAmount.round())}',
+                                    style: GoogleFonts.inter(
+                                      fontWeight: FontWeight.w900,
+                                      color: Colors.white,
+                                      fontSize: isMobile ? 28 : 40,
+                                      height: 1.2,
+                                      letterSpacing: -1,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  lang == 'es'
+                                      ? 'en oportunidades de financiación para tu organización'
+                                      : 'in funding opportunities for your organization',
+                                  style: theme.textTheme.headlineSmall?.copyWith(
+                                    color: theme.colorScheme.onSurfaceVariant,
+                                    fontWeight: FontWeight.w400,
+                                    fontSize: isMobile ? 16 : 20,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -528,6 +613,76 @@ class _ScrollAnimationState extends State<_ScrollAnimation>
           ),
         );
       },
+    );
+  }
+}
+
+class _ClickableStat extends StatefulWidget {
+  final Widget child;
+  final VoidCallback onTap;
+
+  const _ClickableStat({required this.child, required this.onTap});
+
+  @override
+  State<_ClickableStat> createState() => _ClickableStatState();
+}
+
+class _ClickableStatState extends State<_ClickableStat> {
+  bool _hovering = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _hovering = true),
+      onExit: (_) => setState(() => _hovering = false),
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOutCubic,
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          transform: _hovering
+              ? (Matrix4.identity()..translate(0.0, -4.0))
+              : Matrix4.identity(),
+          decoration: BoxDecoration(
+            color: _hovering
+                ? theme.colorScheme.primary.withOpacity(isDark ? 0.12 : 0.06)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: _hovering
+                  ? theme.colorScheme.primary.withOpacity(0.3)
+                  : Colors.transparent,
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              widget.child,
+              AnimatedSlide(
+                offset: _hovering ? Offset.zero : const Offset(-0.5, 0),
+                duration: const Duration(milliseconds: 200),
+                child: AnimatedOpacity(
+                  opacity: _hovering ? 1.0 : 0.0,
+                  duration: const Duration(milliseconds: 200),
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 8),
+                    child: Icon(
+                      Icons.arrow_forward_rounded,
+                      size: 18,
+                      color: theme.colorScheme.primary,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

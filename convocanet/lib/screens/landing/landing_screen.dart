@@ -4,10 +4,12 @@ import '../../providers/locale_provider.dart';
 import '../../widgets/navbar.dart';
 import '../../widgets/bubble_background.dart';
 import 'hero_section.dart';
+import 'what_section.dart';
 import 'features_section.dart';
 import 'convocatorias_section.dart';
 import 'stats_section.dart';
 import 'testimonials_section.dart';
+import 'newsletter_section.dart';
 import 'contact_section.dart';
 import '../../widgets/responsive_layout.dart';
 
@@ -86,8 +88,13 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
               flexibleSpace: Navbar(onNavigate: scrollToSection),
             ),
             // Hero Section
+            SliverToBoxAdapter(
+              child: HeroSection(onNavigate: scrollToSection),
+            ),
+
+            // What is ConvocaNet Section
             const SliverToBoxAdapter(
-              child: HeroSection(),
+              child: WhatSection(),
             ),
 
             // Features Section
@@ -108,6 +115,11 @@ class _LandingScreenState extends ConsumerState<LandingScreen> {
             // Testimonials Section
             SliverToBoxAdapter(
               child: Container(key: _testimonialsKey, child: const TestimonialsSection()),
+            ),
+
+            // Newsletter Section
+            const SliverToBoxAdapter(
+              child: NewsletterSection(),
             ),
 
             // CTA Section
