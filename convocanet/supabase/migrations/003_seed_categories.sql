@@ -71,7 +71,7 @@ BEGIN
     edu_id, NULL, 'MXN', '2026-05-22',
     'Internacional', 'International',
     'https://secihti.mx/convocatoria/becas-al-extranjero/posgrado-en-ciencias-y-humanidades/convocatoria-2026-becas-de-posgrado-en-ciencia-y-humanidades-en-el-extranjero/',
-    'SECIHTI', 'closed', true
+    'SECIHTI', 'expired', true
   ),
   (
     'Becas de Doble Grado México-Francia en Ingenierías STEM 2026',
@@ -143,7 +143,7 @@ BEGIN
     tech_id, NULL, 'MXN', '2026-05-22',
     'México (Nacional)', 'Mexico (National)',
     'https://secihti.mx/convocatoria/desarrollo-tecnologico-vinculacion-e-innovacion/convocatoria-copa-futbotmx-capitulo-vision-por-computadora/',
-    'SECIHTI', 'closed', true
+    'SECIHTI', 'expired', true
   ),
   (
     'Becas Nacionales para Estudios de Posgrado 2026',

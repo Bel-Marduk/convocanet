@@ -63,7 +63,7 @@ class _ConvocatoriasSectionState extends ConsumerState<ConvocatoriasSection> {
       ('todas', lang == 'es' ? 'Todas' : 'All'),
       ('educacion', lang == 'es' ? 'Educación' : 'Education'),
       ('salud', lang == 'es' ? 'Salud' : 'Health'),
-      ('medioambiente', lang == 'es' ? 'Medio Ambiente' : 'Environment'),
+      ('tecnologia', lang == 'es' ? 'Tecnología' : 'Technology'),
       ('cultura', lang == 'es' ? 'Cultura' : 'Culture'),
       ('social', lang == 'es' ? 'Desarrollo Social' : 'Social Development'),
     ];

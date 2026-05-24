@@ -26,7 +26,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final _interests = [
     ('educacion', 'Educación', 'Education'),
     ('salud', 'Salud', 'Health'),
-    ('medioambiente', 'Medio Ambiente', 'Environment'),
     ('cultura', 'Cultura', 'Culture'),
     ('social', 'Desarrollo Social', 'Social Development'),
     ('tecnologia', 'Tecnología', 'Technology'),
