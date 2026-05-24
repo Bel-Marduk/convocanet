@@ -681,6 +681,15 @@ a {
     background: rgba(245,158,11,0.15);
 }
 
+.conv-badge.cerrada {
+    background: rgba(239,68,68,0.1);
+    color: #ef4444;
+}
+
+[data-theme="dark"] .conv-badge.cerrada {
+    background: rgba(239,68,68,0.15);
+}
+
 .conv-deadline {
     font-size: 0.8rem;
     color: var(--text-muted);

@@ -20,11 +20,13 @@ DECLARE
   salud_id UUID;
   cult_id UUID;
   tech_id UUID;
+  social_id UUID;
 BEGIN
   SELECT id INTO edu_id FROM categories WHERE slug = 'educacion';
   SELECT id INTO salud_id FROM categories WHERE slug = 'salud';
   SELECT id INTO cult_id FROM categories WHERE slug = 'cultura';
   SELECT id INTO tech_id FROM categories WHERE slug = 'tecnologia';
+  SELECT id INTO social_id FROM categories WHERE slug = 'social';
 
   -- Delete old sample data
   DELETE FROM convocatorias WHERE source_name = 'Sample';
@@ -69,7 +71,7 @@ BEGIN
     edu_id, NULL, 'MXN', '2026-05-22',
     'Internacional', 'International',
     'https://secihti.mx/convocatoria/becas-al-extranjero/posgrado-en-ciencias-y-humanidades/convocatoria-2026-becas-de-posgrado-en-ciencia-y-humanidades-en-el-extranjero/',
-    'SECIHTI', 'active', true
+    'SECIHTI', 'closed', true
   ),
   (
     'Becas de Doble Grado México-Francia en Ingenierías STEM 2026',
@@ -141,6 +143,78 @@ BEGIN
     tech_id, NULL, 'MXN', '2026-05-22',
     'México (Nacional)', 'Mexico (National)',
     'https://secihti.mx/convocatoria/desarrollo-tecnologico-vinculacion-e-innovacion/convocatoria-copa-futbotmx-capitulo-vision-por-computadora/',
+    'SECIHTI', 'closed', true
+  ),
+  (
+    'Becas Nacionales para Estudios de Posgrado 2026',
+    'National Postgraduate Scholarships 2026',
+    'Becas de SECIHTI para estudios de maestría y doctorado en universidades nacionales. Incluye manutención, colegiatura y apoyos complementarios de movilidad para investigadores en formación.',
+    'SECIHTI scholarships for master''s and doctoral studies at national universities. Includes living expenses, tuition, and complementary mobility support for researchers in training.',
+    'Ser mexicano, estar inscrito en programa de posgrado en universidad nacional, promedio mínimo de 8.0, no contar con otra beca gubernamental para el mismo nivel.',
+    'Mexican national, enrolled in a postgraduate program at a national university, minimum GPA of 8.0, no other government scholarship at the same level.',
+    edu_id, NULL, 'MXN', '2026-11-28',
+    'México (Nacional)', 'Mexico (National)',
+    'https://secihti.mx/convocatoria/becas-nacionales/convocatoria-de-becas-nacionales-para-estudios-de-posgrado-2026/',
+    'SECIHTI', 'active', true
+  ),
+  (
+    'Becas Nacionales de Inclusión 2026',
+    'National Inclusion Scholarships 2026',
+    'Programa de SECIHTI que ofrece becas de licenciatura para jefas de familia y apoyos complementarios para personas indígenas y con discapacidad que cursan posgrados nacionales.',
+    'SECIHTI program offering undergraduate scholarships for female heads of household and complementary support for Indigenous persons and persons with disabilities pursuing national postgraduate studies.',
+    'Línea A: ser jefa de familia mexicana cursando licenciatura. Líneas B y C: ser beneficiario vigente de beca SECIHTI de posgrado nacional y ser indígena o persona con discapacidad.',
+    'Line A: Mexican female head of household pursuing undergraduate studies. Lines B & C: current SECIHTI national postgraduate scholarship holder who is Indigenous or a person with a disability.',
+    social_id, NULL, 'MXN', '2026-09-25',
+    'México (Nacional)', 'Mexico (National)',
+    'https://secihti.mx/convocatoria/becas-nacionales/convocatoria-becas-nacionales-de-inclusion-2026/',
+    'SECIHTI', 'active', true
+  ),
+  (
+    'Apoyos Complementarios de Movilidad 2026',
+    'Complementary Mobility Support 2026',
+    'SECIHTI ofrece apoyos de movilidad internacional, nacional, en sectores de interés y para programas de doble titulación a beneficiarios de becas nacionales vigentes.',
+    'SECIHTI offers international, domestic, priority-sector, and double-degree mobility support to current national scholarship holders.',
+    'Ser beneficiario vigente de beca nacional SECIHTI, carta de aceptación de institución destino, plan de estancia aprobado por tutor.',
+    'Current SECIHTI national scholarship holder, acceptance letter from destination institution, tutor-approved stay plan.',
+    edu_id, NULL, 'MXN', '2026-10-31',
+    'Nacional e Internacional', 'National & International',
+    'https://secihti.mx/convocatoria/becas-nacionales/convocatoria-de-apoyos-complementarios-de-movilidad-en-el-extranjero-movilidad-nacional-movilidad-en-los-sectores-de-interes-y-movilidad-para-programas-de-doble-titulacion-2026/',
+    'SECIHTI', 'active', true
+  ),
+  (
+    'Becas de Especialidades Médicas Nacionales 2026',
+    'National Medical Specialties Scholarships 2026',
+    'SECIHTI ofrece becas de posgrado y apoyos complementarios de movilidad para médicos mexicanos que cursen especialidades médicas en instituciones nacionales de salud.',
+    'SECIHTI offers postgraduate scholarships and complementary mobility support for Mexican physicians pursuing medical specialties at national health institutions.',
+    'Título de médico cirujano, estar inscrito en programa de especialidad médica nacional, promedio mínimo de 8.0, servicio social completado.',
+    'Medical degree, enrolled in a national specialty program, minimum GPA of 8.0, completed social service.',
+    salud_id, NULL, 'MXN', '2026-11-28',
+    'México (Nacional)', 'Mexico (National)',
+    'https://secihti.mx/convocatoria/becas-nacionales/convocatoria-de-becas-de-posgrado-y-apoyos-complementarios-de-movilidad-para-especialidades-medicas-nacionales-2026/',
+    'SECIHTI', 'active', true
+  ),
+  (
+    'Becas para la Formación en Centros Públicos SECIHTI 2026',
+    'Training Scholarships at SECIHTI Public Centers 2026',
+    'Programa de becas de SECIHTI para formación de investigadores en centros públicos de investigación adscritos a la Secretaría. Cubre manutención y colegiatura.',
+    'SECIHTI scholarship program for training researchers at public research centers under the Secretariat. Covers living expenses and tuition.',
+    'Ser mexicano, estar inscrito en programa de formación en centro público SECIHTI, cumplir requisitos del nivel inmediato anterior.',
+    'Mexican national, enrolled in a training program at a SECIHTI public center, meet prior-level requirements.',
+    edu_id, NULL, 'MXN', '2026-10-23',
+    'México (Nacional)', 'Mexico (National)',
+    'https://secihti.mx/convocatoria/becas-nacionales/convocatoria-becas-nacionales-para-la-formacion-en-cp-secihti-2026/',
+    'SECIHTI', 'active', true
+  ),
+  (
+    'Apoyo Complementario de Maternidad y Paternidad 2026',
+    'Maternity and Paternity Complementary Support 2026',
+    'SECIHTI ofrece apoyo económico complementario a beneficiarios de becas nacionales de posgrado durante su periodo de maternidad o paternidad.',
+    'SECIHTI offers complementary financial support to national postgraduate scholarship holders during maternity or paternity leave.',
+    'Ser beneficiario vigente de beca nacional de posgrado SECIHTI, presentar acta de nacimiento del hijo, tramitar dentro del periodo correspondiente.',
+    'Current SECIHTI national postgraduate scholarship holder, present child''s birth certificate, apply within the corresponding period.',
+    social_id, NULL, 'MXN', '2026-12-03',
+    'México (Nacional)', 'Mexico (National)',
+    'https://secihti.mx/convocatoria/becas-nacionales/convocatoria-2026-apoyo-complementario-de-maternidad-y-paternidad-nacional-en-el-extranjero-y-de-consolidacion/',
     'SECIHTI', 'active', true
   );
 END $$;
