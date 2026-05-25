@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import '../../providers/locale_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/auth_service.dart';
+import '../../services/convocatoria_service.dart';
+import '../../models/country.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -19,10 +21,34 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   final _phoneController = TextEditingController();
   bool _isLoading = false;
   bool _whatsappEnabled = true;
+  String? _selectedCountry;
+  List<String> _selectedInterests = [];
+  List<Country> _countries = [];
+
+  final _interests = [
+    ('educacion', 'Educación', 'Education'),
+    ('salud', 'Salud', 'Health'),
+    ('cultura', 'Cultura', 'Culture'),
+    ('social', 'Desarrollo Social', 'Social Development'),
+    ('tecnologia', 'Tecnología', 'Technology'),
+    ('genero', 'Género', 'Gender'),
+    ('alimentacion', 'Alimentación', 'Food'),
+  ];
 
   @override
   void initState() {
     super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    // Load countries
+    try {
+      final countries = await ConvocatoriaService.getCountries();
+      if (mounted) setState(() => _countries = countries);
+    } catch (_) {}
+
+    // Load profile
     _loadProfile();
   }
 
@@ -32,7 +58,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       _nameController.text = profile.fullName;
       _orgController.text = profile.organization ?? '';
       _phoneController.text = profile.phone ?? '';
-      setState(() => _whatsappEnabled = profile.whatsappEnabled);
+      setState(() {
+        _whatsappEnabled = profile.whatsappEnabled;
+        _selectedCountry = profile.country;
+        _selectedInterests = List.from(profile.interests);
+      });
     }
   }
 
@@ -52,11 +82,16 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           phone: _phoneController.text.trim().isNotEmpty
               ? _phoneController.text.trim()
               : null,
+          country: _selectedCountry,
+          interests: _selectedInterests,
           whatsappEnabled: _whatsappEnabled,
         );
         await AuthService.updateProfile(updated);
 
         if (mounted) {
+          // Invalidate the profile provider to refresh cached data
+          ref.invalidate(currentProfileProvider);
+
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
@@ -129,6 +164,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         ),
                       ),
                       const SizedBox(height: 32),
+
+                      // Name
                       TextFormField(
                         controller: _nameController,
                         decoration: InputDecoration(
@@ -142,6 +179,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                             : null,
                       ),
                       const SizedBox(height: 16),
+
+                      // Organization
                       TextFormField(
                         controller: _orgController,
                         decoration: InputDecoration(
@@ -152,6 +191,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         ),
                       ),
                       const SizedBox(height: 16),
+
+                      // Phone
                       TextFormField(
                         controller: _phoneController,
                         decoration: InputDecoration(
@@ -160,7 +201,80 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         ),
                         keyboardType: TextInputType.phone,
                       ),
+                      const SizedBox(height: 16),
+
+                      // Country dropdown
+                      DropdownButtonFormField<String>(
+                        value: _selectedCountry,
+                        decoration: InputDecoration(
+                          labelText:
+                              lang == 'es' ? 'País' : 'Country',
+                          prefixIcon:
+                              const Icon(Icons.public_outlined),
+                        ),
+                        items: [
+                          DropdownMenuItem(
+                            value: null,
+                            child: Text(
+                              lang == 'es'
+                                  ? 'Seleccionar país'
+                                  : 'Select country',
+                            ),
+                          ),
+                          ..._countries.map((country) => DropdownMenuItem(
+                                value: country.nameEs,
+                                child: Text(
+                                  lang == 'es'
+                                      ? country.nameEs
+                                      : country.nameEn,
+                                ),
+                              )),
+                        ],
+                        onChanged: (value) {
+                          setState(() => _selectedCountry = value);
+                        },
+                      ),
                       const SizedBox(height: 24),
+
+                      // Interests
+                      Text(
+                        lang == 'es'
+                            ? 'Intereses / Sectores'
+                            : 'Interests / Sectors',
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: _interests.map((interest) {
+                          final isSelected =
+                              _selectedInterests.contains(interest.$1);
+                          return FilterChip(
+                            label: Text(
+                              lang == 'es' ? interest.$2 : interest.$3,
+                            ),
+                            selected: isSelected,
+                            onSelected: (selected) {
+                              setState(() {
+                                if (selected) {
+                                  _selectedInterests.add(interest.$1);
+                                } else {
+                                  _selectedInterests.remove(interest.$1);
+                                }
+                              });
+                            },
+                            selectedColor: theme.colorScheme.primary
+                                .withOpacity(0.15),
+                            checkmarkColor: theme.colorScheme.primary,
+                          );
+                        }).toList(),
+                      ),
+                      const SizedBox(height: 24),
+
+                      // WhatsApp toggle
                       SwitchListTile(
                         title: Text(
                           lang == 'es'
@@ -178,6 +292,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         },
                       ),
                       const SizedBox(height: 32),
+
+                      // Save button
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
@@ -199,6 +315,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         ),
                       ),
                       const SizedBox(height: 16),
+
+                      // Logout button
                       SizedBox(
                         width: double.infinity,
                         child: OutlinedButton(

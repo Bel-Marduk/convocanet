@@ -42,6 +42,8 @@ class _ConvocatoriaDetailScreenState
           final isFav =
               await ConvocatoriaService.isFavorite(user.id, convocatoria.id);
           setState(() => _isFavorite = isFav);
+          // Auto-mark as viewed
+          await ConvocatoriaService.markAsViewed(user.id, convocatoria.id);
         }
       }
       setState(() {

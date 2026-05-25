@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../providers/locale_provider.dart';
 import '../../services/convocatoria_service.dart';
 
@@ -17,6 +16,7 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
   int _activeCount = 0;
   double _totalAmount = 0;
   int _messageCount = 0;
+  int _unreadCount = 0;
   bool _loading = true;
 
   @override
@@ -27,18 +27,15 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
 
   Future<void> _loadStats() async {
     try {
-      final stats = await ConvocatoriaService.getStats();
-      final messageRes = await Supabase.instance.client
-          .from('contact_messages')
-          .select('id');
-      final messageCount = (messageRes as List).length;
+      final stats = await ConvocatoriaService.getAdminStats();
 
       if (mounted) {
         setState(() {
-          _userCount = stats['userCount'] as int? ?? 0;
-          _activeCount = stats['activeCount'] as int? ?? 0;
-          _totalAmount = stats['totalAmount'] as double? ?? 0;
-          _messageCount = messageCount;
+          _userCount = (stats['user_count'] as num?)?.toInt() ?? 0;
+          _activeCount = (stats['active_count'] as num?)?.toInt() ?? 0;
+          _totalAmount = (stats['total_amount_usd'] as num?)?.toDouble() ?? 0;
+          _messageCount = (stats['message_count'] as num?)?.toInt() ?? 0;
+          _unreadCount = (stats['unread_message_count'] as num?)?.toInt() ?? 0;
           _loading = false;
         });
       }
@@ -112,6 +109,13 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
                       value: _loading ? '...' : _messageCount.toString(),
                       label: lang == 'es' ? 'Mensajes' : 'Messages',
                       color: const Color(0xFFEf4444),
+                      onTap: () => context.go('/admin/messages'),
+                    ),
+                    _AdminStatCard(
+                      icon: Icons.mark_email_unread,
+                      value: _loading ? '...' : _unreadCount.toString(),
+                      label: lang == 'es' ? 'No leídos' : 'Unread',
+                      color: const Color(0xFFF97316),
                       onTap: () => context.go('/admin/messages'),
                     ),
                   ],

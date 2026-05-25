@@ -9,6 +9,8 @@ class ConvocatoriaCard extends ConsumerWidget {
   final Convocatoria convocatoria;
   final bool isFavorite;
   final VoidCallback? onFavoriteToggle;
+  final bool isViewed;
+  final VoidCallback? onViewedToggle;
   final VoidCallback? onTap;
 
   const ConvocatoriaCard({
@@ -16,6 +18,8 @@ class ConvocatoriaCard extends ConsumerWidget {
     required this.convocatoria,
     this.isFavorite = false,
     this.onFavoriteToggle,
+    this.isViewed = false,
+    this.onViewedToggle,
     this.onTap,
   });
 
@@ -115,6 +119,17 @@ class ConvocatoriaCard extends ConsumerWidget {
                     ),
                   ),
                   const Spacer(),
+                  if (onViewedToggle != null)
+                    IconButton(
+                      icon: Icon(
+                        isViewed ? Icons.visibility : Icons.visibility_outlined,
+                        color: isViewed ? theme.colorScheme.primary : null,
+                      ),
+                      onPressed: onViewedToggle,
+                      tooltip: isViewed
+                          ? (lang == 'es' ? 'Marcar como no vista' : 'Mark as unseen')
+                          : (lang == 'es' ? 'Marcar como vista' : 'Mark as viewed'),
+                    ),
                   if (onFavoriteToggle != null)
                     IconButton(
                       icon: Icon(

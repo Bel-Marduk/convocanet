@@ -157,6 +157,9 @@ class _NavbarState extends ConsumerState<Navbar> {
                             case 'favorites':
                               context.go('/favorites');
                               break;
+                            case 'convocatorias':
+                              context.go('/convocatorias');
+                              break;
                             case 'profile':
                               context.go('/profile');
                               break;
@@ -179,6 +182,10 @@ class _NavbarState extends ConsumerState<Navbar> {
                           PopupMenuItem(
                             value: 'favorites',
                             child: Text(lang == 'es' ? 'Favoritos' : 'Favorites'),
+                          ),
+                          PopupMenuItem(
+                            value: 'convocatorias',
+                            child: Text(lang == 'es' ? 'Convocatorias' : 'Browse Calls'),
                           ),
                           PopupMenuItem(
                             value: 'profile',
@@ -288,6 +295,14 @@ class _NavbarState extends ConsumerState<Navbar> {
                   onTap: () {
                     Navigator.pop(context);
                     context.go('/dashboard');
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.explore_outlined),
+                  title: Text(lang == 'es' ? 'Convocatorias' : 'Browse Calls'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    context.go('/convocatorias');
                   },
                 ),
                 ListTile(

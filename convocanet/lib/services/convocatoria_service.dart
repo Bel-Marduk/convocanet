@@ -198,6 +198,18 @@ class ConvocatoriaService {
     }
   }
 
+  // User: Get favorite IDs (for efficient filtering)
+  static Future<Set<String>> getFavoriteIds(String userId) async {
+    final response = await _client
+        .from('user_favorites')
+        .select('convocatoria_id')
+        .eq('user_id', userId);
+
+    return (response as List)
+        .map((json) => json['convocatoria_id'] as String)
+        .toSet();
+  }
+
   // User: Get favorites
   static Future<List<Convocatoria>> getFavorites(String userId) async {
     final response = await _client
@@ -228,6 +240,69 @@ class ConvocatoriaService {
         .maybeSingle();
 
     return response != null;
+  }
+
+  // User: Mark convocatoria as viewed
+  static Future<void> markAsViewed(String userId, String convocatoriaId) async {
+    await _client.from('user_viewed_convocatorias').upsert({
+      'user_id': userId,
+      'convocatoria_id': convocatoriaId,
+    });
+  }
+
+  // User: Remove from viewed
+  static Future<void> removeFromViewed(String userId, String convocatoriaId) async {
+    await _client
+        .from('user_viewed_convocatorias')
+        .delete()
+        .eq('user_id', userId)
+        .eq('convocatoria_id', convocatoriaId);
+  }
+
+  // User: Get viewed convocatorias
+  static Future<List<Convocatoria>> getViewed(String userId) async {
+    final response = await _client
+        .from('user_viewed_convocatorias')
+        .select('''
+          convocatoria_id,
+          viewed_at,
+          convocatorias:convocatoria_id (
+            *,
+            categories:category_id (
+              name_es, name_en, slug, icon, color
+            )
+          )
+        ''')
+        .eq('user_id', userId)
+        .order('viewed_at', ascending: false);
+
+    return (response as List)
+        .map((json) => Convocatoria.fromJson(json['convocatorias']))
+        .toList();
+  }
+
+  // User: Check if convocatoria has been viewed
+  static Future<bool> isViewed(String userId, String convocatoriaId) async {
+    final response = await _client
+        .from('user_viewed_convocatorias')
+        .select()
+        .eq('user_id', userId)
+        .eq('convocatoria_id', convocatoriaId)
+        .maybeSingle();
+
+    return response != null;
+  }
+
+  // User: Get all viewed convocatoria IDs (for efficient filtering)
+  static Future<Set<String>> getViewedIds(String userId) async {
+    final response = await _client
+        .from('user_viewed_convocatorias')
+        .select('convocatoria_id')
+        .eq('user_id', userId);
+
+    return (response as List)
+        .map((json) => json['convocatoria_id'] as String)
+        .toSet();
   }
 
   // Contact form submission
@@ -266,5 +341,97 @@ class ConvocatoriaService {
       'message': 'Suscripción al newsletter desde landing page',
     });
     return true;
+  }
+
+  // ==========================================
+  // ADMIN: User Management
+  // ==========================================
+
+  // Admin: Get all users with pagination
+  static Future<List<Map<String, dynamic>>> getAllUsers({
+    String? searchQuery,
+    int? limit,
+    int? offset,
+  }) async {
+    var query = _client.from('profiles').select();
+
+    if (searchQuery != null && searchQuery.isNotEmpty) {
+      query = query.or(
+        'full_name.ilike.%$searchQuery%,organization.ilike.%$searchQuery%',
+      );
+    }
+
+    final response = await query
+        .order('created_at', ascending: false)
+        .limit(limit ?? 50)
+        .range(offset ?? 0, (offset ?? 0) + (limit ?? 50) - 1);
+
+    return (response as List).cast<Map<String, dynamic>>();
+  }
+
+  // Admin: Get user by ID
+  static Future<Map<String, dynamic>?> getUserById(String userId) async {
+    final response = await _client
+        .from('profiles')
+        .select()
+        .eq('id', userId)
+        .maybeSingle();
+    return response;
+  }
+
+  // Admin: Update user role
+  static Future<void> updateUserRole(String userId, String role) async {
+    await _client
+        .from('profiles')
+        .update({'role': role, 'updated_at': DateTime.now().toIso8601String()})
+        .eq('id', userId);
+  }
+
+  // Admin: Delete user
+  static Future<void> deleteUser(String userId) async {
+    await _client.from('profiles').delete().eq('id', userId);
+  }
+
+  // ==========================================
+  // ADMIN: Message Management
+  // ==========================================
+
+  // Admin: Get all contact messages
+  static Future<List<Map<String, dynamic>>> getMessages({
+    bool? onlyUnread,
+    int? limit,
+    int? offset,
+  }) async {
+    var query = _client.from('contact_messages').select();
+
+    if (onlyUnread == true) {
+      query = query.eq('read', false);
+    }
+
+    final response = await query
+        .order('created_at', ascending: false)
+        .limit(limit ?? 50)
+        .range(offset ?? 0, (offset ?? 0) + (limit ?? 50) - 1);
+
+    return (response as List).cast<Map<String, dynamic>>();
+  }
+
+  // Admin: Mark message as read/unread
+  static Future<void> markMessageRead(String messageId, bool read) async {
+    await _client
+        .from('contact_messages')
+        .update({'read': read})
+        .eq('id', messageId);
+  }
+
+  // Admin: Delete message
+  static Future<void> deleteMessage(String messageId) async {
+    await _client.from('contact_messages').delete().eq('id', messageId);
+  }
+
+  // Admin: Get admin stats via RPC
+  static Future<Map<String, dynamic>> getAdminStats() async {
+    final response = await _client.rpc('get_admin_stats');
+    return (response as Map<String, dynamic>);
   }
 }

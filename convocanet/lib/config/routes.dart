@@ -10,6 +10,7 @@ import '../screens/user/dashboard_screen.dart';
 import '../screens/user/favorites_screen.dart';
 import '../screens/user/profile_screen.dart';
 import '../screens/user/convocatoria_detail_screen.dart';
+import '../screens/user/convocatorias_browser_screen.dart';
 import '../screens/admin/admin_dashboard.dart';
 import '../screens/admin/manage_convocatorias.dart';
 import '../screens/admin/manage_users.dart';
@@ -72,6 +73,14 @@ final routerProvider = Provider<GoRouter>((ref) {
           return null;
         },
         builder: (context, state) => const FavoritesScreen(),
+      ),
+      GoRoute(
+        path: '/convocatorias',
+        redirect: (context, state) {
+          if (authState.value == null) return '/login';
+          return null;
+        },
+        builder: (context, state) => const ConvocatoriasBrowserScreen(),
       ),
       GoRoute(
         path: '/profile',

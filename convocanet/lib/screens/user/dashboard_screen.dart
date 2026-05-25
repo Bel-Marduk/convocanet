@@ -75,6 +75,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         title: Text(lang == 'es' ? 'Dashboard' : 'Dashboard'),
         actions: [
           IconButton(
+            icon: const Icon(Icons.explore),
+            onPressed: () => context.go('/convocatorias'),
+            tooltip: lang == 'es' ? 'Convocatorias' : 'Browse Calls',
+          ),
+          IconButton(
             icon: const Icon(Icons.favorite_outline),
             onPressed: () => context.go('/favorites'),
             tooltip: lang == 'es' ? 'Favoritos' : 'Favorites',
@@ -129,6 +134,25 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       color: const Color(0xFF10b981),
                     ),
                   ],
+                ),
+                const SizedBox(height: 24),
+
+                // Browse convocatorias button
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    icon: const Icon(Icons.explore),
+                    label: Text(
+                      lang == 'es'
+                          ? 'Explorar Convocatorias'
+                          : 'Browse All Calls',
+                    ),
+                    onPressed: () => context.go('/convocatorias'),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 32, vertical: 16),
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 40),
 
