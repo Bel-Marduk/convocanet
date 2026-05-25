@@ -100,8 +100,9 @@ class AuthService {
         .from('profiles')
         .select()
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
 
+    if (response == null) return null;
     return Profile.fromJson(response);
   }
 
