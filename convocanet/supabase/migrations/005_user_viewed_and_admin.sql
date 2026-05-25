@@ -75,20 +75,15 @@ ON CONFLICT (code) DO NOTHING;
 -- Missing RLS Policies
 -- ============================================
 
--- Admins can insert profiles (for admin-created accounts)
+-- Users can insert their own profile (needed for signup flow)
 DO $$
 BEGIN
   IF NOT EXISTS (
-    SELECT 1 FROM pg_policies WHERE tablename = 'profiles' AND policyname = 'Admins can insert profiles'
+    SELECT 1 FROM pg_policies WHERE tablename = 'profiles' AND policyname = 'Users can insert own profile'
   ) THEN
-    CREATE POLICY "Admins can insert profiles"
+    CREATE POLICY "Users can insert own profile"
       ON profiles FOR INSERT
-      WITH CHECK (
-        EXISTS (
-          SELECT 1 FROM profiles
-          WHERE id = auth.uid() AND role = 'admin'
-        )
-      );
+      WITH CHECK (auth.uid() = id);
   END IF;
 END $$;
 
