@@ -172,8 +172,8 @@ class _HeroSectionState extends ConsumerState<HeroSection>
                             ),
                             child: Text(
                               lang == 'es'
-                                  ? 'Agregador Gratuito de Convocatorias'
-                                  : 'Free Call Aggregator',
+                                  ? 'Convocatorias Abiertas al Alcance de Todos'
+                                  : 'Open Calls Within Everyone\'s Reach',
                               style: theme.textTheme.bodySmall?.copyWith(
                                 fontWeight: FontWeight.w600,
                                 color: theme.colorScheme.primary,
