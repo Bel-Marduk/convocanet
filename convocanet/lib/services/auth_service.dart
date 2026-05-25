@@ -18,6 +18,7 @@ class AuthService {
     final response = await _client.auth.signUp(
       email: email,
       password: password,
+      emailRedirectTo: 'https://bel-marduk.github.io/convocanet/',
       data: {
         'full_name': fullName,
         'organization': organization,
@@ -84,7 +85,10 @@ class AuthService {
 
   // Reset password
   static Future<void> resetPassword(String email) async {
-    await _client.auth.resetPasswordForEmail(email);
+    await _client.auth.resetPasswordForEmail(
+      email,
+      redirectTo: 'https://bel-marduk.github.io/convocanet/',
+    );
   }
 
   // Get current user profile
