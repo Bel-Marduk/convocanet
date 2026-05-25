@@ -194,6 +194,7 @@ class _ManageConvocatoriasState extends ConsumerState<ManageConvocatorias> {
                         }).toList(),
                       ),
                     ),
+                    ),
                   ],
                 ),
               ),
