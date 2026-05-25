@@ -6,6 +6,7 @@ import '../../providers/auth_provider.dart';
 import '../../services/auth_service.dart';
 import '../../services/convocatoria_service.dart';
 import '../../models/country.dart';
+import '../../widgets/user_bottom_nav.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -149,6 +150,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         ),
         title: Text(lang == 'es' ? 'Mi Perfil' : 'My Profile'),
       ),
+      bottomNavigationBar: UserBottomNav(currentIndex: 3),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Center(

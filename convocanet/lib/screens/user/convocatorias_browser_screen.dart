@@ -8,6 +8,7 @@ import '../../models/category.dart';
 import '../../models/country.dart';
 import '../../services/convocatoria_service.dart';
 import '../../widgets/convocatoria_card.dart';
+import '../../widgets/user_bottom_nav.dart';
 
 class ConvocatoriasBrowserScreen extends ConsumerStatefulWidget {
   const ConvocatoriasBrowserScreen({super.key});
@@ -196,6 +197,7 @@ class _ConvocatoriasBrowserScreenState
           ],
         ),
       ),
+      bottomNavigationBar: UserBottomNav(currentIndex: 1),
       body: Column(
         children: [
           // Filters

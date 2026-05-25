@@ -6,6 +6,7 @@ import '../../providers/locale_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/convocatoria_card.dart';
 import '../../models/convocatoria.dart';
+import '../../models/category.dart';
 import '../../services/convocatoria_service.dart';
 import '../../services/whatsapp_service.dart';
 import '../../widgets/user_bottom_nav.dart';
@@ -22,6 +23,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   int _favoritesCount = 0;
   double _availableAmount = 0;
   List<Convocatoria> _recommended = [];
+  List<Category> _categories = [];
   bool _loading = true;
 
   @override
@@ -34,6 +36,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     try {
       final stats = await ConvocatoriaService.getStats();
       final convocatorias = await ConvocatoriaService.getConvocatorias(limit: 5);
+      final categories = await ConvocatoriaService.getCategories();
 
       int favCount = 0;
       final user = Supabase.instance.client.auth.currentUser;
@@ -48,11 +51,38 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           _favoritesCount = favCount;
           _availableAmount = stats['totalAmount'] as double? ?? 0;
           _recommended = convocatorias;
+          _categories = categories;
           _loading = false;
         });
       }
     } catch (e) {
       if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  IconData _getCategoryIcon(String? icon) {
+    switch (icon) {
+      case 'school': return Icons.school;
+      case 'health': return Icons.health_and_safety;
+      case 'palette': return Icons.palette;
+      case 'people': return Icons.people;
+      case 'computer': return Icons.computer;
+      case 'eco': return Icons.eco;
+      case 'restaurant': return Icons.restaurant;
+      case 'science': return Icons.science;
+      case 'business': return Icons.business;
+      case 'gavel': return Icons.gavel;
+      default: return Icons.category;
+    }
+  }
+
+  Color _getCategoryColor(String? color, ThemeData theme) {
+    if (color == null || color.isEmpty) return theme.colorScheme.primary;
+    try {
+      final hex = color.replaceFirst('#', '');
+      return Color(int.parse('FF$hex', radix: 16));
+    } catch (_) {
+      return theme.colorScheme.primary;
     }
   }
 
@@ -97,6 +127,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           ),
         ],
       ),
+      bottomNavigationBar: UserBottomNav(currentIndex: 0),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Center(
@@ -141,6 +172,43 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     ),
                   ],
                 ),
+                const SizedBox(height: 24),
+
+                // Categories
+                Text(
+                  lang == 'es' ? 'Categorías' : 'Categories',
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                if (_loading)
+                  const Center(child: CircularProgressIndicator())
+                else if (_categories.isEmpty)
+                  Text(
+                    lang == 'es'
+                        ? 'No hay categorías disponibles.'
+                        : 'No categories available.',
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  )
+                else
+                  Wrap(
+                    spacing: 12,
+                    runSpacing: 12,
+                    children: _categories.map((cat) {
+                      final iconData = _getCategoryIcon(cat.icon);
+                      final catColor = _getCategoryColor(cat.color, theme);
+                      return ActionChip(
+                        avatar: Icon(iconData, size: 18, color: catColor),
+                        label: Text(cat.name(lang)),
+                        onPressed: () => context.go('/convocatorias'),
+                        backgroundColor: catColor.withOpacity(0.1),
+                        side: BorderSide(color: catColor.withOpacity(0.3)),
+                      );
+                    }).toList(),
+                  ),
                 const SizedBox(height: 24),
 
                 // Browse convocatorias button

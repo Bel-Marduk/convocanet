@@ -6,6 +6,7 @@ import '../../providers/auth_provider.dart';
 import '../../widgets/convocatoria_card.dart';
 import '../../services/convocatoria_service.dart';
 import '../../models/convocatoria.dart';
+import '../../widgets/user_bottom_nav.dart';
 
 class FavoritesScreen extends ConsumerStatefulWidget {
   const FavoritesScreen({super.key});
@@ -53,6 +54,7 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
         ),
         title: Text(lang == 'es' ? 'Mis Favoritos' : 'My Favorites'),
       ),
+      bottomNavigationBar: UserBottomNav(currentIndex: 2),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _favorites.isEmpty
