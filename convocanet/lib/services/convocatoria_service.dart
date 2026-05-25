@@ -95,64 +95,22 @@ class ConvocatoriaService {
         .toList();
   }
 
-  // Get stats
+  // Get landing stats via SECURITY DEFINER RPC (bypasses RLS for anonymous visitors)
   static Future<Map<String, dynamic>> getStats() async {
-    int activeCount = 0;
-    double totalAmount = 0.0;
-    int userCount = 0;
-    int publishedCount = 0;
-
-    print('DEBUG: Starting getStats...');
-
-    // 1. Active Convocatorias Count & Total Amount
     try {
-      final res = await _client
-          .from('convocatorias')
-          .select('amount_usd')
-          .inFilter('status', ['active', 'permanent']);
-      
-      print('DEBUG: activeRes raw: $res');
-      final list = res as List;
-      activeCount = list.length;
-      print('DEBUG: activeCount calculated: $activeCount');
-      for (final item in list) {
-        final amount = item['amount_usd'];
-        if (amount != null) {
-          totalAmount += (amount as num).toDouble();
-        }
-      }
-      print('DEBUG: totalAmount calculated: $totalAmount');
+      final res = await _client.rpc('get_landing_stats');
+      final data = res as Map<String, dynamic>;
+      return {
+        'activeCount': (data['active_count'] as num?)?.toInt() ?? 0,
+        'totalAmount': (data['total_amount_usd'] as num?)?.toDouble() ?? 0.0,
+        'userCount': (data['user_count'] as num?)?.toInt() ?? 0,
+        'orgCount': (data['org_count'] as num?)?.toInt() ?? 0,
+        'publishedCount': (data['published_count'] as num?)?.toInt() ?? 0,
+      };
     } catch (e) {
-      print('DEBUG: Error fetching active stats: $e');
+      print('Error fetching landing stats: $e');
+      return {};
     }
-
-    // 2. User Count
-    try {
-      final res = await _client.from('profiles').select('id');
-      print('DEBUG: profilesRes raw: $res');
-      userCount = (res as List).length;
-      print('DEBUG: userCount calculated: $userCount');
-    } catch (e) {
-      print('DEBUG: Note: userCount restricted or error: $e');
-      userCount = 1520; // Fallback
-    }
-
-    // 3. Published Count
-    try {
-      final res = await _client.from('convocatorias').select('id');
-      print('DEBUG: publishedRes raw: $res');
-      publishedCount = (res as List).length;
-      print('DEBUG: publishedCount calculated: $publishedCount');
-    } catch (e) {
-      print('DEBUG: Error fetching publishedCount: $e');
-    }
-
-    return {
-      'activeCount': activeCount,
-      'totalAmount': totalAmount,
-      'userCount': userCount,
-      'publishedCount': publishedCount,
-    };
   }
 
   // Admin: Create convocatoria

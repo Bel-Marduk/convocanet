@@ -17,7 +17,8 @@ class HeroSection extends ConsumerStatefulWidget {
 
 class _HeroSectionState extends ConsumerState<HeroSection>
     with TickerProviderStateMixin {
-  int _userCount = 1520;
+  int _userCount = 0;
+  int _orgCount = 0;
   int _activeCount = 248;
   double _totalAmount = 45000000;
   bool _loading = true;
@@ -95,7 +96,8 @@ class _HeroSectionState extends ConsumerState<HeroSection>
       final stats = await ConvocatoriaService.getStats();
       if (stats.isNotEmpty && mounted) {
         setState(() {
-          _userCount = stats['userCount'] as int? ?? 1520;
+          _userCount = stats['userCount'] as int? ?? 0;
+          _orgCount = stats['orgCount'] as int? ?? 0;
           _activeCount = stats['activeCount'] as int? ?? 248;
           _totalAmount = stats['totalAmount'] as double? ?? 45000000;
           _loading = false;
@@ -411,10 +413,30 @@ class _HeroSectionState extends ConsumerState<HeroSection>
                               _ClickableStat(
                                 onTap: () => widget.onNavigate?.call('nosotros'),
                                 child: StatCounter(
-                                  target: _userCount,
+                                  target: _orgCount,
                                   label: lang == 'es'
                                       ? 'Asociaciones Registradas'
                                       : 'Registered Associations',
+                                  numberStyle: theme.textTheme.headlineMedium
+                                      ?.copyWith(
+                                    fontWeight: FontWeight.w800,
+                                    color: theme.colorScheme.primary,
+                                    fontSize: 35.2,
+                                    height: 1.2,
+                                  ),
+                                  labelStyle: theme.textTheme.bodySmall?.copyWith(
+                                    color: theme.colorScheme.onSurfaceVariant,
+                                    fontSize: 13.6,
+                                  ),
+                                ),
+                              ),
+                              _ClickableStat(
+                                onTap: () => widget.onNavigate?.call('nosotros'),
+                                child: StatCounter(
+                                  target: _userCount,
+                                  label: lang == 'es'
+                                      ? 'Usuarios Registrados'
+                                      : 'Registered Users',
                                   numberStyle: theme.textTheme.headlineMedium
                                       ?.copyWith(
                                     fontWeight: FontWeight.w800,

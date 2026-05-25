@@ -15,6 +15,7 @@ class _StatsSectionState extends ConsumerState<StatsSection> {
   int _publishedCount = 0;
   int _totalAmountMillions = 0;
   int _userCount = 0;
+  int _orgCount = 0;
   bool _loading = true;
 
   @override
@@ -32,6 +33,7 @@ class _StatsSectionState extends ConsumerState<StatsSection> {
           _totalAmountMillions =
               ((stats['totalAmount'] as double? ?? 0) / 1000000).round();
           _userCount = stats['userCount'] as int? ?? 0;
+          _orgCount = stats['orgCount'] as int? ?? 0;
           _loading = false;
         });
       }
@@ -102,10 +104,17 @@ class _StatsSectionState extends ConsumerState<StatsSection> {
                     ),
                     _StatItem(
                       icon: Icons.business,
+                      target: _orgCount,
+                      label: lang == 'es'
+                          ? 'Organizaciones Registradas'
+                          : 'Registered Organizations',
+                    ),
+                    _StatItem(
+                      icon: Icons.people,
                       target: _userCount,
                       label: lang == 'es'
-                          ? 'Organizaciones Activas'
-                          : 'Active Organizations',
+                          ? 'Usuarios Registrados'
+                          : 'Registered Users',
                     ),
                     _StatItem(
                       icon: Icons.public,
