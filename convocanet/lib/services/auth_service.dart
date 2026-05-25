@@ -27,18 +27,24 @@ class AuthService {
       },
     );
 
-    // Create profile after signup
+    // Profile is auto-created by handle_new_user() trigger in Supabase.
+    // Only upsert if the trigger hasn't created it yet (fallback).
     if (response.user != null) {
-      await _client.from('profiles').upsert({
-        'id': response.user!.id,
-        'full_name': fullName,
-        'organization': organization,
-        'phone': phone,
-        'country': country,
-        'interests': interests,
-        'role': 'user',
-        'whatsapp_enabled': true,
-      });
+      try {
+        await _client.from('profiles').upsert({
+          'id': response.user!.id,
+          'full_name': fullName,
+          'organization': organization,
+          'phone': phone,
+          'country': country,
+          'interests': interests,
+          'role': 'user',
+          'whatsapp_enabled': true,
+        }).select().maybeSingle();
+      } catch (e) {
+        // Profile already created by trigger - ignore
+        print('Profile upsert note: $e');
+      }
     }
 
     return response;
