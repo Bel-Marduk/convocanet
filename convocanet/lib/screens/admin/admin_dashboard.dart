@@ -13,10 +13,12 @@ class AdminDashboard extends ConsumerStatefulWidget {
 
 class _AdminDashboardState extends ConsumerState<AdminDashboard> {
   int _userCount = 0;
+  int _orgCount = 0;
   int _activeCount = 0;
   double _totalAmount = 0;
   int _messageCount = 0;
   int _unreadCount = 0;
+  int _publishedCount = 0;
   bool _loading = true;
 
   @override
@@ -27,15 +29,18 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
 
   Future<void> _loadStats() async {
     try {
-      final stats = await ConvocatoriaService.getAdminStats();
+      final adminStats = await ConvocatoriaService.getAdminStats();
+      final landingStats = await ConvocatoriaService.getStats();
 
       if (mounted) {
         setState(() {
-          _userCount = (stats['user_count'] as num?)?.toInt() ?? 0;
-          _activeCount = (stats['active_count'] as num?)?.toInt() ?? 0;
-          _totalAmount = (stats['total_amount_usd'] as num?)?.toDouble() ?? 0;
-          _messageCount = (stats['message_count'] as num?)?.toInt() ?? 0;
-          _unreadCount = (stats['unread_message_count'] as num?)?.toInt() ?? 0;
+          _userCount = (landingStats['userCount'] as num?)?.toInt() ?? 0;
+          _orgCount = (landingStats['orgCount'] as num?)?.toInt() ?? 0;
+          _activeCount = (adminStats['active_count'] as num?)?.toInt() ?? 0;
+          _totalAmount = (adminStats['total_amount_usd'] as num?)?.toDouble() ?? 0;
+          _messageCount = (adminStats['message_count'] as num?)?.toInt() ?? 0;
+          _unreadCount = (adminStats['unread_message_count'] as num?)?.toInt() ?? 0;
+          _publishedCount = (landingStats['publishedCount'] as num?)?.toInt() ?? 0;
           _loading = false;
         });
       }
@@ -58,107 +63,109 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
     final lang = ref.watch(localeProvider).languageCode;
     final theme = Theme.of(context);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(lang == 'es' ? 'Panel de Administración' : 'Admin Panel'),
-      ),
-      drawer: _AdminDrawer(lang: lang),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 1200),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  lang == 'es' ? 'Panel de Administración' : 'Admin Panel',
-                  style: theme.textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.w800,
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1200),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Stats grid
+              Wrap(
+                spacing: 16,
+                runSpacing: 16,
+                children: [
+                  _StatCard(
+                    icon: Icons.people,
+                    value: _loading ? '...' : _userCount.toString(),
+                    label: lang == 'es' ? 'Usuarios' : 'Users',
+                    color: theme.colorScheme.primary,
+                    onTap: () => context.go('/admin/users'),
                   ),
-                ),
-                const SizedBox(height: 32),
-
-                // Stats cards
-                Wrap(
-                  spacing: 24,
-                  runSpacing: 24,
-                  children: [
-                    _AdminStatCard(
-                      icon: Icons.people,
-                      value: _loading ? '...' : _userCount.toString(),
-                      label: lang == 'es' ? 'Usuarios' : 'Users',
-                      color: theme.colorScheme.primary,
-                      onTap: () => context.go('/admin/users'),
-                    ),
-                    _AdminStatCard(
-                      icon: Icons.list,
-                      value: _loading ? '...' : _activeCount.toString(),
-                      label: lang == 'es' ? 'Activas' : 'Active',
-                      color: const Color(0xFF10b981),
-                      onTap: () => context.go('/admin/convocatorias'),
-                    ),
-                    _AdminStatCard(
-                      icon: Icons.attach_money,
-                      value: _loading ? '...' : _formatAmount(_totalAmount),
-                      label: 'USD Total',
-                      color: const Color(0xFFF59e0b),
-                    ),
-                    _AdminStatCard(
-                      icon: Icons.email,
-                      value: _loading ? '...' : _messageCount.toString(),
-                      label: lang == 'es' ? 'Mensajes' : 'Messages',
-                      color: const Color(0xFFEf4444),
-                      onTap: () => context.go('/admin/messages'),
-                    ),
-                    _AdminStatCard(
-                      icon: Icons.mark_email_unread,
-                      value: _loading ? '...' : _unreadCount.toString(),
-                      label: lang == 'es' ? 'No leídos' : 'Unread',
-                      color: const Color(0xFFF97316),
-                      onTap: () => context.go('/admin/messages'),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 40),
-
-                // Quick actions
-                Text(
-                  lang == 'es' ? 'Acciones Rápidas' : 'Quick Actions',
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w700,
+                  _StatCard(
+                    icon: Icons.business,
+                    value: _loading ? '...' : _orgCount.toString(),
+                    label: lang == 'es' ? 'Organizaciones' : 'Organizations',
+                    color: const Color(0xFF8b5cf6),
                   ),
+                  _StatCard(
+                    icon: Icons.campaign,
+                    value: _loading ? '...' : _activeCount.toString(),
+                    label: lang == 'es' ? 'Activas' : 'Active',
+                    color: const Color(0xFF10b981),
+                    onTap: () => context.go('/admin/convocatorias'),
+                  ),
+                  _StatCard(
+                    icon: Icons.list_alt,
+                    value: _loading ? '...' : _publishedCount.toString(),
+                    label: lang == 'es' ? 'Total Publicadas' : 'Total Published',
+                    color: const Color(0xFF06b6d4),
+                    onTap: () => context.go('/admin/convocatorias'),
+                  ),
+                  _StatCard(
+                    icon: Icons.attach_money,
+                    value: _loading ? '...' : _formatAmount(_totalAmount),
+                    label: 'USD Total',
+                    color: const Color(0xFFF59e0b),
+                  ),
+                  _StatCard(
+                    icon: Icons.email,
+                    value: _loading ? '...' : _messageCount.toString(),
+                    label: lang == 'es' ? 'Mensajes' : 'Messages',
+                    color: const Color(0xFFEf4444),
+                    onTap: () => context.go('/admin/messages'),
+                  ),
+                  _StatCard(
+                    icon: Icons.mark_email_unread,
+                    value: _loading ? '...' : _unreadCount.toString(),
+                    label: lang == 'es' ? 'No leídos' : 'Unread',
+                    color: const Color(0xFFF97316),
+                    onTap: () => context.go('/admin/messages'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 32),
+
+              // Quick Actions
+              Text(
+                lang == 'es' ? 'Acciones Rápidas' : 'Quick Actions',
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w700,
                 ),
-                const SizedBox(height: 16),
-                Wrap(
-                  spacing: 16,
-                  runSpacing: 16,
-                  children: [
-                    ElevatedButton.icon(
-                      icon: const Icon(Icons.add),
-                      label: Text(
-                        lang == 'es' ? 'Nueva Convocatoria' : 'New Call',
-                      ),
-                      onPressed: () => context.go('/admin/convocatorias/new'),
-                    ),
-                    OutlinedButton.icon(
-                      icon: const Icon(Icons.people),
-                      label: Text(
-                        lang == 'es' ? 'Gestionar Usuarios' : 'Manage Users',
-                      ),
-                      onPressed: () => context.go('/admin/users'),
-                    ),
-                    OutlinedButton.icon(
-                      icon: const Icon(Icons.email),
-                      label: Text(
-                        lang == 'es' ? 'Ver Mensajes' : 'View Messages',
-                      ),
-                      onPressed: () => context.go('/admin/messages'),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+              ),
+              const SizedBox(height: 16),
+              Wrap(
+                spacing: 12,
+                runSpacing: 12,
+                children: [
+                  _QuickAction(
+                    icon: Icons.add_circle,
+                    label: lang == 'es' ? 'Nueva Convocatoria' : 'New Call',
+                    color: theme.colorScheme.primary,
+                    onTap: () => context.go('/admin/convocatorias/new'),
+                  ),
+                  _QuickAction(
+                    icon: Icons.category,
+                    label: lang == 'es' ? 'Categorías' : 'Categories',
+                    color: const Color(0xFF8b5cf6),
+                    onTap: () => context.go('/admin/categories'),
+                  ),
+                  _QuickAction(
+                    icon: Icons.people,
+                    label: lang == 'es' ? 'Usuarios' : 'Users',
+                    color: const Color(0xFF06b6d4),
+                    onTap: () => context.go('/admin/users'),
+                  ),
+                  _QuickAction(
+                    icon: Icons.email,
+                    label: lang == 'es' ? 'Mensajes' : 'Messages',
+                    color: const Color(0xFFEf4444),
+                    onTap: () => context.go('/admin/messages'),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
       ),
@@ -166,14 +173,14 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
   }
 }
 
-class _AdminStatCard extends StatelessWidget {
+class _StatCard extends StatelessWidget {
   final IconData icon;
   final String value;
   final String label;
   final Color color;
   final VoidCallback? onTap;
 
-  const _AdminStatCard({
+  const _StatCard({
     required this.icon,
     required this.value,
     required this.label,
@@ -186,20 +193,21 @@ class _AdminStatCard extends StatelessWidget {
     final theme = Theme.of(context);
 
     return SizedBox(
-      width: 250,
+      width: 200,
       child: Card(
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(16),
           child: Padding(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.all(20),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(icon, size: 32, color: color),
+                Icon(icon, size: 28, color: color),
                 const SizedBox(height: 12),
                 Text(
                   value,
-                  style: theme.textTheme.headlineMedium?.copyWith(
+                  style: theme.textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.w800,
                     color: color,
                   ),
@@ -207,7 +215,7 @@ class _AdminStatCard extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   label,
-                  style: theme.textTheme.bodyMedium?.copyWith(
+                  style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
                 ),
@@ -220,81 +228,25 @@ class _AdminStatCard extends StatelessWidget {
   }
 }
 
-class _AdminDrawer extends StatelessWidget {
-  final String lang;
+class _QuickAction extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
 
-  const _AdminDrawer({required this.lang});
+  const _QuickAction({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: [
-          DrawerHeader(
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                const Icon(Icons.admin_panel_settings, size: 48, color: Colors.white),
-                const SizedBox(height: 8),
-                Text(
-                  lang == 'es' ? 'Administración' : 'Admin',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          ListTile(
-            leading: const Icon(Icons.dashboard),
-            title: Text(lang == 'es' ? 'Dashboard' : 'Dashboard'),
-            onTap: () {
-              Navigator.pop(context);
-              context.go('/admin');
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.list),
-            title: Text(lang == 'es' ? 'Convocatorias' : 'Calls'),
-            onTap: () {
-              Navigator.pop(context);
-              context.go('/admin/convocatorias');
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.people),
-            title: Text(lang == 'es' ? 'Usuarios' : 'Users'),
-            onTap: () {
-              Navigator.pop(context);
-              context.go('/admin/users');
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.email),
-            title: Text(lang == 'es' ? 'Mensajes' : 'Messages'),
-            onTap: () {
-              Navigator.pop(context);
-              context.go('/admin/messages');
-            },
-          ),
-          const Divider(),
-          ListTile(
-            leading: const Icon(Icons.home),
-            title: Text(lang == 'es' ? 'Ir al sitio' : 'Go to site'),
-            onTap: () {
-              Navigator.pop(context);
-              context.go('/');
-            },
-          ),
-        ],
-      ),
+    return FilledButton.tonalIcon(
+      onPressed: onTap,
+      icon: Icon(icon, color: color),
+      label: Text(label),
     );
   }
 }

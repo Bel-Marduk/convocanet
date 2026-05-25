@@ -249,11 +249,7 @@ class _ManageUsersState extends ConsumerState<ManageUsers> {
     final theme = Theme.of(context);
     final currentUserId = ref.watch(currentUserProvider)?.id;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(lang == 'es' ? 'Gestionar Usuarios' : 'Manage Users'),
-      ),
-      body: Column(
+    return Column(
         children: [
           // Search and filter bar
           Padding(
@@ -522,8 +518,7 @@ class _ManageUsersState extends ConsumerState<ManageUsers> {
                       ),
           ),
         ],
-      ),
-    );
+      );
   }
 }
 

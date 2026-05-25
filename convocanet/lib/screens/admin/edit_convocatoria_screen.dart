@@ -188,15 +188,7 @@ class _EditConvocatoriaScreenState
     final lang = ref.watch(localeProvider).languageCode;
     final theme = Theme.of(context);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          _isEditing
-              ? (lang == 'es' ? 'Editar Convocatoria' : 'Edit Call')
-              : (lang == 'es' ? 'Nueva Convocatoria' : 'New Call'),
-        ),
-      ),
-      body: SingleChildScrollView(
+    return SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Center(
           child: ConstrainedBox(
@@ -459,7 +451,6 @@ class _EditConvocatoriaScreenState
             ),
           ),
         ),
-      ),
     );
   }
 }

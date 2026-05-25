@@ -15,7 +15,9 @@ import '../screens/admin/admin_dashboard.dart';
 import '../screens/admin/manage_convocatorias.dart';
 import '../screens/admin/manage_users.dart';
 import '../screens/admin/manage_messages.dart';
+import '../screens/admin/manage_categories.dart';
 import '../screens/admin/edit_convocatoria_screen.dart';
+import '../widgets/admin_shell.dart';
 import '../screens/shared/not_found_screen.dart';
 import '../providers/auth_provider.dart';
 
@@ -62,6 +64,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/dashboard',
         redirect: (context, state) {
           if (authState.value == null) return '/login';
+          if (ref.read(isAdminProvider)) return '/admin';
           return null;
         },
         builder: (context, state) => const DashboardScreen(),
@@ -91,62 +94,76 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const ProfileScreen(),
       ),
 
-      // Admin routes (require admin role)
-      GoRoute(
-        path: '/admin',
-        redirect: (context, state) {
-          if (authState.value == null) return '/login';
-          if (!ref.read(isAdminProvider)) return '/dashboard';
-          return null;
-        },
-        builder: (context, state) => const AdminDashboard(),
-      ),
-      GoRoute(
-        path: '/admin/convocatorias',
-        redirect: (context, state) {
-          if (authState.value == null) return '/login';
-          if (!ref.read(isAdminProvider)) return '/dashboard';
-          return null;
-        },
-        builder: (context, state) => const ManageConvocatorias(),
-      ),
-      GoRoute(
-        path: '/admin/convocatorias/new',
-        redirect: (context, state) {
-          if (authState.value == null) return '/login';
-          if (!ref.read(isAdminProvider)) return '/dashboard';
-          return null;
-        },
-        builder: (context, state) => const EditConvocatoriaScreen(),
-      ),
-      GoRoute(
-        path: '/admin/convocatorias/:id/edit',
-        redirect: (context, state) {
-          if (authState.value == null) return '/login';
-          if (!ref.read(isAdminProvider)) return '/dashboard';
-          return null;
-        },
-        builder: (context, state) => EditConvocatoriaScreen(
-          convocatoriaId: state.pathParameters['id'],
-        ),
-      ),
-      GoRoute(
-        path: '/admin/users',
-        redirect: (context, state) {
-          if (authState.value == null) return '/login';
-          if (!ref.read(isAdminProvider)) return '/dashboard';
-          return null;
-        },
-        builder: (context, state) => const ManageUsers(),
-      ),
-      GoRoute(
-        path: '/admin/messages',
-        redirect: (context, state) {
-          if (authState.value == null) return '/login';
-          if (!ref.read(isAdminProvider)) return '/dashboard';
-          return null;
-        },
-        builder: (context, state) => const ManageMessages(),
+      // Admin routes (require admin role, wrapped in AdminShell)
+      ShellRoute(
+        builder: (context, state, child) => AdminShell(child: child),
+        routes: [
+          GoRoute(
+            path: '/admin',
+            redirect: (context, state) {
+              if (authState.value == null) return '/login';
+              if (!ref.read(isAdminProvider)) return '/dashboard';
+              return null;
+            },
+            builder: (context, state) => const AdminDashboard(),
+          ),
+          GoRoute(
+            path: '/admin/convocatorias',
+            redirect: (context, state) {
+              if (authState.value == null) return '/login';
+              if (!ref.read(isAdminProvider)) return '/dashboard';
+              return null;
+            },
+            builder: (context, state) => const ManageConvocatorias(),
+          ),
+          GoRoute(
+            path: '/admin/convocatorias/new',
+            redirect: (context, state) {
+              if (authState.value == null) return '/login';
+              if (!ref.read(isAdminProvider)) return '/dashboard';
+              return null;
+            },
+            builder: (context, state) => const EditConvocatoriaScreen(),
+          ),
+          GoRoute(
+            path: '/admin/convocatorias/:id/edit',
+            redirect: (context, state) {
+              if (authState.value == null) return '/login';
+              if (!ref.read(isAdminProvider)) return '/dashboard';
+              return null;
+            },
+            builder: (context, state) => EditConvocatoriaScreen(
+              convocatoriaId: state.pathParameters['id'],
+            ),
+          ),
+          GoRoute(
+            path: '/admin/users',
+            redirect: (context, state) {
+              if (authState.value == null) return '/login';
+              if (!ref.read(isAdminProvider)) return '/dashboard';
+              return null;
+            },
+            builder: (context, state) => const ManageUsers(),
+          ),
+          GoRoute(
+            path: '/admin/messages',
+            redirect: (context, state) {
+              if (authState.value == null) return '/login';
+              if (!ref.read(isAdminProvider)) return '/dashboard';
+              return null;
+            },
+            builder: (context, state) => const ManageMessages(),
+          ),
+          GoRoute(
+            path: '/admin/categories',
+            redirect: (context, state) {
+              if (authState.value == null) return '/login';
+              if (!ref.read(isAdminProvider)) return '/dashboard';
+              return null;
+            },
+            builder: (context, state) => const ManageCategories(),
+          ),
+        ],
       ),
     ],
   );

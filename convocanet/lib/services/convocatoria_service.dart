@@ -392,4 +392,23 @@ class ConvocatoriaService {
     final response = await _client.rpc('get_admin_stats');
     return (response as Map<String, dynamic>);
   }
+
+  // ==========================================
+  // ADMIN: Category Management
+  // ==========================================
+
+  // Admin: Create category
+  static Future<void> createCategory(Map<String, dynamic> data) async {
+    await _client.from('categories').insert(data);
+  }
+
+  // Admin: Update category
+  static Future<void> updateCategory(String id, Map<String, dynamic> data) async {
+    await _client.from('categories').update(data).eq('id', id);
+  }
+
+  // Admin: Delete category
+  static Future<void> deleteCategory(String id) async {
+    await _client.from('categories').delete().eq('id', id);
+  }
 }

@@ -195,12 +195,7 @@ class _ManageMessagesState extends ConsumerState<ManageMessages> {
     final lang = ref.watch(localeProvider).languageCode;
     final theme = Theme.of(context);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-            lang == 'es' ? 'Mensajes de Contacto' : 'Contact Messages'),
-      ),
-      body: Column(
+    return Column(
         children: [
           // Filter bar
           Padding(
@@ -371,8 +366,7 @@ class _ManageMessagesState extends ConsumerState<ManageMessages> {
                       ),
           ),
         ],
-      ),
-    );
+      );
   }
 
   String _formatShortDate(String isoDate) {

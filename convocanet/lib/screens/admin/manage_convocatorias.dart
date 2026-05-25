@@ -75,31 +75,38 @@ class _ManageConvocatoriasState extends ConsumerState<ManageConvocatorias> {
     final lang = ref.watch(localeProvider).languageCode;
     final theme = Theme.of(context);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          lang == 'es' ? 'Gestionar Convocatorias' : 'Manage Calls',
-        ),
-        actions: [
-          ElevatedButton.icon(
-            icon: const Icon(Icons.add),
-            label: Text(lang == 'es' ? 'Nueva' : 'New'),
-            onPressed: () => context.go('/admin/convocatorias/new'),
-          ),
-          const SizedBox(width: 16),
-        ],
-      ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 1200),
-                  child: Card(
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: DataTable(
+    return _isLoading
+        ? const Center(child: CircularProgressIndicator())
+        : SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 1200),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          lang == 'es' ? 'Gestionar Convocatorias' : 'Manage Calls',
+                          style: theme.textTheme.headlineSmall?.copyWith(
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        const Spacer(),
+                        FilledButton.icon(
+                          icon: const Icon(Icons.add),
+                          label: Text(lang == 'es' ? 'Nueva' : 'New'),
+                          onPressed: () => context.go('/admin/convocatorias/new'),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    Card(
+                      clipBehavior: Clip.antiAlias,
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: DataTable(
                         columns: [
                           DataColumn(
                             label: Text(
@@ -187,11 +194,11 @@ class _ManageConvocatoriasState extends ConsumerState<ManageConvocatorias> {
                         }).toList(),
                       ),
                     ),
-                  ),
+                  ],
                 ),
               ),
             ),
-    );
+          );
   }
 
   Color _getStatusColor(String status) {
