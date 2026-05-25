@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../providers/locale_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../models/convocatoria.dart';
@@ -179,6 +180,11 @@ class _ConvocatoriasBrowserScreenState
 
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go('/dashboard'),
+          tooltip: lang == 'es' ? 'Volver al Dashboard' : 'Back to Dashboard',
+        ),
         title: Text(lang == 'es' ? 'Convocatorias' : 'Browse Calls'),
         bottom: TabBar(
           controller: _tabController,

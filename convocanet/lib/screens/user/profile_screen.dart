@@ -142,6 +142,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go('/dashboard'),
+          tooltip: lang == 'es' ? 'Volver' : 'Back',
+        ),
         title: Text(lang == 'es' ? 'Mi Perfil' : 'My Profile'),
       ),
       body: SingleChildScrollView(

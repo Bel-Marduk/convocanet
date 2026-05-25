@@ -8,6 +8,7 @@ import '../../widgets/convocatoria_card.dart';
 import '../../models/convocatoria.dart';
 import '../../services/convocatoria_service.dart';
 import '../../services/whatsapp_service.dart';
+import '../../widgets/user_bottom_nav.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -72,6 +73,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.home_outlined),
+          onPressed: () => context.go('/'),
+          tooltip: lang == 'es' ? 'Inicio' : 'Home',
+        ),
         title: Text(lang == 'es' ? 'Dashboard' : 'Dashboard'),
         actions: [
           IconButton(
