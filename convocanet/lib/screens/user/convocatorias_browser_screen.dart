@@ -70,11 +70,11 @@ class _ConvocatoriasBrowserScreenState
           _viewedIds = viewed;
         });
       }
-
-      _loadConvocatorias();
     } catch (e) {
-      setState(() => _isLoading = false);
+      // Silently handle — convocatorias still load below
     }
+    // Always load convocatorias, even if auxiliary data failed
+    _loadConvocatorias();
   }
 
   Future<void> _loadConvocatorias() async {
