@@ -28,24 +28,26 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
   }
 
   Future<void> _loadStats() async {
-    try {
-      final adminStats = await ConvocatoriaService.getAdminStats();
-      final landingStats = await ConvocatoriaService.getStats();
+    // Run both RPCs independently so one failure doesn't block the other
+    final results = await Future.wait([
+      ConvocatoriaService.getAdminStats().catchError((_) => <String, dynamic>{}),
+      ConvocatoriaService.getStats().catchError((_) => <String, dynamic>{}),
+    ]);
 
-      if (mounted) {
-        setState(() {
-          _userCount = (landingStats['userCount'] as num?)?.toInt() ?? 0;
-          _orgCount = (landingStats['orgCount'] as num?)?.toInt() ?? 0;
-          _activeCount = (adminStats['active_count'] as num?)?.toInt() ?? 0;
-          _totalAmount = (adminStats['total_amount_usd'] as num?)?.toDouble() ?? 0;
-          _messageCount = (adminStats['message_count'] as num?)?.toInt() ?? 0;
-          _unreadCount = (adminStats['unread_message_count'] as num?)?.toInt() ?? 0;
-          _publishedCount = (landingStats['publishedCount'] as num?)?.toInt() ?? 0;
-          _loading = false;
-        });
-      }
-    } catch (e) {
-      if (mounted) setState(() => _loading = false);
+    final adminStats = results[0];
+    final landingStats = results[1];
+
+    if (mounted) {
+      setState(() {
+        _userCount = (landingStats['userCount'] as num?)?.toInt() ?? 0;
+        _orgCount = (landingStats['orgCount'] as num?)?.toInt() ?? 0;
+        _activeCount = (adminStats['active_count'] as num?)?.toInt() ?? 0;
+        _totalAmount = (adminStats['total_amount_usd'] as num?)?.toDouble() ?? 0;
+        _messageCount = (adminStats['message_count'] as num?)?.toInt() ?? 0;
+        _unreadCount = (adminStats['unread_message_count'] as num?)?.toInt() ?? 0;
+        _publishedCount = (landingStats['publishedCount'] as num?)?.toInt() ?? 0;
+        _loading = false;
+      });
     }
   }
 
