@@ -35,7 +35,8 @@ class ConvocatoriaService {
           .from('categories')
           .select('id')
           .eq('slug', categorySlug)
-          .single();
+          .maybeSingle();
+      if (catResponse == null) return [];
       query = query.eq('category_id', catResponse['id']);
     }
 
@@ -66,8 +67,9 @@ class ConvocatoriaService {
           )
         ''')
         .eq('id', id)
-        .single();
+        .maybeSingle();
 
+    if (response == null) return null;
     return Convocatoria.fromJson(response);
   }
 

@@ -245,7 +245,7 @@ async function insertConvocatorias(
       .from("categories")
       .select("id")
       .eq("slug", conv.category_slug)
-      .single();
+      .maybeSingle();
 
     const { error } = await supabase.from("convocatorias").insert({
       title_es: conv.title_es,
