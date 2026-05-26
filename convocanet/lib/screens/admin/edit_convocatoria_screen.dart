@@ -43,12 +43,19 @@ class _EditConvocatoriaScreenState
   @override
   void initState() {
     super.initState();
-    _loadCategories();
-    _loadCountries();
     if (widget.convocatoriaId != null) {
       _isEditing = true;
-      _loadConvocatoria();
+      _initForEdit();
+    } else {
+      _loadCategories();
+      _loadCountries();
     }
+  }
+
+  Future<void> _initForEdit() async {
+    await _loadCategories();
+    await _loadCountries();
+    await _loadConvocatoria();
   }
 
   Future<void> _loadCategories() async {

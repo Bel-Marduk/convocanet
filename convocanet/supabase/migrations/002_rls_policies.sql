@@ -63,6 +63,16 @@ CREATE POLICY "Public convocatorias are viewable by everyone"
   ON convocatorias FOR SELECT
   USING (is_public = true AND status IN ('active', 'permanent'));
 
+-- Admins can view all convocatorias (including draft/expired)
+CREATE POLICY "Admins can view all convocatorias"
+  ON convocatorias FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1 FROM profiles
+      WHERE id = auth.uid() AND role = 'admin'
+    )
+  );
+
 -- Only admins can insert convocatorias
 CREATE POLICY "Admins can insert convocatorias"
   ON convocatorias FOR INSERT
