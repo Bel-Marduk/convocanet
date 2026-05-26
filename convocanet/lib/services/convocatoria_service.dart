@@ -126,14 +126,10 @@ class ConvocatoriaService {
       ..remove('id')
       ..remove('created_at')
       ..remove('created_by');
-    final result = await _client
+    await _client
         .from('convocatorias')
         .update(data)
-        .eq('id', convocatoria.id)
-        .select();
-    if ((result as List).isEmpty) {
-      throw Exception('No se pudo actualizar la convocatoria');
-    }
+        .eq('id', convocatoria.id);
   }
 
   // Admin: Delete convocatoria
