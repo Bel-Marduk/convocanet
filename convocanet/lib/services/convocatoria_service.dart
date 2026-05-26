@@ -129,7 +129,8 @@ class ConvocatoriaService {
     await _client
         .from('convocatorias')
         .update(data)
-        .eq('id', convocatoria.id);
+        .eq('id', convocatoria.id)
+        .select();
   }
 
   // Admin: Delete convocatoria
