@@ -33,25 +33,33 @@ class _ConvocatoriaDetailScreenState
   }
 
   Future<void> _loadConvocatoria() async {
+    Convocatoria? convocatoria;
     try {
-      final convocatoria =
+      convocatoria =
           await ConvocatoriaService.getConvocatoriaById(widget.convocatoriaId);
-      if (convocatoria != null) {
-        final user = ref.read(currentUserProvider);
-        if (user != null) {
-          final isFav =
-              await ConvocatoriaService.isFavorite(user.id, convocatoria.id);
-          setState(() => _isFavorite = isFav);
-          // Auto-mark as viewed
-          await ConvocatoriaService.markAsViewed(user.id, convocatoria.id);
-        }
-      }
+    } catch (e) {
+      // Load failed
+    }
+
+    if (mounted) {
       setState(() {
         _convocatoria = convocatoria;
         _isLoading = false;
       });
-    } catch (e) {
-      setState(() => _isLoading = false);
+    }
+
+    if (convocatoria != null) {
+      final user = ref.read(currentUserProvider);
+      if (user != null) {
+        try {
+          final isFav =
+              await ConvocatoriaService.isFavorite(user.id, convocatoria.id);
+          if (mounted) setState(() => _isFavorite = isFav);
+          await ConvocatoriaService.markAsViewed(user.id, convocatoria.id);
+        } catch (e) {
+          // Non-critical: favorites/viewed tracking failed
+        }
+      }
     }
   }
 
