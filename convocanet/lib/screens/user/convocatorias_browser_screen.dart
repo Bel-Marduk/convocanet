@@ -135,7 +135,10 @@ class _ConvocatoriasBrowserScreenState
         _isLoading = false;
       });
     } catch (e) {
-      setState(() => _isLoading = false);
+      setState(() {
+        _convocatorias = [];
+        _isLoading = false;
+      });
     }
   }
 

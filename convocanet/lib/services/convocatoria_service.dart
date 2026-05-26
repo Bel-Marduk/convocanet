@@ -237,6 +237,7 @@ class ConvocatoriaService {
         .order('viewed_at', ascending: false);
 
     return (response as List)
+        .where((json) => json['convocatorias'] != null)
         .map((json) => Convocatoria.fromJson(json['convocatorias']))
         .toList();
   }
