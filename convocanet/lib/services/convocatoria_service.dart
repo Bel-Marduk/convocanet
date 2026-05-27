@@ -108,6 +108,7 @@ class ConvocatoriaService {
         'userCount': (data['user_count'] as num?)?.toInt() ?? 0,
         'orgCount': (data['org_count'] as num?)?.toInt() ?? 0,
         'publishedCount': (data['published_count'] as num?)?.toInt() ?? 0,
+        'rateDate': data['rate_date'] as String?,
       };
     } catch (e) {
       print('Error fetching landing stats: $e');

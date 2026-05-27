@@ -21,6 +21,7 @@ class _HeroSectionState extends ConsumerState<HeroSection>
   int _orgCount = 0;
   int _activeCount = 248;
   double _totalAmount = 45000000;
+  String? _rateDate;
   bool _loading = true;
 
   // Staggered entrance animations matching static CSS
@@ -100,6 +101,7 @@ class _HeroSectionState extends ConsumerState<HeroSection>
           _orgCount = stats['orgCount'] as int? ?? 0;
           _activeCount = stats['activeCount'] as int? ?? 248;
           _totalAmount = stats['totalAmount'] as double? ?? 45000000;
+          _rateDate = stats['rateDate'] as String?;
           _loading = false;
         });
       }
@@ -526,6 +528,18 @@ class _HeroSectionState extends ConsumerState<HeroSection>
                                   ),
                                 ),
                                 const SizedBox(height: 8),
+                                if (_rateDate != null)
+                                  Text(
+                                    lang == 'es'
+                                        ? 'Tipo de cambio al $_rateDate'
+                                        : 'Exchange rate as of $_rateDate',
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: theme.colorScheme.onSurfaceVariant.withOpacity(0.6),
+                                      fontSize: 12,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                const SizedBox(height: 4),
                                 Text(
                                   lang == 'es'
                                       ? 'en oportunidades de financiación para tu organización'

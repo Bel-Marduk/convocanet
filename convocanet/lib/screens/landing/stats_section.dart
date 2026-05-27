@@ -16,6 +16,7 @@ class _StatsSectionState extends ConsumerState<StatsSection> {
   int _totalAmountMillions = 0;
   int _userCount = 0;
   int _orgCount = 0;
+  String? _rateDate;
   bool _loading = true;
 
   @override
@@ -34,6 +35,7 @@ class _StatsSectionState extends ConsumerState<StatsSection> {
               ((stats['totalAmount'] as double? ?? 0) / 1000000).round();
           _userCount = stats['userCount'] as int? ?? 0;
           _orgCount = stats['orgCount'] as int? ?? 0;
+          _rateDate = stats['rateDate'] as String?;
           _loading = false;
         });
       }
@@ -100,7 +102,12 @@ class _StatsSectionState extends ConsumerState<StatsSection> {
                       suffix: 'M',
                       prefix: '\$',
                       label:
-                          lang == 'es' ? 'En Financiamiento' : 'In Funding',
+                          lang == 'es' ? 'En Financiamiento (USD)' : 'In Funding (USD)',
+                      subtitle: _rateDate != null
+                          ? (lang == 'es'
+                              ? 'TC al $_rateDate'
+                              : 'Rate as of $_rateDate')
+                          : null,
                     ),
                     _StatItem(
                       icon: Icons.business,
@@ -139,6 +146,7 @@ class _StatItem extends StatelessWidget {
   final String? prefix;
   final String? suffix;
   final String label;
+  final String? subtitle;
 
   const _StatItem({
     required this.icon,
@@ -146,6 +154,7 @@ class _StatItem extends StatelessWidget {
     this.prefix,
     this.suffix,
     required this.label,
+    this.subtitle,
   });
 
   @override
@@ -177,6 +186,17 @@ class _StatItem extends StatelessWidget {
               fontSize: 14.4,
             ),
           ),
+          if (subtitle != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              subtitle!,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: Colors.white.withOpacity(0.5),
+                fontSize: 11,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
         ],
       ),
     );

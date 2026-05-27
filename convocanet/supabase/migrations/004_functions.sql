@@ -29,7 +29,7 @@ BEGIN
       WHERE status IN ('active', 'permanent')
     ),
     'total_amount_usd', (
-      SELECT COALESCE(SUM(amount_usd), 0) FROM convocatorias
+      SELECT COALESCE(SUM(amount_local), 0) FROM convocatorias
       WHERE status IN ('active', 'permanent')
     ),
     'user_count', (

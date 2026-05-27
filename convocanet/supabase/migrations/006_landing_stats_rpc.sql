@@ -21,7 +21,7 @@ BEGIN
       SELECT COUNT(*) FROM convocatorias WHERE status IN ('active', 'permanent')
     ),
     'total_amount_usd', (
-      SELECT COALESCE(SUM(amount_usd), 0) FROM convocatorias WHERE status IN ('active', 'permanent')
+      SELECT COALESCE(SUM(amount_local), 0) FROM convocatorias WHERE status IN ('active', 'permanent')
     ),
     'published_count', (
       SELECT COUNT(*) FROM convocatorias

@@ -19,6 +19,7 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
   int _messageCount = 0;
   int _unreadCount = 0;
   int _publishedCount = 0;
+  String? _rateDate;
   bool _loading = true;
 
   @override
@@ -43,6 +44,7 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
         _orgCount = (landingStats['orgCount'] as num?)?.toInt() ?? 0;
         _activeCount = (adminStats['active_count'] as num?)?.toInt() ?? 0;
         _totalAmount = (adminStats['total_amount_usd'] as num?)?.toDouble() ?? 0;
+        _rateDate = adminStats['rate_date'] as String?;
         _messageCount = (adminStats['message_count'] as num?)?.toInt() ?? 0;
         _unreadCount = (adminStats['unread_message_count'] as num?)?.toInt() ?? 0;
         _publishedCount = (landingStats['publishedCount'] as num?)?.toInt() ?? 0;
@@ -110,6 +112,9 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
                     value: _loading ? '...' : _formatAmount(_totalAmount),
                     label: 'USD Total',
                     color: const Color(0xFFF59e0b),
+                    subtitle: _rateDate != null
+                        ? (lang == 'es' ? 'TC al $_rateDate' : 'Rate as of $_rateDate')
+                        : null,
                   ),
                   _StatCard(
                     icon: Icons.email,
@@ -181,6 +186,7 @@ class _StatCard extends StatelessWidget {
   final String label;
   final Color color;
   final VoidCallback? onTap;
+  final String? subtitle;
 
   const _StatCard({
     required this.icon,
@@ -188,6 +194,7 @@ class _StatCard extends StatelessWidget {
     required this.label,
     required this.color,
     this.onTap,
+    this.subtitle,
   });
 
   @override
@@ -221,6 +228,16 @@ class _StatCard extends StatelessWidget {
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
                 ),
+                if (subtitle != null) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle!,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant.withOpacity(0.6),
+                      fontSize: 11,
+                    ),
+                  ),
+                ],
               ],
             ),
           ),

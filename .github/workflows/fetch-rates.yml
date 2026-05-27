@@ -1,0 +1,18 @@
+name: Fetch Exchange Rates
+
+on:
+  schedule:
+    # Daily at 8:00 UTC (ECB rates from previous business day are available)
+    - cron: '0 8 * * *'
+  workflow_dispatch: # Manual trigger from GitHub Actions UI
+
+jobs:
+  fetch-rates:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch and update exchange rates
+        run: |
+          curl -s -X POST "${{ secrets.SUPABASE_URL }}/functions/v1/fetch-exchange-rates" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
+            -H "Content-Type: application/json" \
+            | jq .
