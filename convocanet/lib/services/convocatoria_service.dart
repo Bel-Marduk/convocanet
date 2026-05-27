@@ -316,25 +316,18 @@ class ConvocatoriaService {
   // ADMIN: User Management
   // ==========================================
 
-  // Admin: Get all users with pagination
+  // Admin: Get all users
   static Future<List<Map<String, dynamic>>> getAllUsers({
     String? searchQuery,
-    int? limit,
-    int? offset,
   }) async {
-    var query = _client.from('profiles').select();
-
+    List<dynamic> response;
     if (searchQuery != null && searchQuery.isNotEmpty) {
-      query = query.or(
-        'full_name.ilike.%$searchQuery%,organization.ilike.%$searchQuery%',
-      );
+      response = await _client.rpc('search_users', params: {
+        'search_term': searchQuery,
+      });
+    } else {
+      response = await _client.rpc('get_all_users');
     }
-
-    final response = await query
-        .order('created_at', ascending: false)
-        .limit(limit ?? 50)
-        .range(offset ?? 0, (offset ?? 0) + (limit ?? 50) - 1);
-
     return (response as List).cast<Map<String, dynamic>>();
   }
 
