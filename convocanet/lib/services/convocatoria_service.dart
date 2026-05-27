@@ -117,28 +117,54 @@ class ConvocatoriaService {
 
   // Admin: Create convocatoria
   static Future<void> createConvocatoria(Convocatoria convocatoria) async {
-    final data = convocatoria.toJson()
-      ..remove('id')
-      ..remove('created_by');
-    await _client.from('convocatorias').insert(data).select();
+    final data = _buildPayload(convocatoria);
+    final response = await _client.from('convocatorias').insert(data).select();
+    if (response is List && response.isEmpty) {
+      throw Exception('RLS bloqueó la creación. Verifica tu sesión de admin.');
+    }
   }
 
   // Admin: Update convocatoria
   static Future<void> updateConvocatoria(Convocatoria convocatoria) async {
-    final data = convocatoria.toJson()
-      ..remove('id')
-      ..remove('created_at')
-      ..remove('created_by');
-    await _client
+    final data = _buildPayload(convocatoria);
+    data.remove('created_at'); // immutable, preserve original
+    final response = await _client
         .from('convocatorias')
         .update(data)
         .eq('id', convocatoria.id)
         .select();
+    if (response is List && response.isEmpty) {
+      throw Exception('RLS bloqueó la actualización. Verifica tu sesión de admin.');
+    }
   }
 
   // Admin: Delete convocatoria
   static Future<void> deleteConvocatoria(String id) async {
     await _client.from('convocatorias').delete().eq('id', id);
+  }
+
+  // Build a clean payload — only include non-null optional fields
+  static Map<String, dynamic> _buildPayload(Convocatoria c) {
+    final data = <String, dynamic>{
+      'title_es': c.titleEs,
+      'title_en': c.titleEn,
+      'description_es': c.descriptionEs,
+      'description_en': c.descriptionEn,
+      'currency': c.currency,
+      'status': c.status,
+      'is_public': c.isPublic,
+      'updated_at': DateTime.now().toIso8601String(),
+    };
+    if (c.requirementsEs != null) data['requirements_es'] = c.requirementsEs;
+    if (c.requirementsEn != null) data['requirements_en'] = c.requirementsEn;
+    if (c.categoryId != null) data['category_id'] = c.categoryId;
+    if (c.amountLocal != null) data['amount_local'] = c.amountLocal;
+    if (c.deadline != null) data['deadline'] = c.deadline!.toIso8601String().split('T')[0];
+    if (c.regionEs != null) data['region_es'] = c.regionEs;
+    if (c.regionEn != null) data['region_en'] = c.regionEn;
+    if (c.sourceUrl != null) data['source_url'] = c.sourceUrl;
+    if (c.sourceName != null) data['source_name'] = c.sourceName;
+    return data;
   }
 
   // User: Toggle favorite

@@ -4,15 +4,41 @@
 -- Solution: SECURITY DEFINER RPC that bypasses RLS.
 
 CREATE OR REPLACE FUNCTION get_all_users()
-RETURNS SETOF profiles AS $$
-  SELECT * FROM profiles ORDER BY created_at DESC;
+RETURNS TABLE (
+  id UUID,
+  full_name TEXT,
+  organization TEXT,
+  phone TEXT,
+  country TEXT,
+  interests TEXT[],
+  role TEXT,
+  whatsapp_enabled BOOLEAN,
+  created_at TIMESTAMPTZ,
+  updated_at TIMESTAMPTZ
+) AS $$
+  SELECT p.id, p.full_name, p.organization, p.phone, p.country,
+         p.interests, p.role, p.whatsapp_enabled, p.created_at, p.updated_at
+  FROM profiles p
+  ORDER BY p.created_at DESC;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Also update the search variant
 CREATE OR REPLACE FUNCTION search_users(search_term TEXT)
-RETURNS SETOF profiles AS $$
-  SELECT * FROM profiles
-  WHERE full_name ILIKE '%' || search_term || '%'
-     OR organization ILIKE '%' || search_term || '%'
-  ORDER BY created_at DESC;
+RETURNS TABLE (
+  id UUID,
+  full_name TEXT,
+  organization TEXT,
+  phone TEXT,
+  country TEXT,
+  interests TEXT[],
+  role TEXT,
+  whatsapp_enabled BOOLEAN,
+  created_at TIMESTAMPTZ,
+  updated_at TIMESTAMPTZ
+) AS $$
+  SELECT p.id, p.full_name, p.organization, p.phone, p.country,
+         p.interests, p.role, p.whatsapp_enabled, p.created_at, p.updated_at
+  FROM profiles p
+  WHERE p.full_name ILIKE '%' || search_term || '%'
+     OR p.organization ILIKE '%' || search_term || '%'
+  ORDER BY p.created_at DESC;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
