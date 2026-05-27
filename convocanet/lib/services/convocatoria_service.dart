@@ -118,22 +118,21 @@ class ConvocatoriaService {
   // Admin: Create convocatoria
   static Future<void> createConvocatoria(Convocatoria convocatoria) async {
     final data = _buildPayload(convocatoria);
-    await _client.from('convocatorias').insert(data);
+    await _client.rpc('admin_insert_convocatoria', params: {'p_data': data});
   }
 
   // Admin: Update convocatoria
   static Future<void> updateConvocatoria(Convocatoria convocatoria) async {
     final data = _buildPayload(convocatoria);
-    data.remove('created_at'); // immutable, preserve original
-    await _client
-        .from('convocatorias')
-        .update(data)
-        .eq('id', convocatoria.id);
+    await _client.rpc('admin_update_convocatoria', params: {
+      'p_id': convocatoria.id,
+      'p_data': data,
+    });
   }
 
   // Admin: Delete convocatoria
   static Future<void> deleteConvocatoria(String id) async {
-    await _client.from('convocatorias').delete().eq('id', id);
+    await _client.rpc('admin_delete_convocatoria', params: {'p_id': id});
   }
 
   // Build a clean payload — only include non-null optional fields
