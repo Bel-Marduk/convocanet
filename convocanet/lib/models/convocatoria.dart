@@ -127,18 +127,13 @@ class Convocatoria {
   }
 
   String get formattedAmount {
-    if (amountLocal != null && currency != 'USD') {
-      final symbol = _currencySymbol(currency);
-      return '$symbol${amountLocal!.toStringAsFixed(0).replaceAllMapped(
-        RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-        (Match m) => '${m[1]},',
-      )} $currency';
-    }
-    if (amountUsd == null) return 'N/A';
-    return '\$${amountUsd!.toStringAsFixed(0).replaceAllMapped(
+    final displayAmount = amountLocal ?? amountUsd;
+    if (displayAmount == null) return 'N/A';
+    final symbol = _currencySymbol(currency);
+    return '$symbol${displayAmount.toStringAsFixed(0).replaceAllMapped(
       RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
       (Match m) => '${m[1]},',
-    )} USD';
+    )} $currency';
   }
 
   static String _currencySymbol(String code) {

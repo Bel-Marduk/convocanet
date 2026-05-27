@@ -117,7 +117,10 @@ class ConvocatoriaService {
 
   // Admin: Create convocatoria
   static Future<void> createConvocatoria(Convocatoria convocatoria) async {
-    await _client.from('convocatorias').insert(convocatoria.toJson());
+    final data = convocatoria.toJson()
+      ..remove('id')
+      ..remove('created_by');
+    await _client.from('convocatorias').insert(data).select();
   }
 
   // Admin: Update convocatoria

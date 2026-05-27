@@ -19,6 +19,13 @@ class EditConvocatoriaScreen extends ConsumerStatefulWidget {
 
 class _EditConvocatoriaScreenState
     extends ConsumerState<EditConvocatoriaScreen> {
+  static const _currencies = [
+    'MXN', 'USD', 'EUR', 'GBP', 'CAD', 'BRL',
+    'ARS', 'COP', 'CLP', 'PEN', 'GTQ', 'CRC',
+    'PAB', 'BOB', 'PYG', 'UYU', 'VES', 'HNL',
+    'NIO', 'DOP',
+  ];
+
   final _formKey = GlobalKey<FormState>();
   final _titleEsController = TextEditingController();
   final _titleEnController = TextEditingController();
@@ -31,6 +38,7 @@ class _EditConvocatoriaScreenState
   final _sourceNameController = TextEditingController();
 
   String _status = 'active';
+  String _currency = 'MXN';
   String? _categoryId;
   bool _isPublic = true;
   DateTime? _deadline;
@@ -78,7 +86,7 @@ class _EditConvocatoriaScreenState
       _descEnController.text = conv.descriptionEn;
       _reqEsController.text = conv.requirementsEs ?? '';
       _reqEnController.text = conv.requirementsEn ?? '';
-      _amountController.text = conv.amountUsd?.toString() ?? '';
+      _amountController.text = (conv.amountLocal ?? conv.amountUsd)?.toString() ?? '';
       _sourceUrlController.text = conv.sourceUrl ?? '';
       // Parse selected countries from regionEs
       if (conv.regionEs != null && conv.regionEs!.isNotEmpty) {
@@ -93,6 +101,7 @@ class _EditConvocatoriaScreenState
       _sourceNameController.text = conv.sourceName ?? '';
       setState(() {
         _status = conv.status;
+        _currency = conv.currency;
         _categoryId = conv.categoryId;
         _isPublic = conv.isPublic;
         _deadline = conv.deadline;
@@ -119,9 +128,11 @@ class _EditConvocatoriaScreenState
             ? _reqEnController.text.trim()
             : null,
         categoryId: _categoryId,
-        amountUsd: _amountController.text.isNotEmpty
+        amountUsd: null,
+        amountLocal: _amountController.text.isNotEmpty
             ? double.tryParse(_amountController.text)
             : null,
+        currency: _currency,
         deadline: _deadline,
         regionEs: _selectedCountryIndices.isNotEmpty
             ? _selectedCountryIndices.map((i) => _countries[i].nameEs).join(', ')
@@ -276,20 +287,35 @@ class _EditConvocatoriaScreenState
                       ),
                       const SizedBox(height: 16),
 
-                      // Amount and Status
+                      // Amount, Currency and Status
                       Wrap(
                         spacing: 16,
                         runSpacing: 16,
                         children: [
                           SizedBox(
-                            width: 250,
+                            width: 180,
                             child: TextFormField(
                               controller: _amountController,
-                              decoration: const InputDecoration(
-                                labelText: 'Monto USD',
-                                prefixText: '\$ ',
+                              decoration: InputDecoration(
+                                labelText: lang == 'es' ? 'Monto' : 'Amount',
                               ),
                               keyboardType: TextInputType.number,
+                            ),
+                          ),
+                          SizedBox(
+                            width: 160,
+                            child: DropdownButtonFormField<String>(
+                              value: _currency,
+                              decoration: InputDecoration(
+                                labelText: lang == 'es' ? 'Moneda' : 'Currency',
+                              ),
+                              items: _currencies.map((c) => DropdownMenuItem(
+                                value: c,
+                                child: Text(c),
+                              )).toList(),
+                              onChanged: (value) {
+                                setState(() => _currency = value!);
+                              },
                             ),
                           ),
                           SizedBox(
