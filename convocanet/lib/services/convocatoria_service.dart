@@ -118,24 +118,17 @@ class ConvocatoriaService {
   // Admin: Create convocatoria
   static Future<void> createConvocatoria(Convocatoria convocatoria) async {
     final data = _buildPayload(convocatoria);
-    final response = await _client.from('convocatorias').insert(data).select();
-    if (response is List && response.isEmpty) {
-      throw Exception('RLS bloqueó la creación. Verifica tu sesión de admin.');
-    }
+    await _client.from('convocatorias').insert(data);
   }
 
   // Admin: Update convocatoria
   static Future<void> updateConvocatoria(Convocatoria convocatoria) async {
     final data = _buildPayload(convocatoria);
     data.remove('created_at'); // immutable, preserve original
-    final response = await _client
+    await _client
         .from('convocatorias')
         .update(data)
-        .eq('id', convocatoria.id)
-        .select();
-    if (response is List && response.isEmpty) {
-      throw Exception('RLS bloqueó la actualización. Verifica tu sesión de admin.');
-    }
+        .eq('id', convocatoria.id);
   }
 
   // Admin: Delete convocatoria
