@@ -141,7 +141,7 @@ class _EditConvocatoriaScreenState
             ? _selectedCountryIndices.map((i) => _countries[i].nameEn).join(', ')
             : null,
         sourceUrl: _sourceUrlController.text.trim().isNotEmpty
-            ? _sourceUrlController.text.trim()
+            ? _sourceUrlController.text.trim().replaceAll(RegExp(r'\s+'), '')
             : null,
         sourceName: _sourceNameController.text.trim().isNotEmpty
             ? _sourceNameController.text.trim()
