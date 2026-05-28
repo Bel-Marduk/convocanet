@@ -48,10 +48,8 @@ class _StatsSectionState extends ConsumerState<StatsSection> {
   Widget build(BuildContext context) {
     final lang = ref.watch(localeProvider).languageCode;
 
-    final isMobile = MediaQuery.of(context).size.width < 768;
-
     return Container(
-      padding: EdgeInsets.symmetric(vertical: isMobile ? 60 : 80, horizontal: isMobile ? 16 : 24),
+      padding: const EdgeInsets.symmetric(vertical: 80, horizontal: 24),
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -81,56 +79,72 @@ class _StatsSectionState extends ConsumerState<StatsSection> {
                   ? const SizedBox(
                       height: 100,
                       child: Center(
-                        child: CircularProgressIndicator(),
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                        ),
                       ),
                     )
-                  : Wrap(
-                  spacing: 32,
-                  runSpacing: 32,
-                  alignment: WrapAlignment.spaceAround,
-                  children: [
-                    _StatItem(
-                      icon: Icons.campaign,
-                      target: _publishedCount,
-                      label: lang == 'es'
-                          ? 'Convocatorias Publicadas'
-                          : 'Published Calls',
+                  : LayoutBuilder(
+                      builder: (context, constraints) {
+                        final items = [
+                          _StatData(
+                            icon: Icons.campaign,
+                            target: _publishedCount,
+                            label: lang == 'es'
+                                ? 'Convocatorias Publicadas'
+                                : 'Published Calls',
+                          ),
+                          _StatData(
+                            icon: Icons.attach_money,
+                            target: _totalAmountUsd,
+                            prefix: 'USD \$',
+                            label: lang == 'es'
+                                ? 'En Financiamiento (USD)'
+                                : 'In Funding (USD)',
+                            subtitle: _rateDate != null
+                                ? (lang == 'es'
+                                    ? 'TC al $_rateDate'
+                                    : 'Rate as of $_rateDate')
+                                : null,
+                          ),
+                          _StatData(
+                            icon: Icons.business,
+                            target: _orgCount,
+                            label: lang == 'es'
+                                ? 'Organizaciones Registradas'
+                                : 'Registered Organizations',
+                          ),
+                          _StatData(
+                            icon: Icons.people,
+                            target: _userCount,
+                            label: lang == 'es'
+                                ? 'Usuarios Registrados'
+                                : 'Registered Users',
+                          ),
+                          _StatData(
+                            icon: Icons.public,
+                            target: 18,
+                            label: lang == 'es'
+                                ? 'Estados Conectados'
+                                : 'Connected States',
+                          ),
+                        ];
+
+                        // Responsive column count: min 200px per item
+                        final cols = (constraints.maxWidth / 200).floor().clamp(1, items.length);
+                        final itemWidth = constraints.maxWidth / cols;
+
+                        return Wrap(
+                          alignment: WrapAlignment.center,
+                          children: items.map((item) {
+                            return SizedBox(
+                              width: itemWidth,
+                              child: _StatItem(data: item),
+                            );
+                          }).toList(),
+                        );
+                      },
                     ),
-                    _StatItem(
-                      icon: Icons.attach_money,
-                      target: _totalAmountUsd,
-                      prefix: 'USD \$',
-                      label:
-                          lang == 'es' ? 'En Financiamiento (USD)' : 'In Funding (USD)',
-                      subtitle: _rateDate != null
-                          ? (lang == 'es'
-                              ? 'TC al $_rateDate'
-                              : 'Rate as of $_rateDate')
-                          : null,
-                    ),
-                    _StatItem(
-                      icon: Icons.business,
-                      target: _orgCount,
-                      label: lang == 'es'
-                          ? 'Organizaciones Registradas'
-                          : 'Registered Organizations',
-                    ),
-                    _StatItem(
-                      icon: Icons.people,
-                      target: _userCount,
-                      label: lang == 'es'
-                          ? 'Usuarios Registrados'
-                          : 'Registered Users',
-                    ),
-                    _StatItem(
-                      icon: Icons.public,
-                      target: 18,
-                      label: lang == 'es'
-                          ? 'Estados Conectados'
-                          : 'Connected States',
-                    ),
-                  ],
-                ),
             ),
           ),
         ],
@@ -139,7 +153,7 @@ class _StatsSectionState extends ConsumerState<StatsSection> {
   }
 }
 
-class _StatItem extends StatelessWidget {
+class _StatData {
   final IconData icon;
   final int target;
   final String? prefix;
@@ -147,7 +161,7 @@ class _StatItem extends StatelessWidget {
   final String label;
   final String? subtitle;
 
-  const _StatItem({
+  const _StatData({
     required this.icon,
     required this.target,
     this.prefix,
@@ -155,23 +169,29 @@ class _StatItem extends StatelessWidget {
     required this.label,
     this.subtitle,
   });
+}
+
+class _StatItem extends StatelessWidget {
+  final _StatData data;
+
+  const _StatItem({required this.data});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
 
-    return SizedBox(
-      width: 220,
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 24),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 32, color: Colors.white.withOpacity(0.8)),
+          Icon(data.icon, size: 32, color: Colors.white.withOpacity(0.8)),
           const SizedBox(height: 12),
           StatCounter(
-            target: target,
-            prefix: prefix,
-            suffix: suffix,
-            label: label,
+            target: data.target,
+            prefix: data.prefix,
+            suffix: data.suffix,
+            label: data.label,
             numberStyle: theme.textTheme.displaySmall?.copyWith(
               fontWeight: FontWeight.w900,
               color: Colors.white,
@@ -185,10 +205,10 @@ class _StatItem extends StatelessWidget {
               fontSize: 14.4,
             ),
           ),
-          if (subtitle != null) ...[
+          if (data.subtitle != null) ...[
             const SizedBox(height: 4),
             Text(
-              subtitle!,
+              data.subtitle!,
               style: theme.textTheme.bodySmall?.copyWith(
                 color: Colors.white.withOpacity(0.5),
                 fontSize: 11,
