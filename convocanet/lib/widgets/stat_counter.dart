@@ -79,6 +79,7 @@ class _StatCounterState extends State<StatCounter>
           children: [
             Text(
               '${widget.prefix ?? ''}$formatted${widget.suffix ?? ''}',
+              textAlign: TextAlign.center,
               style: widget.numberStyle ??
                   Theme.of(context).textTheme.headlineMedium?.copyWith(
                         fontWeight: FontWeight.w800,
