@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../providers/locale_provider.dart';
 import '../../widgets/convocatoria_card.dart';
 import '../../models/convocatoria.dart';
@@ -17,6 +18,7 @@ class ConvocatoriasSection extends ConsumerStatefulWidget {
 class _ConvocatoriasSectionState extends ConsumerState<ConvocatoriasSection> {
   String _selectedFilter = 'todas';
   List<Convocatoria> _convocatorias = [];
+  List<Convocatoria> _allConvocatorias = [];
   bool _loading = true;
   String? _error;
 
@@ -39,6 +41,7 @@ class _ConvocatoriasSectionState extends ConsumerState<ConvocatoriasSection> {
       final limited = data.take(6).toList();
       if (mounted) {
         setState(() {
+          if (categorySlug == null) _allConvocatorias = data;
           _convocatorias = limited;
           _loading = false;
         });
@@ -53,13 +56,9 @@ class _ConvocatoriasSectionState extends ConsumerState<ConvocatoriasSection> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final lang = ref.watch(localeProvider).languageCode;
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-
-    final filters = [
+  /// Returns only category slugs that have at least one active convocatoria
+  List<(String, String)> _activeFilters(String lang) {
+    final all = [
       ('todas', lang == 'es' ? 'Todas' : 'All'),
       ('educacion', lang == 'es' ? 'Educación' : 'Education'),
       ('salud', lang == 'es' ? 'Salud' : 'Health'),
@@ -67,6 +66,32 @@ class _ConvocatoriasSectionState extends ConsumerState<ConvocatoriasSection> {
       ('cultura', lang == 'es' ? 'Cultura' : 'Culture'),
       ('social', lang == 'es' ? 'Desarrollo Social' : 'Social Development'),
     ];
+
+    // Always include "todas"
+    final result = <(String, String)>[all[0]];
+
+    // Count convocatorias per category from the full dataset
+    final slugs = _allConvocatorias
+        .map((c) => c.categorySlug)
+        .where((s) => s != null)
+        .toSet();
+
+    for (var i = 1; i < all.length; i++) {
+      if (slugs.contains(all[i].$1)) {
+        result.add(all[i]);
+      }
+    }
+
+    return result;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final lang = ref.watch(localeProvider).languageCode;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    final filters = _activeFilters(lang);
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 100, horizontal: 24),
@@ -119,35 +144,36 @@ class _ConvocatoriasSectionState extends ConsumerState<ConvocatoriasSection> {
               ),
               const SizedBox(height: 40),
 
-              // Filters
-              Wrap(
-                spacing: 10,
-                runSpacing: 10,
-                alignment: WrapAlignment.center,
-                children: filters.map((f) {
-                  final isSelected = _selectedFilter == f.$1;
-                  return FilterChip(
-                    label: Text(f.$2),
-                    selected: isSelected,
-                    onSelected: (selected) {
-                      setState(() => _selectedFilter = f.$1);
-                      _loadConvocatorias(
-                        categorySlug: f.$1 == 'todas' ? null : f.$1,
-                      );
-                    },
-                    selectedColor: theme.colorScheme.primary,
-                    labelStyle: TextStyle(
-                      color: isSelected
-                          ? Colors.white
-                          : theme.colorScheme.onSurfaceVariant,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(50),
-                    ),
-                  );
-                }).toList(),
-              ),
+              // Filters — only show categories with active convocatorias
+              if (filters.length > 1)
+                Wrap(
+                  spacing: 10,
+                  runSpacing: 10,
+                  alignment: WrapAlignment.center,
+                  children: filters.map((f) {
+                    final isSelected = _selectedFilter == f.$1;
+                    return FilterChip(
+                      label: Text(f.$2),
+                      selected: isSelected,
+                      onSelected: (selected) {
+                        setState(() => _selectedFilter = f.$1);
+                        _loadConvocatorias(
+                          categorySlug: f.$1 == 'todas' ? null : f.$1,
+                        );
+                      },
+                      selectedColor: theme.colorScheme.primary,
+                      labelStyle: TextStyle(
+                        color: isSelected
+                            ? Colors.white
+                            : theme.colorScheme.onSurfaceVariant,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(50),
+                      ),
+                    );
+                  }).toList(),
+                ),
               const SizedBox(height: 40),
 
               // Convocatorias grid
@@ -191,6 +217,48 @@ class _ConvocatoriasSectionState extends ConsumerState<ConvocatoriasSection> {
                           ))
                       .toList(),
                 ),
+
+              // CTA to register for more
+              const SizedBox(height: 48),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primary.withOpacity(isDark ? 0.1 : 0.05),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: theme.colorScheme.primary.withOpacity(0.15),
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      lang == 'es'
+                          ? 'Esta es solo una muestra de las convocatorias disponibles.'
+                          : 'This is just a sample of the available calls.',
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      lang == 'es'
+                          ? 'Regístrate gratis para acceder al catálogo completo, favoritos y alertas personalizadas.'
+                          : 'Sign up for free to access the full catalog, favorites and personalized alerts.',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 16),
+                    FilledButton.icon(
+                      icon: const Icon(Icons.person_add),
+                      label: Text(lang == 'es' ? 'Regístrate Gratis' : 'Sign Up Free'),
+                      onPressed: () => context.go('/register'),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
