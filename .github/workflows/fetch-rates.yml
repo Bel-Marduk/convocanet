@@ -12,7 +12,7 @@ jobs:
     steps:
       - name: Fetch and update exchange rates
         run: |
-          curl -s -X POST "${{ secrets.SUPABASE_URL }}/functions/v1/fetch-exchange-rates" \
+          curl -s -X POST "${{ secrets.SUPABASE_URL }}/functions/v1/clever-endpoint" \
             -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
             -H "Content-Type: application/json" \
             | jq .

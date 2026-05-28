@@ -2,7 +2,6 @@
 // Source: frankfurter.app (ECB data, no API key needed)
 // Converts: rate_to_usd = 1 / rate (inverse of USD-based rates)
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -15,7 +14,7 @@ const CURRENCIES = [
   "GTQ", "CRC", "PAB", "BOB", "PYG", "UYU", "HNL", "NIO", "DOP",
 ];
 
-serve(async (_req) => {
+Deno.serve(async (_req) => {
   try {
     // Fetch latest rates from frankfurter.app (base = USD)
     const apiUrl = `https://api.frankfurter.app/latest?from=USD&to=${CURRENCIES.join(",")}`;
