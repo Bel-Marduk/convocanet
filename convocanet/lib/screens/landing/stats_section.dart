@@ -13,7 +13,7 @@ class StatsSection extends ConsumerStatefulWidget {
 
 class _StatsSectionState extends ConsumerState<StatsSection> {
   int _publishedCount = 0;
-  int _totalAmountMillions = 0;
+  int _totalAmountUsd = 0;
   int _userCount = 0;
   int _orgCount = 0;
   String? _rateDate;
@@ -31,8 +31,8 @@ class _StatsSectionState extends ConsumerState<StatsSection> {
       if (mounted) {
         setState(() {
           _publishedCount = stats['publishedCount'] as int? ?? 0;
-          _totalAmountMillions =
-              ((stats['totalAmount'] as double? ?? 0) / 1000000).round();
+          _totalAmountUsd =
+              (stats['totalAmount'] as double? ?? 0).round();
           _userCount = stats['userCount'] as int? ?? 0;
           _orgCount = stats['orgCount'] as int? ?? 0;
           _rateDate = stats['rateDate'] as String?;
@@ -98,9 +98,8 @@ class _StatsSectionState extends ConsumerState<StatsSection> {
                     ),
                     _StatItem(
                       icon: Icons.attach_money,
-                      target: _totalAmountMillions,
-                      suffix: 'M',
-                      prefix: '\$',
+                      target: _totalAmountUsd,
+                      prefix: 'USD \$',
                       label:
                           lang == 'es' ? 'En Financiamiento (USD)' : 'In Funding (USD)',
                       subtitle: _rateDate != null

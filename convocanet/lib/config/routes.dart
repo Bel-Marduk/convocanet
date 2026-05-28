@@ -24,12 +24,46 @@ import '../providers/auth_provider.dart';
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
 
 final routerProvider = Provider<GoRouter>((ref) {
-  final authState = ref.watch(authStateProvider);
+  // Listen to both providers via a ChangeNotifier so GoRouter re-evaluates
+  // redirects without recreating the entire router instance.
+  final refreshNotifier = _AuthRefreshNotifier(ref);
 
-  return GoRouter(
+  final router = GoRouter(
     navigatorKey: _rootNavigatorKey,
     initialLocation: '/',
+    refreshListenable: refreshNotifier,
     errorBuilder: (context, state) => const NotFoundScreen(),
+    redirect: (context, state) {
+      final authState = ref.read(authStateProvider);
+
+      // Auth state still loading (stream hasn't emitted yet) — hold
+      if (authState.isLoading) return null;
+
+      final isLoggedIn = authState.value != null;
+      final path = state.matchedLocation;
+
+      // Unauthenticated users on protected routes → login
+      final isProtected = path == '/dashboard' ||
+          path == '/favorites' ||
+          path == '/convocatorias' ||
+          path == '/profile' ||
+          path.startsWith('/admin');
+      if (!isLoggedIn && isProtected) return '/login';
+
+      // For authenticated users, wait for profile to load before admin checks
+      final profile = ref.read(currentProfileProvider);
+      if (isLoggedIn && (profile.isLoading || profile.hasError)) return null;
+
+      final isAdmin = ref.read(isAdminProvider);
+
+      // Admin users on /dashboard → admin
+      if (path == '/dashboard' && isAdmin) return '/admin';
+
+      // Non-admin users on admin routes → dashboard
+      if (path.startsWith('/admin') && !isAdmin) return '/dashboard';
+
+      return null;
+    },
     routes: [
       // Landing Page
       GoRoute(
@@ -62,35 +96,18 @@ final routerProvider = Provider<GoRouter>((ref) {
       // User routes (require auth)
       GoRoute(
         path: '/dashboard',
-        redirect: (context, state) {
-          if (authState.value == null) return '/login';
-          if (ref.read(isAdminProvider)) return '/admin';
-          return null;
-        },
         builder: (context, state) => const DashboardScreen(),
       ),
       GoRoute(
         path: '/favorites',
-        redirect: (context, state) {
-          if (authState.value == null) return '/login';
-          return null;
-        },
         builder: (context, state) => const FavoritesScreen(),
       ),
       GoRoute(
         path: '/convocatorias',
-        redirect: (context, state) {
-          if (authState.value == null) return '/login';
-          return null;
-        },
         builder: (context, state) => const ConvocatoriasBrowserScreen(),
       ),
       GoRoute(
         path: '/profile',
-        redirect: (context, state) {
-          if (authState.value == null) return '/login';
-          return null;
-        },
         builder: (context, state) => const ProfileScreen(),
       ),
 
@@ -100,71 +117,50 @@ final routerProvider = Provider<GoRouter>((ref) {
         routes: [
           GoRoute(
             path: '/admin',
-            redirect: (context, state) {
-              if (authState.value == null) return '/login';
-              if (!ref.read(isAdminProvider)) return '/dashboard';
-              return null;
-            },
             builder: (context, state) => const AdminDashboard(),
           ),
           GoRoute(
             path: '/admin/convocatorias',
-            redirect: (context, state) {
-              if (authState.value == null) return '/login';
-              if (!ref.read(isAdminProvider)) return '/dashboard';
-              return null;
-            },
             builder: (context, state) => const ManageConvocatorias(),
           ),
           GoRoute(
             path: '/admin/convocatorias/new',
-            redirect: (context, state) {
-              if (authState.value == null) return '/login';
-              if (!ref.read(isAdminProvider)) return '/dashboard';
-              return null;
-            },
             builder: (context, state) => const EditConvocatoriaScreen(),
           ),
           GoRoute(
             path: '/admin/convocatorias/:id/edit',
-            redirect: (context, state) {
-              if (authState.value == null) return '/login';
-              if (!ref.read(isAdminProvider)) return '/dashboard';
-              return null;
-            },
             builder: (context, state) => EditConvocatoriaScreen(
               convocatoriaId: state.pathParameters['id'],
             ),
           ),
           GoRoute(
             path: '/admin/users',
-            redirect: (context, state) {
-              if (authState.value == null) return '/login';
-              if (!ref.read(isAdminProvider)) return '/dashboard';
-              return null;
-            },
             builder: (context, state) => const ManageUsers(),
           ),
           GoRoute(
             path: '/admin/messages',
-            redirect: (context, state) {
-              if (authState.value == null) return '/login';
-              if (!ref.read(isAdminProvider)) return '/dashboard';
-              return null;
-            },
             builder: (context, state) => const ManageMessages(),
           ),
           GoRoute(
             path: '/admin/categories',
-            redirect: (context, state) {
-              if (authState.value == null) return '/login';
-              if (!ref.read(isAdminProvider)) return '/dashboard';
-              return null;
-            },
             builder: (context, state) => const ManageCategories(),
           ),
         ],
       ),
     ],
   );
+
+  return router;
 });
+
+/// Notifies GoRouter to re-evaluate redirects when auth or profile changes.
+class _AuthRefreshNotifier extends ChangeNotifier {
+  _AuthRefreshNotifier(Ref ref) {
+    ref.listen(authStateProvider, (prev, next) {
+      notifyListeners();
+    });
+    ref.listen(currentProfileProvider, (prev, next) {
+      notifyListeners();
+    });
+  }
+}
