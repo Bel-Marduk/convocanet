@@ -116,6 +116,41 @@ class ConvocatoriaService {
     }
   }
 
+  // Admin: Get all convocatorias (all statuses)
+  static Future<List<Convocatoria>> getConvocatoriasAdmin({
+    String? statusFilter,
+  }) async {
+    var query = _client.from('convocatorias').select('''
+      *,
+      categories:category_id (
+        name_es, name_en, slug, icon, color
+      )
+    ''');
+
+    if (statusFilter != null) {
+      query = query.eq('status', statusFilter);
+    }
+
+    final response = await query
+        .order('created_at', ascending: false)
+        .limit(200);
+
+    return (response as List)
+        .map((json) => Convocatoria.fromJson(json))
+        .toList();
+  }
+
+  // Admin: Approve convocatoria (set status to active)
+  static Future<void> approveConvocatoria(String id) async {
+    await _client
+        .from('convocatorias')
+        .update({
+          'status': 'active',
+          'updated_at': DateTime.now().toIso8601String(),
+        })
+        .eq('id', id);
+  }
+
   // Admin: Create convocatoria
   static Future<void> createConvocatoria(Convocatoria convocatoria) async {
     final data = _buildPayload(convocatoria);

@@ -331,6 +331,10 @@ class _EditConvocatoriaScreenState
                                   child: Text(lang == 'es' ? 'Activa' : 'Active'),
                                 ),
                                 DropdownMenuItem(
+                                  value: 'pending',
+                                  child: Text(lang == 'es' ? 'Pendiente' : 'Pending'),
+                                ),
+                                DropdownMenuItem(
                                   value: 'permanent',
                                   child: Text(lang == 'es' ? 'Permanente' : 'Permanent'),
                                 ),
