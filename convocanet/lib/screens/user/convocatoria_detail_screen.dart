@@ -103,7 +103,12 @@ class _ConvocatoriaDetailScreenState
 
     if (_convocatoria == null) {
       return Scaffold(
-        appBar: AppBar(),
+        appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => context.pop(),
+          ),
+        ),
         body: Center(
           child: Text(
             lang == 'es' ? 'Convocatoria no encontrada' : 'Call not found',
@@ -116,8 +121,25 @@ class _ConvocatoriaDetailScreenState
 
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            final isAdmin = ref.read(isAdminProvider);
+            if (isAdmin) {
+              context.go('/admin/convocatorias');
+            } else {
+              context.pop();
+            }
+          },
+        ),
         title: Text(conv.title(lang)),
         actions: [
+          if (ref.watch(isAdminProvider))
+            IconButton(
+              icon: const Icon(Icons.edit),
+              tooltip: lang == 'es' ? 'Editar' : 'Edit',
+              onPressed: () => context.go('/admin/convocatorias/${conv.id}/edit'),
+            ),
           IconButton(
             icon: Icon(
               _isFavorite ? Icons.star : Icons.star_border,
