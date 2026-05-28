@@ -107,9 +107,28 @@ class _AdminShellState extends ConsumerState<AdminShell> {
 
   @override
   Widget build(BuildContext context) {
+    final authState = ref.watch(authStateProvider);
     final lang = ref.watch(localeProvider).languageCode;
     final theme = Theme.of(context);
     final isMobile = MediaQuery.of(context).size.width < 768;
+
+    // Auth + role guard for all admin routes
+    if (authState.isLoading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+    if (authState.value == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) context.go('/login');
+      });
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+    final isAdmin = ref.watch(isAdminProvider);
+    if (!isAdmin) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) context.go('/dashboard');
+      });
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
 
     final profile = ref.watch(currentProfileProvider);
 

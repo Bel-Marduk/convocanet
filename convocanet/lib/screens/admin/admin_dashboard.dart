@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../providers/locale_provider.dart';
+import '../../providers/auth_provider.dart';
 import '../../services/convocatoria_service.dart';
 
 class AdminDashboard extends ConsumerStatefulWidget {
@@ -64,8 +65,27 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
 
   @override
   Widget build(BuildContext context) {
+    final authState = ref.watch(authStateProvider);
     final lang = ref.watch(localeProvider).languageCode;
     final theme = Theme.of(context);
+
+    // Auth guard: block unauthenticated or non-admin users
+    if (authState.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (authState.value == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) context.go('/login');
+      });
+      return const Center(child: CircularProgressIndicator());
+    }
+    final isAdmin = ref.watch(isAdminProvider);
+    if (!isAdmin) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) context.go('/dashboard');
+      });
+      return const Center(child: CircularProgressIndicator());
+    }
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),

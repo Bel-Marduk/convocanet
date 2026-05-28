@@ -35,32 +35,46 @@ final routerProvider = Provider<GoRouter>((ref) {
     errorBuilder: (context, state) => const NotFoundScreen(),
     redirect: (context, state) {
       final authState = ref.read(authStateProvider);
-
-      // Auth state still loading (stream hasn't emitted yet) — hold
-      if (authState.isLoading) return null;
-
-      final isLoggedIn = authState.value != null;
       final path = state.matchedLocation;
 
-      // Unauthenticated users on protected routes → login
       final isProtected = path == '/dashboard' ||
           path == '/favorites' ||
           path == '/convocatorias' ||
           path == '/profile' ||
           path.startsWith('/admin');
+
+      // Auth state still loading — block protected routes, allow public ones
+      if (authState.isLoading) return isProtected ? '/login' : null;
+
+      final isLoggedIn = authState.value != null;
+
+      // Unauthenticated users on protected routes → login
       if (!isLoggedIn && isProtected) return '/login';
 
+      // Logged-in users on login/register → dashboard (skip for forgot-password)
+      if (isLoggedIn &&
+          !isProtected &&
+          (path == '/login' || path == '/register')) {
+        final isAdmin = ref.read(isAdminProvider);
+        return isAdmin ? '/admin' : '/dashboard';
+      }
+
       // For authenticated users, wait for profile to load before admin checks
-      final profile = ref.read(currentProfileProvider);
-      if (isLoggedIn && (profile.isLoading || profile.hasError)) return null;
+      if (isLoggedIn) {
+        final profile = ref.read(currentProfileProvider);
+        if (profile.isLoading || profile.hasError) {
+          // Profile loading — block admin routes, allow user routes
+          return path.startsWith('/admin') ? '/dashboard' : null;
+        }
 
-      final isAdmin = ref.read(isAdminProvider);
+        final isAdmin = ref.read(isAdminProvider);
 
-      // Admin users on /dashboard → admin
-      if (path == '/dashboard' && isAdmin) return '/admin';
+        // Admin users on /dashboard → admin
+        if (path == '/dashboard' && isAdmin) return '/admin';
 
-      // Non-admin users on admin routes → dashboard
-      if (path.startsWith('/admin') && !isAdmin) return '/dashboard';
+        // Non-admin users on admin routes → dashboard
+        if (path.startsWith('/admin') && !isAdmin) return '/dashboard';
+      }
 
       return null;
     },
