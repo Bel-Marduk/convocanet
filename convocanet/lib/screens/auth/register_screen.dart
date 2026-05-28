@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../providers/locale_provider.dart';
+import '../../providers/auth_provider.dart';
 import '../../services/auth_service.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
@@ -94,8 +95,19 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final authState = ref.watch(authStateProvider);
     final lang = ref.watch(localeProvider).languageCode;
     final theme = Theme.of(context);
+
+    // Already logged in → redirect to dashboard
+    if (authState.value?.session != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) context.go('/dashboard');
+      });
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(

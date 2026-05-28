@@ -37,23 +37,21 @@ final routerProvider = Provider<GoRouter>((ref) {
       final authState = ref.read(authStateProvider);
       final path = state.matchedLocation;
 
+      // Auth state still loading — don't redirect, screen guards will show spinner
+      if (authState.isLoading) return null;
+
+      final isLoggedIn = authState.value?.session != null;
       final isProtected = path == '/dashboard' ||
           path == '/favorites' ||
           path == '/convocatorias' ||
           path == '/profile' ||
           path.startsWith('/admin');
 
-      // Auth state still loading — block protected routes, allow public ones
-      if (authState.isLoading) return isProtected ? '/login' : null;
-
-      final isLoggedIn = authState.value != null;
-
       // Unauthenticated users on protected routes → login
       if (!isLoggedIn && isProtected) return '/login';
 
       // Logged-in users on login/register → dashboard (skip for forgot-password)
       if (isLoggedIn &&
-          !isProtected &&
           (path == '/login' || path == '/register')) {
         final isAdmin = ref.read(isAdminProvider);
         return isAdmin ? '/admin' : '/dashboard';
