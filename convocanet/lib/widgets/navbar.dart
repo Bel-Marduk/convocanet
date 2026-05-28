@@ -139,64 +139,17 @@ class _NavbarState extends ConsumerState<Navbar> {
                     // Auth buttons only on desktop
                     if (isAuthenticated) ...[
                       const SizedBox(width: 8),
-                      PopupMenuButton<String>(
-                        icon: CircleAvatar(
-                          radius: 18,
-                          backgroundColor: theme.colorScheme.primary,
-                          child: const Icon(
-                            Icons.person,
-                            size: 20,
-                            color: Colors.white,
-                          ),
-                        ),
-                        onSelected: (value) async {
-                          switch (value) {
-                            case 'dashboard':
-                              context.go('/dashboard');
-                              break;
-                            case 'favorites':
-                              context.go('/favorites');
-                              break;
-                            case 'convocatorias':
-                              context.go('/convocatorias');
-                              break;
-                            case 'profile':
-                              context.go('/profile');
-                              break;
-                            case 'admin':
-                              context.go('/admin');
-                              break;
-                            case 'logout':
-                              await AuthService.signOut();
-                              if (context.mounted) {
-                                context.go('/');
-                              }
-                              break;
-                          }
+                      TextButton(
+                        onPressed: () => context.go('/dashboard'),
+                        child: Text(lang == 'es' ? 'Dashboard' : 'Dashboard'),
+                      ),
+                      const SizedBox(width: 8),
+                      TextButton(
+                        onPressed: () async {
+                          await AuthService.signOut();
+                          if (context.mounted) context.go('/');
                         },
-                        itemBuilder: (context) => [
-                          PopupMenuItem(
-                            value: 'dashboard',
-                            child: Text(lang == 'es' ? 'Dashboard' : 'Dashboard'),
-                          ),
-                          PopupMenuItem(
-                            value: 'favorites',
-                            child: Text(lang == 'es' ? 'Favoritos' : 'Favorites'),
-                          ),
-                          PopupMenuItem(
-                            value: 'convocatorias',
-                            child: Text(lang == 'es' ? 'Convocatorias' : 'Browse Calls'),
-                          ),
-                          PopupMenuItem(
-                            value: 'profile',
-                            child: Text(lang == 'es' ? 'Perfil' : 'Profile'),
-                          ),
-                          const PopupMenuDivider(),
-                          PopupMenuItem(
-                            value: 'logout',
-                            child: Text(lang == 'es' ? 'Cerrar sesión' : 'Sign out'),
-                          ),
-                        ],
+                        child: Text(lang == 'es' ? 'Cerrar sesión' : 'Sign out'),
                       ),
                     ] else ...[
                       const SizedBox(width: 8),
