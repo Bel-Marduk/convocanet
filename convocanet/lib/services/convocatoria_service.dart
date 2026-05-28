@@ -142,13 +142,13 @@ class ConvocatoriaService {
 
   // Admin: Approve convocatoria (set status to active)
   static Future<void> approveConvocatoria(String id) async {
-    await _client
-        .from('convocatorias')
-        .update({
-          'status': 'active',
-          'updated_at': DateTime.now().toIso8601String(),
-        })
-        .eq('id', id);
+    await _client.rpc('admin_update_convocatoria', params: {
+      'p_id': id,
+      'p_data': {
+        'status': 'active',
+        'updated_at': DateTime.now().toIso8601String(),
+      },
+    });
   }
 
   // Admin: Create convocatoria
