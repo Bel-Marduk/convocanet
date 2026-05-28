@@ -276,6 +276,13 @@ class _ManageConvocatoriasState extends ConsumerState<ManageConvocatorias> {
                                 Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
+                                    IconButton(
+                                      icon: const Icon(Icons.visibility, size: 20),
+                                      tooltip: lang == 'es' ? 'Ver convocatoria' : 'View call',
+                                      onPressed: () => context.go(
+                                        '/convocatoria/${conv.id}',
+                                      ),
+                                    ),
                                     if (conv.isPending)
                                       IconButton(
                                         icon: const Icon(
