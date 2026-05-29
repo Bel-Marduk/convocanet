@@ -119,6 +119,7 @@ class ConvocatoriaService {
   // Admin: Get all convocatorias (all statuses)
   static Future<List<Convocatoria>> getConvocatoriasAdmin({
     String? statusFilter,
+    String? searchQuery,
   }) async {
     var query = _client.from('convocatorias').select('''
       *,
@@ -129,6 +130,12 @@ class ConvocatoriaService {
 
     if (statusFilter != null) {
       query = query.eq('status', statusFilter);
+    }
+
+    if (searchQuery != null && searchQuery.isNotEmpty) {
+      query = query.or(
+        'title_es.ilike.%$searchQuery%,title_en.ilike.%$searchQuery%,description_es.ilike.%$searchQuery%,description_en.ilike.%$searchQuery%',
+      );
     }
 
     final response = await query

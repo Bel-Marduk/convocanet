@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -17,6 +18,16 @@ class _ManageConvocatoriasState extends ConsumerState<ManageConvocatorias> {
   List<Convocatoria> _convocatorias = [];
   bool _isLoading = true;
   String? _statusFilter; // null = all
+  String _searchQuery = '';
+  final _searchController = TextEditingController();
+  Timer? _debounce;
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -27,8 +38,11 @@ class _ManageConvocatoriasState extends ConsumerState<ManageConvocatorias> {
   Future<void> _loadConvocatorias() async {
     setState(() => _isLoading = true);
     try {
+      final isSearching = _searchQuery.isNotEmpty;
       final convocatorias = await ConvocatoriaService.getConvocatoriasAdmin(
-        statusFilter: _statusFilter,
+        // Ignore status filter when searching — find duplicates across all statuses
+        statusFilter: isSearching ? null : _statusFilter,
+        searchQuery: isSearching ? _searchQuery : null,
       );
       setState(() {
         _convocatorias = convocatorias;
@@ -205,6 +219,43 @@ class _ManageConvocatoriasState extends ConsumerState<ManageConvocatorias> {
                           ),
                         ],
                       ),
+                    ),
+                    const SizedBox(height: 12),
+                    // Search bar to avoid duplicates
+                    TextField(
+                      controller: _searchController,
+                      decoration: InputDecoration(
+                        hintText: lang == 'es'
+                            ? 'Buscar por título o descripción para evitar duplicados...'
+                            : 'Search by title or description to avoid duplicates...',
+                        prefixIcon: const Icon(Icons.search),
+                        suffixIcon: _searchQuery.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(Icons.clear),
+                                onPressed: () {
+                                  _searchController.clear();
+                                  setState(() => _searchQuery = '');
+                                  _loadConvocatorias();
+                                },
+                              )
+                            : null,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                      ),
+                      onChanged: (value) {
+                        final query = value.trim().toLowerCase();
+                        setState(() => _searchQuery = query);
+                        _debounce?.cancel();
+                        _debounce = Timer(
+                          const Duration(milliseconds: 400),
+                          () => _loadConvocatorias(),
+                        );
+                      },
                     ),
                     const SizedBox(height: 16),
                     Card(
