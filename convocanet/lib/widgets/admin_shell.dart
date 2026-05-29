@@ -122,6 +122,11 @@ class _AdminShellState extends ConsumerState<AdminShell> {
       });
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
+    final profile = ref.watch(currentProfileProvider);
+    // Block until profile loads — prevents non-admin from flashing admin shell
+    if (profile.isLoading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
     final isAdmin = ref.watch(isAdminProvider);
     if (!isAdmin) {
       WidgetsBinding.instance.addPostFrameCallback((_) {

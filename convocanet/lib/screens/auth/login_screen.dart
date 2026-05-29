@@ -102,11 +102,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final lang = ref.watch(localeProvider).languageCode;
     final theme = Theme.of(context);
 
-    // Already logged in → redirect to dashboard
+    // Already logged in → let router redirect based on role (profile must load first)
     if (authState.value?.session != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) context.go('/dashboard');
-      });
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
       );

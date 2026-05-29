@@ -50,25 +50,28 @@ final routerProvider = Provider<GoRouter>((ref) {
       // Unauthenticated users on protected routes → login
       if (!isLoggedIn && isProtected) return '/login';
 
-      // Logged-in users on login/register → dashboard (skip for forgot-password)
-      if (isLoggedIn &&
-          (path == '/login' || path == '/register')) {
-        final isAdmin = ref.read(isAdminProvider);
-        return isAdmin ? '/admin' : '/dashboard';
-      }
-
-      // For authenticated users, wait for profile to load before admin checks
+      // For authenticated users, wait for profile to load before role checks
       if (isLoggedIn) {
         final profile = ref.read(currentProfileProvider);
-        if (profile.isLoading || profile.hasError) {
-          // Profile loading — block admin routes, allow user routes
-          return path.startsWith('/admin') ? '/dashboard' : null;
+
+        // Profile still loading — block protected routes, stay on public routes
+        if (profile.isLoading) {
+          if (isProtected) return '/dashboard';
+          return null;
         }
+
+        // Profile failed — send to login
+        if (profile.hasError) return '/login';
 
         final isAdmin = ref.read(isAdminProvider);
 
-        // Admin users on /dashboard → admin
-        if (path == '/dashboard' && isAdmin) return '/admin';
+        // Logged-in users on login/register → correct dashboard (skip forgot-password)
+        if (path == '/login' || path == '/register') {
+          return isAdmin ? '/admin' : '/dashboard';
+        }
+
+        // Admin users on /dashboard or landing → admin
+        if (isAdmin && (path == '/dashboard' || path == '/')) return '/admin';
 
         // Non-admin users on admin routes → dashboard
         if (path.startsWith('/admin') && !isAdmin) return '/dashboard';

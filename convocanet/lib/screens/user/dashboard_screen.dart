@@ -116,7 +116,21 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         body: Center(child: CircularProgressIndicator()),
       );
     }
-    if (profile.hasValue && profile.value?.isAdmin == true) {
+    // Block until profile loads — prevents admin from flashing user dashboard
+    if (profile.isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+    if (profile.hasError) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) context.go('/login');
+      });
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+    if (profile.value?.isAdmin == true) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) context.go('/admin');
       });

@@ -139,10 +139,7 @@ class _NavbarState extends ConsumerState<Navbar> {
                     // Auth buttons only on desktop
                     if (isAuthenticated) ...[
                       const SizedBox(width: 8),
-                      TextButton(
-                        onPressed: () => context.go('/dashboard'),
-                        child: Text(lang == 'es' ? 'Dashboard' : 'Dashboard'),
-                      ),
+                      _DashboardButton(lang: lang),
                       const SizedBox(width: 8),
                       TextButton(
                         onPressed: () async {
@@ -242,14 +239,7 @@ class _NavbarState extends ConsumerState<Navbar> {
               ),
               const Divider(),
               if (isAuthenticated) ...[
-                ListTile(
-                  leading: const Icon(Icons.dashboard),
-                  title: const Text('Dashboard'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    context.go('/dashboard');
-                  },
-                ),
+                _DashboardListTile(lang: lang),
                 ListTile(
                   leading: const Icon(Icons.explore_outlined),
                   title: Text(lang == 'es' ? 'Convocatorias' : 'Browse Calls'),
@@ -297,6 +287,40 @@ class _NavbarState extends ConsumerState<Navbar> {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Dashboard button for desktop navbar — routes admin to /admin, user to /dashboard
+class _DashboardButton extends ConsumerWidget {
+  final String lang;
+  const _DashboardButton({required this.lang});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isAdmin = ref.watch(isAdminProvider);
+    return TextButton(
+      onPressed: () => context.go(isAdmin ? '/admin' : '/dashboard'),
+      child: Text(lang == 'es' ? 'Dashboard' : 'Dashboard'),
+    );
+  }
+}
+
+/// Dashboard ListTile for mobile menu — routes admin to /admin, user to /dashboard
+class _DashboardListTile extends ConsumerWidget {
+  final String lang;
+  const _DashboardListTile({required this.lang});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isAdmin = ref.watch(isAdminProvider);
+    return ListTile(
+      leading: const Icon(Icons.dashboard),
+      title: const Text('Dashboard'),
+      onTap: () {
+        Navigator.pop(context);
+        context.go(isAdmin ? '/admin' : '/dashboard');
+      },
     );
   }
 }
