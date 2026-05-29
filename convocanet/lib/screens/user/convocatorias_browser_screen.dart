@@ -35,7 +35,7 @@ class _ConvocatoriasBrowserScreenState
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(length: 5, vsync: this);
     _tabController.addListener(_onTabChanged);
     _loadData();
   }
@@ -85,11 +85,16 @@ class _ConvocatoriasBrowserScreenState
       final user = ref.read(currentUserProvider);
 
       switch (_tabController.index) {
-        case 0: // Nuevas
-          convocatorias = await ConvocatoriaService.getConvocatorias(
+        case 0: // Nuevas — active + permanent, excluding viewed
+          final active = await ConvocatoriaService.getConvocatorias(
             status: 'active',
             categorySlug: _selectedCategorySlug,
           );
+          final permanent = await ConvocatoriaService.getConvocatorias(
+            status: 'permanent',
+            categorySlug: _selectedCategorySlug,
+          );
+          convocatorias = [...active, ...permanent];
           // Exclude viewed
           if (user != null) {
             convocatorias = convocatorias
@@ -104,13 +109,20 @@ class _ConvocatoriasBrowserScreenState
             convocatorias = [];
           }
           break;
-        case 2: // Permanentes
+        case 2: // Favoritas
+          if (user != null) {
+            convocatorias = await ConvocatoriaService.getFavorites(user.id);
+          } else {
+            convocatorias = [];
+          }
+          break;
+        case 3: // Permanentes — always show all permanent (regardless of viewed)
           convocatorias = await ConvocatoriaService.getConvocatorias(
             status: 'permanent',
             categorySlug: _selectedCategorySlug,
           );
           break;
-        case 3: // Cerradas
+        case 4: // Cerradas
           convocatorias = await ConvocatoriaService.getConvocatorias(
             status: 'expired',
             categorySlug: _selectedCategorySlug,
@@ -239,6 +251,7 @@ class _ConvocatoriasBrowserScreenState
           tabs: [
             Tab(text: lang == 'es' ? 'Nuevas' : 'New'),
             Tab(text: lang == 'es' ? 'Vistas' : 'Viewed'),
+            Tab(text: lang == 'es' ? 'Favoritas' : 'Favorites'),
             Tab(text: lang == 'es' ? 'Permanentes' : 'Permanent'),
             Tab(text: lang == 'es' ? 'Cerradas' : 'Closed'),
           ],
@@ -296,8 +309,7 @@ class _ConvocatoriasBrowserScreenState
                         },
                       );
                     }),
-                    ],
-                  ),
+                  ],
                 ),
                 const SizedBox(height: 8),
                 // Country dropdown
@@ -356,7 +368,9 @@ class _ConvocatoriasBrowserScreenState
                             Icon(
                               _tabController.index == 1
                                   ? Icons.visibility_outlined
-                                  : Icons.inbox_outlined,
+                                  : _tabController.index == 2
+                                      ? Icons.star_outline
+                                      : Icons.inbox_outlined,
                               size: 64,
                               color: theme.colorScheme.onSurfaceVariant
                                   .withOpacity(0.3),
@@ -421,9 +435,13 @@ class _ConvocatoriasBrowserScreenState
             : 'No viewed calls yet';
       case 2:
         return lang == 'es'
+            ? 'No tienes convocatorias favoritas'
+            : 'No favorite calls yet';
+      case 3:
+        return lang == 'es'
             ? 'No hay convocatorias permanentes'
             : 'No permanent calls';
-      case 3:
+      case 4:
         return lang == 'es'
             ? 'No hay convocatorias cerradas'
             : 'No closed calls';
