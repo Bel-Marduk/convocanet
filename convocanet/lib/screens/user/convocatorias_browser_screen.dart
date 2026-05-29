@@ -147,33 +147,59 @@ class _ConvocatoriasBrowserScreenState
     final user = ref.read(currentUserProvider);
     if (user == null) return;
 
-    final isFav = await ConvocatoriaService.toggleFavorite(
-      user.id,
-      convocatoria.id,
-    );
+    // Optimistic update — mark/unmark star immediately
+    final wasFav = _favoriteIds.contains(convocatoria.id);
     setState(() {
-      if (isFav) {
-        _favoriteIds.add(convocatoria.id);
-      } else {
+      if (wasFav) {
         _favoriteIds.remove(convocatoria.id);
+      } else {
+        _favoriteIds.add(convocatoria.id);
       }
     });
+
+    try {
+      await ConvocatoriaService.toggleFavorite(user.id, convocatoria.id);
+    } catch (e) {
+      // Revert on failure
+      setState(() {
+        if (wasFav) {
+          _favoriteIds.add(convocatoria.id);
+        } else {
+          _favoriteIds.remove(convocatoria.id);
+        }
+      });
+    }
   }
 
   Future<void> _toggleViewed(Convocatoria convocatoria) async {
     final user = ref.read(currentUserProvider);
     if (user == null) return;
 
+    // Optimistic update
+    final wasViewed = _viewedIds.contains(convocatoria.id);
+    setState(() {
+      if (wasViewed) {
+        _viewedIds.remove(convocatoria.id);
+      } else {
+        _viewedIds.add(convocatoria.id);
+      }
+    });
+
     try {
-      if (_viewedIds.contains(convocatoria.id)) {
+      if (wasViewed) {
         await ConvocatoriaService.removeFromViewed(user.id, convocatoria.id);
-        setState(() => _viewedIds.remove(convocatoria.id));
       } else {
         await ConvocatoriaService.markAsViewed(user.id, convocatoria.id);
-        setState(() => _viewedIds.add(convocatoria.id));
       }
     } catch (e) {
-      // If the call fails, don't update local state
+      // Revert on failure
+      setState(() {
+        if (wasViewed) {
+          _viewedIds.add(convocatoria.id);
+        } else {
+          _viewedIds.remove(convocatoria.id);
+        }
+      });
       return;
     }
 
@@ -236,47 +262,40 @@ class _ConvocatoriasBrowserScreenState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Category filter chips
-                SizedBox(
-                  height: 40,
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(right: 8),
-                        child: FilterChip(
-                          label: Text(lang == 'es' ? 'Todas' : 'All'),
-                          selected: _selectedCategorySlug == null,
-                          onSelected: (selected) {
-                            if (selected) {
-                              setState(() => _selectedCategorySlug = null);
-                              _loadConvocatorias();
-                            }
-                          },
-                        ),
-                      ),
-                      ..._categories.map((cat) {
-                        final color = getCategoryColor(cat.slug);
-                        final isSelected = _selectedCategorySlug == cat.slug;
-                        return Padding(
-                          padding: const EdgeInsets.only(right: 8),
-                          child: FilterChip(
-                            label: Text(
-                              cat.name(lang),
-                              style: TextStyle(
-                                color: isSelected ? Colors.white : color,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            selected: isSelected,
-                            selectedColor: color,
-                            onSelected: (selected) {
-                              setState(() => _selectedCategorySlug =
-                                  selected ? cat.slug : null);
-                              _loadConvocatorias();
-                            },
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    FilterChip(
+                      label: Text(lang == 'es' ? 'Todas' : 'All'),
+                      selected: _selectedCategorySlug == null,
+                      onSelected: (selected) {
+                        if (selected) {
+                          setState(() => _selectedCategorySlug = null);
+                          _loadConvocatorias();
+                        }
+                      },
+                    ),
+                    ..._categories.map((cat) {
+                      final color = getCategoryColor(cat.slug);
+                      final isSelected = _selectedCategorySlug == cat.slug;
+                      return FilterChip(
+                        label: Text(
+                          cat.name(lang),
+                          style: TextStyle(
+                            color: isSelected ? Colors.white : color,
+                            fontWeight: FontWeight.w600,
                           ),
-                        );
-                      }),
+                        ),
+                        selected: isSelected,
+                        selectedColor: color,
+                        onSelected: (selected) {
+                          setState(() => _selectedCategorySlug =
+                              selected ? cat.slug : null);
+                          _loadConvocatorias();
+                        },
+                      );
+                    }),
                     ],
                   ),
                 ),

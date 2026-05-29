@@ -266,10 +266,14 @@ class ConvocatoriaService {
 
   // User: Mark convocatoria as viewed
   static Future<void> markAsViewed(String userId, String convocatoriaId) async {
-    await _client.from('user_viewed_convocatorias').upsert({
-      'user_id': userId,
-      'convocatoria_id': convocatoriaId,
-    });
+    await _client.from('user_viewed_convocatorias').upsert(
+      {
+        'user_id': userId,
+        'convocatoria_id': convocatoriaId,
+        'viewed_at': DateTime.now().toIso8601String(),
+      },
+      onConflict: 'user_id,convocatoria_id',
+    );
   }
 
   // User: Remove from viewed
