@@ -9,6 +9,7 @@ import '../../models/country.dart';
 import '../../services/convocatoria_service.dart';
 import '../../widgets/convocatoria_card.dart';
 import '../../widgets/user_bottom_nav.dart';
+import '../../utils/category_colors.dart';
 
 class ConvocatoriasBrowserScreen extends ConsumerStatefulWidget {
   const ConvocatoriasBrowserScreen({super.key});
@@ -163,12 +164,17 @@ class _ConvocatoriasBrowserScreenState
     final user = ref.read(currentUserProvider);
     if (user == null) return;
 
-    if (_viewedIds.contains(convocatoria.id)) {
-      await ConvocatoriaService.removeFromViewed(user.id, convocatoria.id);
-      setState(() => _viewedIds.remove(convocatoria.id));
-    } else {
-      await ConvocatoriaService.markAsViewed(user.id, convocatoria.id);
-      setState(() => _viewedIds.add(convocatoria.id));
+    try {
+      if (_viewedIds.contains(convocatoria.id)) {
+        await ConvocatoriaService.removeFromViewed(user.id, convocatoria.id);
+        setState(() => _viewedIds.remove(convocatoria.id));
+      } else {
+        await ConvocatoriaService.markAsViewed(user.id, convocatoria.id);
+        setState(() => _viewedIds.add(convocatoria.id));
+      }
+    } catch (e) {
+      // If the call fails, don't update local state
+      return;
     }
 
     // Refresh current tab if it depends on viewed status
@@ -248,18 +254,29 @@ class _ConvocatoriasBrowserScreenState
                           },
                         ),
                       ),
-                      ..._categories.map((cat) => Padding(
-                            padding: const EdgeInsets.only(right: 8),
-                            child: FilterChip(
-                              label: Text(cat.name(lang)),
-                              selected: _selectedCategorySlug == cat.slug,
-                              onSelected: (selected) {
-                                setState(() => _selectedCategorySlug =
-                                    selected ? cat.slug : null);
-                                _loadConvocatorias();
-                              },
+                      ..._categories.map((cat) {
+                        final color = getCategoryColor(cat.slug);
+                        final isSelected = _selectedCategorySlug == cat.slug;
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: FilterChip(
+                            label: Text(
+                              cat.name(lang),
+                              style: TextStyle(
+                                color: isSelected ? Colors.white : color,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
-                          )),
+                            selected: isSelected,
+                            selectedColor: color,
+                            onSelected: (selected) {
+                              setState(() => _selectedCategorySlug =
+                                  selected ? cat.slug : null);
+                              _loadConvocatorias();
+                            },
+                          ),
+                        );
+                      }),
                     ],
                   ),
                 ),
