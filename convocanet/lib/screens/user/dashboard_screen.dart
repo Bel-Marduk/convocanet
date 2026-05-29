@@ -117,7 +117,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       );
     }
     // Block until profile loads — prevents admin from flashing user dashboard
-    if (profile.isLoading) {
+    if (!profile.hasValue && !profile.hasError) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
       );

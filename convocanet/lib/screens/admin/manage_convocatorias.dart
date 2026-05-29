@@ -226,8 +226,8 @@ class _ManageConvocatoriasState extends ConsumerState<ManageConvocatorias> {
                       controller: _searchController,
                       decoration: InputDecoration(
                         hintText: lang == 'es'
-                            ? 'Buscar por título o descripción para evitar duplicados...'
-                            : 'Search by title or description to avoid duplicates...',
+                            ? 'Buscar por título, descripción, URL o fuente para evitar duplicados...'
+                            : 'Search by title, description, URL or source to avoid duplicates...',
                         prefixIcon: const Icon(Icons.search),
                         suffixIcon: _searchQuery.isNotEmpty
                             ? IconButton(

@@ -81,7 +81,7 @@ class _AdminDashboardState extends ConsumerState<AdminDashboard> {
     }
     final profile = ref.watch(currentProfileProvider);
     // Block until profile loads — prevents non-admin from flashing admin dashboard
-    if (profile.isLoading) {
+    if (!profile.hasValue && !profile.hasError) {
       return const Center(child: CircularProgressIndicator());
     }
     final isAdmin = ref.watch(isAdminProvider);

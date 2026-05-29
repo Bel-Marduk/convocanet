@@ -54,11 +54,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       if (isLoggedIn) {
         final profile = ref.read(currentProfileProvider);
 
-        // Profile still loading — block protected routes, stay on public routes
-        if (profile.isLoading) {
-          if (isProtected) return '/dashboard';
-          return null;
-        }
+        // Profile not yet resolved — stay on current path until data arrives
+        if (!profile.hasValue && !profile.hasError) return path;
 
         // Profile failed — send to login
         if (profile.hasError) return '/login';

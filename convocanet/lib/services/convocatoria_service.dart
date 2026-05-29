@@ -134,7 +134,7 @@ class ConvocatoriaService {
 
     if (searchQuery != null && searchQuery.isNotEmpty) {
       query = query.or(
-        'title_es.ilike.%$searchQuery%,title_en.ilike.%$searchQuery%,description_es.ilike.%$searchQuery%,description_en.ilike.%$searchQuery%',
+        'title_es.ilike.%$searchQuery%,title_en.ilike.%$searchQuery%,description_es.ilike.%$searchQuery%,description_en.ilike.%$searchQuery%,source_url.ilike.%$searchQuery%,source_name.ilike.%$searchQuery%',
       );
     }
 

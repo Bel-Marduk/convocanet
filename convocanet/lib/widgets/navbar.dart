@@ -298,7 +298,8 @@ class _DashboardButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isAdmin = ref.watch(isAdminProvider);
+    final profile = ref.watch(currentProfileProvider);
+    final isAdmin = profile.value?.isAdmin ?? false;
     return TextButton(
       onPressed: () => context.go(isAdmin ? '/admin' : '/dashboard'),
       child: Text(lang == 'es' ? 'Dashboard' : 'Dashboard'),
@@ -313,7 +314,8 @@ class _DashboardListTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isAdmin = ref.watch(isAdminProvider);
+    final profile = ref.watch(currentProfileProvider);
+    final isAdmin = profile.value?.isAdmin ?? false;
     return ListTile(
       leading: const Icon(Icons.dashboard),
       title: const Text('Dashboard'),
