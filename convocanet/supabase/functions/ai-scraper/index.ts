@@ -1,6 +1,6 @@
 // Supabase Edge Function: AI-powered convocatoria scraper
 // Runs daily via GitHub Actions cron
-// Uses Claude Haiku for minimal cost (~$0.09/year)
+// Works without Claude API (keyword-based), improved with Claude Haiku (~$0.09/year)
 
 import { getEnabledSources, ConvocatoriaSource } from "./sources.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -150,27 +150,104 @@ async function scrapeSource(
   }
 }
 
-// Use Claude Haiku to parse and normalize scraped data
-async function parseWithClaude(
-  scraped: ScrapedConvocatoria[]
-): Promise<ParsedConvocatoria[]> {
-  if (!claudeApiKey || scraped.length === 0) {
-    return scraped.map((s) => ({
-      title_es: s.language === "es" ? s.title : "",
-      title_en: s.language === "en" ? s.title : "",
-      description_es: s.language === "es" ? s.description || "Sin descripción" : "",
-      description_en: s.language === "en" ? s.description || "No description" : "",
-      category_slug: "social",
-      amount_local: null,
-      currency: "USD",
-      deadline: null,
+// Detect category from keywords in title/description
+function detectCategory(text: string): string {
+  const t = text.toLowerCase();
+  if (/educaci[oó]n|beca|universidad|school|scholarship|academ/i.test(t)) return "educacion";
+  if (/salud|health|medical|hospital|medicina/i.test(t)) return "salud";
+  if (/ambiente|environment|clima|ecolog|sustentab|verde/i.test(t)) return "medioambiente";
+  if (/cultura|arte|music|heritage|patrimonio|cultural/i.test(t)) return "cultura";
+  if (/tecnolog|tech|digital|innovaci|software|startup/i.test(t)) return "tecnologia";
+  if (/g[eé]nero|gender|mujer|women|feminist|lgbt/i.test(t)) return "genero";
+  if (/aliment|food|nutrici|hambre|agricultura/i.test(t)) return "alimentacion";
+  if (/transparenc|anticorrup|gobierno abierto|accountability/i.test(t)) return "transparencia";
+  if (/derechos human|human rights|justicia|justice/i.test(t)) return "derechos-humanos";
+  return "social";
+}
+
+// Try to extract amount from text
+function extractAmount(text: string): { amount: number | null; currency: string } {
+  const patterns = [
+    /\$\s*([\d,]+(?:\.\d+)?)\s*(MXN|USD|EUR|COP|ARS|CLP|PEN|BRL)?/i,
+    /(MXN|USD|EUR|COP|ARS|CLP|PEN|BRL)\s*([\d,]+(?:\.\d+)?)/i,
+    /([\d,]+(?:\.\d+)?)\s*(pesos|d[oó]lares|euros|soles)/i,
+  ];
+  for (const p of patterns) {
+    const m = text.match(p);
+    if (m) {
+      const num = parseFloat((m[1] || m[2]).replace(/,/g, ""));
+      if (num > 0 && num < 100000000) {
+        const cur = (m[2] || m[1] || "").toUpperCase();
+        const currencyMap: Record<string, string> = {
+          PESOS: "MXN", DOLARES: "USD", DÓLARES: "USD", EUROS: "EUR", SOLES: "PEN",
+        };
+        return { amount: num, currency: currencyMap[cur] || cur || "USD" };
+      }
+    }
+  }
+  return { amount: null, currency: "USD" };
+}
+
+// Try to extract deadline from text
+function extractDeadline(text: string): string | null {
+  const isoMatch = text.match(/(\d{4})-(\d{2})-(\d{2})/);
+  if (isoMatch) return `${isoMatch[1]}-${isoMatch[2]}-${isoMatch[3]}`;
+  const slashMatch = text.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+  if (slashMatch) return `${slashMatch[3]}-${slashMatch[2].padStart(2, "0")}-${slashMatch[1].padStart(2, "0")}`;
+  const months: Record<string, string> = {
+    enero: "01", febrero: "02", marzo: "03", abril: "04", mayo: "05", junio: "06",
+    julio: "07", agosto: "08", septiembre: "09", octubre: "10", noviembre: "11", diciembre: "12",
+    january: "01", february: "02", march: "03", april: "04", june: "06",
+    july: "07", august: "08", september: "09", october: "10", november: "11", december: "12",
+  };
+  const monthPattern = Object.keys(months).join("|");
+  const namedMatch = text.match(new RegExp(`(\\d{1,2})\\s+(?:de\\s+)?(${monthPattern})\\s+(?:de\\s+)?(\\d{4})`, "i"));
+  if (namedMatch) {
+    const m = months[namedMatch[2].toLowerCase()];
+    if (m) return `${namedMatch[3]}-${m}-${namedMatch[1].padStart(2, "0")}`;
+  }
+  return null;
+}
+
+// Check if text indicates permanent/open-ended convocatoria
+function isPermanent(text: string): boolean {
+  return /permanente|siempre abierta|sin fecha l[ií]mite|rolling|ongoing|continuous|open-ended|sin vencimiento/i.test(text);
+}
+
+// Parse scraped data without AI (keyword-based extraction)
+function parseWithoutAI(scraped: ScrapedConvocatoria[]): ParsedConvocatoria[] {
+  return scraped.map((s) => {
+    const text = `${s.title} ${s.description}`;
+    const category = detectCategory(text);
+    const { amount, currency } = extractAmount(text);
+    const deadline = extractDeadline(text);
+    const permanent = isPermanent(text) || deadline === null;
+    const isEs = s.language === "es";
+    return {
+      title_es: isEs ? s.title : `[EN] ${s.title}`,
+      title_en: isEs ? `[ES] ${s.title}` : s.title,
+      description_es: isEs ? s.description || "Sin descripción disponible" : "",
+      description_en: isEs ? "" : s.description || "No description available",
+      category_slug: category,
+      amount_local: amount,
+      currency,
+      deadline,
       region_es: s.country,
       region_en: s.country,
       source_url: s.source_url,
       source_name: s.source_name,
       is_public: true,
-      is_permanent: true,
-    }));
+      is_permanent: permanent,
+    };
+  });
+}
+
+// Use Claude to parse and normalize scraped data (optional, improves quality)
+async function parseWithClaude(
+  scraped: ScrapedConvocatoria[]
+): Promise<ParsedConvocatoria[]> {
+  if (!claudeApiKey || scraped.length === 0) {
+    return parseWithoutAI(scraped);
   }
 
   // Batch all items in a single prompt to minimize API calls
@@ -252,23 +329,8 @@ Responde SOLO con el JSON array, sin texto adicional.`;
     console.error("Claude API error:", error);
   }
 
-  // Fallback: return scraped data as-is
-  return scraped.map((s) => ({
-    title_es: s.language === "es" ? s.title : "",
-    title_en: s.language === "en" ? s.title : "",
-    description_es: s.language === "es" ? s.description || "Sin descripción" : "",
-    description_en: s.language === "en" ? s.description || "No description" : "",
-    category_slug: "social",
-    amount_local: null,
-    currency: "USD",
-    deadline: null,
-    region_es: s.country,
-    region_en: s.country,
-    source_url: s.source_url,
-    source_name: s.source_name,
-    is_public: true,
-    is_permanent: true,
-  }));
+  // Fallback to keyword-based parsing
+  return parseWithoutAI(scraped);
 }
 
 // Deduplicate against existing convocatorias (title + URL + fuzzy)
