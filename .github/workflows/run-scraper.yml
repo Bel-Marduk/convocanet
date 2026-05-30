@@ -1,0 +1,21 @@
+name: Run AI Scraper
+
+on:
+  schedule:
+    # Daily at 7:00 UTC (after expire_old at 5:00 UTC)
+    - cron: '0 7 * * *'
+  workflow_dispatch: # Manual trigger from GitHub Actions UI
+
+jobs:
+  run-scraper:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call AI Scraper edge function
+        run: |
+          response=$(curl -s -X POST "${{ secrets.SUPABASE_URL }}/functions/v1/ai-scraper" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d '{"source": "github-actions-cron"}')
+          echo "$response" | jq .
+          # Fail if scraper reports error
+          echo "$response" | jq -e '.success == true' || exit 1

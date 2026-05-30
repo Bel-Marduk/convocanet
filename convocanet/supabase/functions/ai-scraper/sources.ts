@@ -17,7 +17,9 @@ export interface ConvocatoriaSource {
 }
 
 export const CONVOCATORIA_SOURCES: ConvocatoriaSource[] = [
-  // Mexico
+  // ============================================
+  // MEXICO
+  // ============================================
   {
     name: "Gobierno de México",
     url: "https://www.gob.mx/convocatorias",
@@ -26,8 +28,8 @@ export const CONVOCATORIA_SOURCES: ConvocatoriaSource[] = [
     enabled: true,
   },
   {
-    name: "CONACYT",
-    url: "https://www.conacyt.gob.mx/index.php/convocatorias",
+    name: "CONAHCYT",
+    url: "https://conahcyt.mx/convocatorias/",
     country: "México",
     language: "es",
     enabled: true,
@@ -40,7 +42,9 @@ export const CONVOCATORIA_SOURCES: ConvocatoriaSource[] = [
     enabled: true,
   },
 
-  // Colombia
+  // ============================================
+  // COLOMBIA
+  // ============================================
   {
     name: "Gobierno de Colombia",
     url: "https://www.gov.co/convocatorias",
@@ -49,14 +53,16 @@ export const CONVOCATORIA_SOURCES: ConvocatoriaSource[] = [
     enabled: true,
   },
   {
-    name: "Colciencias",
-    url: "https://www.colciencias.gov.co/convocatorias",
+    name: "MinCiencias",
+    url: "https://minciencias.gov.co/convocatorias",
     country: "Colombia",
     language: "es",
     enabled: true,
   },
 
-  // Argentina
+  // ============================================
+  // ARGENTINA
+  // ============================================
   {
     name: "Gobierno de Argentina",
     url: "https://www.argentina.gob.ar/convocatorias",
@@ -65,7 +71,9 @@ export const CONVOCATORIA_SOURCES: ConvocatoriaSource[] = [
     enabled: true,
   },
 
-  // Chile
+  // ============================================
+  // CHILE
+  // ============================================
   {
     name: "Gobierno de Chile",
     url: "https://www.gob.cl/convocatorias",
@@ -74,14 +82,16 @@ export const CONVOCATORIA_SOURCES: ConvocatoriaSource[] = [
     enabled: true,
   },
   {
-    name: "CNCA Chile",
-    url: "https://www.cnca.cl/convocatorias",
+    name: "ANID Chile",
+    url: "https://www.anid.cl/concursos/",
     country: "Chile",
     language: "es",
     enabled: true,
   },
 
-  // Peru
+  // ============================================
+  // PERU
+  // ============================================
   {
     name: "Gobierno de Perú",
     url: "https://www.gob.pe/convocatorias",
@@ -97,7 +107,9 @@ export const CONVOCATORIA_SOURCES: ConvocatoriaSource[] = [
     enabled: true,
   },
 
-  // International
+  // ============================================
+  // INTERNATIONAL GOVERNMENT / MULTILATERAL
+  // ============================================
   {
     name: "USAID",
     url: "https://www.usaid.gov/work-usaid/partnership-opportunities",
@@ -113,14 +125,140 @@ export const CONVOCATORIA_SOURCES: ConvocatoriaSource[] = [
     enabled: true,
   },
   {
+    name: "European Commission",
+    url: "https://ec.europa.eu/info/funding-tenders/opportunities/portal/",
+    country: "Internacional",
+    language: "en",
+    enabled: true,
+  },
+  {
+    name: "World Bank Grants",
+    url: "https://www.worldbank.org/en/grants",
+    country: "Internacional",
+    language: "en",
+    enabled: true,
+  },
+  {
+    name: "OAS Scholarships",
+    url: "https://www.oas.org/en/scholarships/",
+    country: "Internacional",
+    language: "es",
+    enabled: true,
+  },
+
+  // ============================================
+  // PRIVATE PHILANTHROPY FOUNDATIONS
+  // ============================================
+  {
     name: "Ford Foundation",
     url: "https://www.fordfoundation.org/work/our-grants/",
     country: "Internacional",
     language: "en",
     enabled: true,
   },
+  {
+    name: "Open Society Foundations",
+    url: "https://www.opensocietyfoundations.org/grants",
+    country: "Internacional",
+    language: "en",
+    enabled: true,
+  },
+  {
+    name: "MacArthur Foundation",
+    url: "https://www.macfound.org/programs",
+    country: "Internacional",
+    language: "en",
+    enabled: true,
+  },
+  {
+    name: "Rockefeller Foundation",
+    url: "https://www.rockefellerfoundation.org/what-we-do/",
+    country: "Internacional",
+    language: "en",
+    enabled: true,
+  },
+  {
+    name: "Mastercard Foundation",
+    url: "https://mastercardfdn.org/en/our-work/",
+    country: "Internacional",
+    language: "en",
+    enabled: true,
+  },
+  {
+    name: "Skoll Foundation",
+    url: "https://www.skoll.org/awardees/",
+    country: "Internacional",
+    language: "en",
+    enabled: true,
+  },
+  {
+    name: "Kellogg Foundation",
+    url: "https://www.wkkf.org/grants",
+    country: "Internacional",
+    language: "en",
+    enabled: true,
+  },
+  {
+    name: "Wellcome Trust",
+    url: "https://wellcome.org/what-we-do/grants",
+    country: "Internacional",
+    language: "en",
+    enabled: true,
+  },
+  {
+    name: "Avina Foundation",
+    url: "https://avina.net/en/what-we-do/",
+    country: "Internacional",
+    language: "en",
+    enabled: true,
+  },
 
-  // Aggregators
+  // ============================================
+  // CORPORATE GIVING PROGRAMS
+  // ============================================
+  {
+    name: "Google.org",
+    url: "https://www.google.org/",
+    country: "Internacional",
+    language: "en",
+    enabled: true,
+  },
+  {
+    name: "Microsoft Philanthropies",
+    url: "https://www.microsoft.com/en-us/philanthropies",
+    country: "Internacional",
+    language: "en",
+    enabled: true,
+  },
+  {
+    name: "Salesforce.org",
+    url: "https://www.salesforce.org/",
+    country: "Internacional",
+    language: "en",
+    enabled: true,
+  },
+
+  // ============================================
+  // SCHOLARSHIP AGGREGATORS
+  // ============================================
+  {
+    name: "ScholarshipPortal",
+    url: "https://www.scholarshipportal.com/scholarships/latin-america",
+    country: "Internacional",
+    language: "en",
+    enabled: true,
+  },
+  {
+    name: "Chevening",
+    url: "https://www.chevening.org/scholarships/",
+    country: "Internacional",
+    language: "en",
+    enabled: true,
+  },
+
+  // ============================================
+  // NGO / GRANT AGGREGATORS
+  // ============================================
   {
     name: "Funds for NGOs",
     url: "https://www.fundsforngos.org/latest-funds-for-ngos/",
