@@ -387,7 +387,8 @@ async function insertConvocatorias(
       .eq("slug", conv.category_slug)
       .maybeSingle();
 
-    const status = conv.is_permanent || !conv.deadline ? "permanent" : "active";
+    // Always insert as pending — admin reviews and approves
+    const status = "pending";
 
     const payload: Record<string, unknown> = {
       title_es: conv.title_es || conv.title_en,
