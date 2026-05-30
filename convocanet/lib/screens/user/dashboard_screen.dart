@@ -88,8 +88,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   }
 
   String _displayName(AsyncValue<Profile?> profile) {
+    // 1. Profile full_name
     final name = profile.value?.fullName.trim();
     if (name != null && name.isNotEmpty) return name;
+    // 2. Auth metadata full_name (set during signup)
+    final meta = Supabase.instance.client.auth.currentUser?.userMetadata;
+    final metaName = (meta?['full_name'] as String?)?.trim();
+    if (metaName != null && metaName.isNotEmpty) return metaName;
+    // 3. Email prefix
     final email = Supabase.instance.client.auth.currentUser?.email;
     if (email != null && email.isNotEmpty) return email.split('@').first;
     return '';
