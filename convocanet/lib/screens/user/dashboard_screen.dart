@@ -7,6 +7,7 @@ import '../../providers/auth_provider.dart';
 import '../../widgets/convocatoria_card.dart';
 import '../../models/convocatoria.dart';
 import '../../models/category.dart';
+import '../../models/profile.dart';
 import '../../services/convocatoria_service.dart';
 import '../../services/whatsapp_service.dart';
 import '../../widgets/user_bottom_nav.dart';
@@ -84,6 +85,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     } catch (_) {
       return theme.colorScheme.primary;
     }
+  }
+
+  String _displayName(AsyncValue<Profile?> profile) {
+    final name = profile.value?.fullName.trim();
+    if (name != null && name.isNotEmpty) return name;
+    final email = Supabase.instance.client.auth.currentUser?.email;
+    if (email != null && email.isNotEmpty) return email.split('@').first;
+    return '';
   }
 
   String _formatAmount(double amount) {
@@ -176,7 +185,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               children: [
                 // Welcome
                 Text(
-                  '${lang == 'es' ? 'Bienvenido' : 'Welcome'}, ${profile.value?.fullName ?? ''} 👋',
+                  '${lang == 'es' ? 'Bienvenido' : 'Welcome'}, ${_displayName(profile)} 👋',
                   style: theme.textTheme.headlineMedium?.copyWith(
                     fontWeight: FontWeight.w800,
                   ),

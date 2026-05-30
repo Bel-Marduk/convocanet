@@ -342,6 +342,10 @@ class _EditConvocatoriaScreenState
                                   value: 'draft',
                                   child: Text(lang == 'es' ? 'Borrador' : 'Draft'),
                                 ),
+                                DropdownMenuItem(
+                                  value: 'expired',
+                                  child: Text(lang == 'es' ? 'Cerrada' : 'Closed'),
+                                ),
                               ],
                               onChanged: (value) {
                                 setState(() => _status = value!);
