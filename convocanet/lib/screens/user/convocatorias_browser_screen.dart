@@ -85,7 +85,7 @@ class _ConvocatoriasBrowserScreenState
       final user = ref.read(currentUserProvider);
 
       switch (_tabController.index) {
-        case 0: // Nuevas — active + permanent, excluding viewed
+        case 0: // Todas — active + permanent (including viewed)
           final active = await ConvocatoriaService.getConvocatorias(
             status: 'active',
             categorySlug: _selectedCategorySlug,
@@ -95,12 +95,6 @@ class _ConvocatoriasBrowserScreenState
             categorySlug: _selectedCategorySlug,
           );
           convocatorias = [...active, ...permanent];
-          // Exclude viewed
-          if (user != null) {
-            convocatorias = convocatorias
-                .where((c) => !_viewedIds.contains(c.id))
-                .toList();
-          }
           break;
         case 1: // Vistas
           if (user != null) {
@@ -130,6 +124,15 @@ class _ConvocatoriasBrowserScreenState
           break;
         default:
           convocatorias = [];
+      }
+
+      // Apply category filter to Vistas/Favoritas (server-side not available for join queries)
+      if (_selectedCategorySlug != null &&
+          (_tabController.index == 1 || _tabController.index == 2)) {
+        final cat = _categories.where((c) => c.slug == _selectedCategorySlug).firstOrNull;
+        if (cat != null) {
+          convocatorias = convocatorias.where((c) => c.categoryId == cat.id).toList();
+        }
       }
 
       // Apply country filter
@@ -256,7 +259,7 @@ class _ConvocatoriasBrowserScreenState
         bottom: TabBar(
           controller: _tabController,
           tabs: [
-            Tab(text: lang == 'es' ? 'Nuevas' : 'New'),
+            Tab(text: lang == 'es' ? 'Todas' : 'All'),
             Tab(text: lang == 'es' ? 'Vistas' : 'Viewed'),
             Tab(text: lang == 'es' ? 'Favoritas' : 'Favorites'),
             Tab(text: lang == 'es' ? 'Permanentes' : 'Permanent'),
@@ -434,8 +437,8 @@ class _ConvocatoriasBrowserScreenState
     switch (_tabController.index) {
       case 0:
         return lang == 'es'
-            ? 'No hay convocatorias nuevas'
-            : 'No new calls';
+            ? 'No hay convocatorias disponibles'
+            : 'No calls available';
       case 1:
         return lang == 'es'
             ? 'No has marcado ninguna como vista'
