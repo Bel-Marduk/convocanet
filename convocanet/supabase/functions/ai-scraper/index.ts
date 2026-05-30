@@ -221,7 +221,9 @@ function parseWithoutAI(scraped: ScrapedConvocatoria[]): ParsedConvocatoria[] {
     const category = detectCategory(text);
     const { amount, currency } = extractAmount(text);
     const deadline = extractDeadline(text);
-    const permanent = isPermanent(text) || deadline === null;
+    // Only mark as permanent if text explicitly contains permanent keywords.
+    // A missing deadline alone does NOT mean permanent — it may just be unextractable.
+    const permanent = isPermanent(text);
     const isEs = s.language === "es";
     return {
       title_es: isEs ? s.title : `[EN] ${s.title}`,
@@ -320,7 +322,8 @@ Responde SOLO con el JSON array, sin texto adicional.`;
             source_url: original.source_url,
             source_name: original.source_name,
             is_public: true,
-            is_permanent: p.perm === true || p.dl === null,
+            // Only trust Claude's explicit perm flag; missing deadline alone is not enough
+            is_permanent: p.perm === true,
           };
         });
       }
@@ -387,8 +390,9 @@ async function insertConvocatorias(
       .eq("slug", conv.category_slug)
       .maybeSingle();
 
-    // Always insert as pending — admin reviews and approves
-    const status = "pending";
+    // If scraper detects permanent (always-open, no deadline), insert as permanent.
+    // Otherwise insert as pending — admin reviews and approves.
+    const status = conv.is_permanent ? "permanent" : "pending";
 
     const payload: Record<string, unknown> = {
       title_es: conv.title_es || conv.title_en,
@@ -406,7 +410,12 @@ async function insertConvocatorias(
 
     if (category?.id) payload.category_id = category.id;
     if (conv.amount_local != null) payload.amount_local = conv.amount_local;
-    if (conv.deadline) payload.deadline = conv.deadline;
+    // Permanent convocatorias must have no deadline
+    if (status === "permanent") {
+      payload.deadline = null;
+    } else if (conv.deadline) {
+      payload.deadline = conv.deadline;
+    }
 
     const { error } = await supabase.rpc("admin_insert_convocatoria", {
       p_data: payload,
