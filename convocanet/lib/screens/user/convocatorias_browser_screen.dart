@@ -78,8 +78,8 @@ class _ConvocatoriasBrowserScreenState
     _loadConvocatorias();
   }
 
-  Future<void> _loadConvocatorias() async {
-    setState(() => _isLoading = true);
+  Future<void> _loadConvocatorias({bool silent = false}) async {
+    if (!silent) setState(() => _isLoading = true);
     try {
       List<Convocatoria> convocatorias;
       final user = ref.read(currentUserProvider);
@@ -148,10 +148,12 @@ class _ConvocatoriasBrowserScreenState
         _isLoading = false;
       });
     } catch (e) {
-      setState(() {
-        _convocatorias = [];
-        _isLoading = false;
-      });
+      if (!silent) {
+        setState(() {
+          _convocatorias = [];
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -187,13 +189,19 @@ class _ConvocatoriasBrowserScreenState
     final user = ref.read(currentUserProvider);
     if (user == null) return;
 
-    // Optimistic update
+    // Optimistic update — remove from Nuevas list immediately
     final wasViewed = _viewedIds.contains(convocatoria.id);
     setState(() {
       if (wasViewed) {
         _viewedIds.remove(convocatoria.id);
       } else {
         _viewedIds.add(convocatoria.id);
+        // Remove from current list if on Nuevas tab
+        if (_tabController.index == 0) {
+          _convocatorias = _convocatorias
+              .where((c) => c.id != convocatoria.id)
+              .toList();
+        }
       }
     });
 
@@ -204,21 +212,20 @@ class _ConvocatoriasBrowserScreenState
         await ConvocatoriaService.markAsViewed(user.id, convocatoria.id);
       }
     } catch (e) {
-      // Revert on failure
-      setState(() {
-        if (wasViewed) {
-          _viewedIds.add(convocatoria.id);
-        } else {
-          _viewedIds.remove(convocatoria.id);
-        }
-      });
+      // Keep optimistic update — show error but don't revert UI
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error al guardar: $e'),
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
       return;
     }
 
-    // Refresh current tab if it depends on viewed status
-    if (_tabController.index == 0 || _tabController.index == 1) {
-      _loadConvocatorias();
-    }
+    // Silent background refresh to sync tabs
+    _loadConvocatorias(silent: true);
   }
 
   @override
