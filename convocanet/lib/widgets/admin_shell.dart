@@ -68,20 +68,20 @@ class _AdminShellState extends ConsumerState<AdminShell> {
     }
   }
 
-  // Build child widget based on current route — bypasses ShellRoute child caching
-  Widget _buildChild(String path) {
-    if (path == '/admin/convocatorias/new') {
-      return const EditConvocatoriaScreen();
+  // Build child widget based on selected index
+  Widget _buildChild() {
+    switch (_selectedIndex) {
+      case 1:
+        return const ManageConvocatorias();
+      case 2:
+        return const ManageUsers();
+      case 3:
+        return const ManageMessages();
+      case 4:
+        return const ManageCategories();
+      default:
+        return const AdminDashboard();
     }
-    if (path.startsWith('/admin/convocatorias/') && path.endsWith('/edit')) {
-      final id = path.split('/')[3];
-      return EditConvocatoriaScreen(convocatoriaId: id);
-    }
-    if (path == '/admin/convocatorias') return const ManageConvocatorias();
-    if (path == '/admin/users') return const ManageUsers();
-    if (path == '/admin/messages') return const ManageMessages();
-    if (path == '/admin/categories') return const ManageCategories();
-    return const AdminDashboard();
   }
 
   String _label(String lang, int index) {
@@ -250,9 +250,9 @@ class _AdminShellState extends ConsumerState<AdminShell> {
                     ],
                   ),
                 ),
-                // Page content — built directly from route to avoid ShellRoute caching
+                // Page content — built from selected index
                 Expanded(
-                  child: _buildChild(GoRouterState.of(context).uri.path),
+                  child: _buildChild(),
                 ),
               ],
             ),
