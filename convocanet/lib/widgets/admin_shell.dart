@@ -4,6 +4,12 @@ import 'package:go_router/go_router.dart';
 import '../providers/locale_provider.dart';
 import '../providers/auth_provider.dart';
 import '../services/auth_service.dart';
+import '../screens/admin/admin_dashboard.dart';
+import '../screens/admin/manage_convocatorias.dart';
+import '../screens/admin/manage_users.dart';
+import '../screens/admin/manage_messages.dart';
+import '../screens/admin/manage_categories.dart';
+import '../screens/admin/edit_convocatoria_screen.dart';
 
 class AdminShell extends ConsumerStatefulWidget {
   final Widget child;
@@ -60,6 +66,22 @@ class _AdminShellState extends ConsumerState<AdminShell> {
     if (best != _selectedIndex) {
       setState(() => _selectedIndex = best);
     }
+  }
+
+  // Build child widget based on current route — bypasses ShellRoute child caching
+  Widget _buildChild(String path) {
+    if (path == '/admin/convocatorias/new') {
+      return const EditConvocatoriaScreen();
+    }
+    if (path.startsWith('/admin/convocatorias/') && path.endsWith('/edit')) {
+      final id = path.split('/')[3];
+      return EditConvocatoriaScreen(convocatoriaId: id);
+    }
+    if (path == '/admin/convocatorias') return const ManageConvocatorias();
+    if (path == '/admin/users') return const ManageUsers();
+    if (path == '/admin/messages') return const ManageMessages();
+    if (path == '/admin/categories') return const ManageCategories();
+    return const AdminDashboard();
   }
 
   String _label(String lang, int index) {
@@ -228,10 +250,9 @@ class _AdminShellState extends ConsumerState<AdminShell> {
                     ],
                   ),
                 ),
-                // Page content — keyed so it rebuilds on route change
+                // Page content — built directly from route to avoid ShellRoute caching
                 Expanded(
-                  key: ValueKey(GoRouterState.of(context).uri.path),
-                  child: widget.child,
+                  child: _buildChild(GoRouterState.of(context).uri.path),
                 ),
               ],
             ),
