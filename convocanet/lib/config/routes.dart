@@ -37,8 +37,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       final authState = ref.read(authStateProvider);
       final path = state.matchedLocation;
 
-      // Auth state still loading — block navigation until resolved
-      if (authState.isLoading) return path;
+      // Auth state still loading — allow navigation, screen guards will show spinner
+      if (authState.isLoading) return null;
 
       final isLoggedIn = authState.value?.session != null;
       final isProtected = path == '/dashboard' ||
