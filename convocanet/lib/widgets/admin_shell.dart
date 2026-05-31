@@ -228,8 +228,11 @@ class _AdminShellState extends ConsumerState<AdminShell> {
                     ],
                   ),
                 ),
-                // Page content
-                Expanded(child: widget.child),
+                // Page content — keyed so it rebuilds on route change
+                Expanded(
+                  key: ValueKey(GoRouterState.of(context).uri.path),
+                  child: widget.child,
+                ),
               ],
             ),
           ),
