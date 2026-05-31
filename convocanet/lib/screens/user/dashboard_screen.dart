@@ -146,9 +146,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       );
     }
     if (profile.value?.isAdmin == true) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) context.go('/admin');
-      });
+      // Redirect immediately — don't wait for post-frame callback
+      context.go('/admin');
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
       );
