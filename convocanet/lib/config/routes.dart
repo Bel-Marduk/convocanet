@@ -67,8 +67,8 @@ final routerProvider = Provider<GoRouter>((ref) {
           return isAdmin ? '/admin' : '/dashboard';
         }
 
-        // Admin users on /dashboard or landing → admin
-        if (isAdmin && (path == '/dashboard' || path == '/')) return '/admin';
+        // Admin users on /dashboard → admin (but allow / landing page)
+        if (isAdmin && path == '/dashboard') return '/admin';
 
         // Non-admin users on admin routes → dashboard
         if (path.startsWith('/admin') && !isAdmin) return '/dashboard';
