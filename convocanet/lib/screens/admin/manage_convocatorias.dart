@@ -268,6 +268,7 @@ class _ManageConvocatoriasState extends ConsumerState<ManageConvocatorias> {
                             selected: _statusFilter == 'rejected',
                             count: _convocatorias.where((c) => c.isRejected).length,
                             onSelected: () {
+                              debugPrint('[MC] click chip No aprobadas (fuera de tabla)');
                               setState(() => _statusFilter = 'rejected');
                               _loadConvocatorias();
                             },

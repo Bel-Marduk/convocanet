@@ -304,7 +304,10 @@ class _AdminShellState extends ConsumerState<AdminShell> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
-                onTap: () => _onNavigate(index),
+                onTap: () {
+                  debugPrint('[AS] sidebar tap index=$index -> ${_routes[index]}');
+                  _onNavigate(index);
+                },
               ),
             );
           }),
