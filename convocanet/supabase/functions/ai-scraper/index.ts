@@ -346,10 +346,13 @@ async function deduplicate(
     .map((c) => c.source_url)
     .filter((u) => u && u.length > 0);
 
-  // Fetch existing titles and URLs for comparison
+  // Fetch existing titles and URLs for comparison.
+  // We exclude 'rejected' (no aprobada) records so the agent can re-discover
+  // and re-insert a convocatoria that an admin previously marked as not approved.
   const { data: existing } = await supabase
     .from("convocatorias")
-    .select("title_es, source_url");
+    .select("title_es, source_url, status")
+    .neq("status", "rejected");
 
   const existingList = (existing || []) as { title_es: string; source_url: string | null }[];
 

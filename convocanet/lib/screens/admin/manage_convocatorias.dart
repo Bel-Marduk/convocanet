@@ -93,6 +93,51 @@ class _ManageConvocatoriasState extends ConsumerState<ManageConvocatorias> {
     }
   }
 
+  Future<void> _rejectConvocatoria(Convocatoria conv) async {
+    final lang = ref.read(localeProvider).languageCode;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(lang == 'es' ? 'Marcar como no aprobada' : 'Mark as not approved'),
+        content: Text(
+          lang == 'es'
+              ? '¿Marcar "${conv.titleEs}" como no aprobada? El agente la volverá a agregar si la encuentra en la fuente.'
+              : 'Mark "${conv.titleEs}" as not approved? The agent will re-add it if it finds it on the source.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(lang == 'es' ? 'Cancelar' : 'Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: FilledButton.styleFrom(
+              backgroundColor: const Color(0xFFEF4444),
+            ),
+            child: Text(lang == 'es' ? 'No aprobar' : 'Not approve'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      await ConvocatoriaService.rejectConvocatoria(conv.id);
+      _loadConvocatorias();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              lang == 'es'
+                  ? 'Marcada como no aprobada'
+                  : 'Marked as not approved',
+            ),
+            backgroundColor: const Color(0xFFEF4444),
+          ),
+        );
+      }
+    }
+  }
+
   Future<void> _deleteConvocatoria(String id) async {
     final lang = ref.read(localeProvider).languageCode;
     final confirmed = await showDialog<bool>(
@@ -214,6 +259,16 @@ class _ManageConvocatoriasState extends ConsumerState<ManageConvocatorias> {
                             selected: _statusFilter == 'draft',
                             onSelected: () {
                               setState(() => _statusFilter = 'draft');
+                              _loadConvocatorias();
+                            },
+                          ),
+                          const SizedBox(width: 8),
+                          _FilterChip(
+                            label: lang == 'es' ? 'No aprobadas' : 'Not approved',
+                            selected: _statusFilter == 'rejected',
+                            count: _convocatorias.where((c) => c.isRejected).length,
+                            onSelected: () {
+                              setState(() => _statusFilter = 'rejected');
                               _loadConvocatorias();
                             },
                           ),
@@ -344,8 +399,31 @@ class _ManageConvocatoriasState extends ConsumerState<ManageConvocatorias> {
                                         tooltip: lang == 'es' ? 'Aprobar' : 'Approve',
                                         onPressed: () => _approveConvocatoria(conv),
                                       ),
+                                    if (!conv.isRejected)
+                                      IconButton(
+                                        icon: const Icon(
+                                          Icons.block,
+                                          size: 20,
+                                          color: Color(0xFFEF4444),
+                                        ),
+                                        tooltip: lang == 'es'
+                                            ? 'Marcar como no aprobada'
+                                            : 'Mark as not approved',
+                                        onPressed: () => _rejectConvocatoria(conv),
+                                      ),
+                                    if (conv.isRejected)
+                                      IconButton(
+                                        icon: const Icon(
+                                          Icons.check_circle,
+                                          size: 20,
+                                          color: Color(0xFF10b981),
+                                        ),
+                                        tooltip: lang == 'es' ? 'Aprobar' : 'Approve',
+                                        onPressed: () => _approveConvocatoria(conv),
+                                      ),
                                     IconButton(
                                       icon: const Icon(Icons.edit, size: 20),
+                                      tooltip: lang == 'es' ? 'Editar' : 'Edit',
                                       onPressed: () => context.go(
                                         '/admin/convocatorias/${conv.id}/edit',
                                       ),
@@ -356,6 +434,7 @@ class _ManageConvocatoriasState extends ConsumerState<ManageConvocatorias> {
                                         size: 20,
                                         color: theme.colorScheme.error,
                                       ),
+                                      tooltip: lang == 'es' ? 'Eliminar' : 'Delete',
                                       onPressed: () =>
                                           _deleteConvocatoria(conv.id),
                                     ),
@@ -385,6 +464,8 @@ class _ManageConvocatoriasState extends ConsumerState<ManageConvocatorias> {
         return const Color(0xFFF59e0b);
       case 'expired':
         return const Color(0xFFEf4444);
+      case 'rejected':
+        return const Color(0xFFEF4444);
       default:
         return const Color(0xFF4f46e5);
     }

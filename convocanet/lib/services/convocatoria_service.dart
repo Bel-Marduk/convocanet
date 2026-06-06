@@ -158,6 +158,19 @@ class ConvocatoriaService {
     });
   }
 
+  // Admin: Mark convocatoria as "not approved" (rejected).
+  // The AI scraper ignores rejected records when deduplicating, so the next
+  // scrape run will re-insert the convocatoria if it is still listed on the source.
+  static Future<void> rejectConvocatoria(String id) async {
+    await _client.rpc('admin_update_convocatoria', params: {
+      'p_id': id,
+      'p_data': {
+        'status': 'rejected',
+        'updated_at': DateTime.now().toIso8601String(),
+      },
+    });
+  }
+
   // Admin: Create convocatoria
   static Future<void> createConvocatoria(Convocatoria convocatoria) async {
     final data = _buildPayload(convocatoria);

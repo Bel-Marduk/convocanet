@@ -346,6 +346,10 @@ class _EditConvocatoriaScreenState
                                   value: 'expired',
                                   child: Text(lang == 'es' ? 'Cerrada' : 'Closed'),
                                 ),
+                                DropdownMenuItem(
+                                  value: 'rejected',
+                                  child: Text(lang == 'es' ? 'No aprobada' : 'Not approved'),
+                                ),
                               ],
                               onChanged: (value) {
                                 setState(() => _status = value!);

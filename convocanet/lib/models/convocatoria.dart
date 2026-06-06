@@ -20,7 +20,7 @@ class Convocatoria {
   final String? regionEn;
   final String? sourceUrl;
   final String? sourceName;
-  final String status; // 'pending', 'active', 'permanent', 'expired', 'draft'
+  final String status; // 'pending', 'active', 'permanent', 'expired', 'draft', 'rejected'
   final bool isPublic;
   final String? createdBy;
   final DateTime createdAt;
@@ -169,6 +169,7 @@ class Convocatoria {
   bool get isActive => status == 'active';
   bool get isPermanent => status == 'permanent';
   bool get isExpired => status == 'expired';
+  bool get isRejected => status == 'rejected';
   bool get isOpen => isActive || isPermanent;
 
   String statusLabel(String lang) {
@@ -183,6 +184,8 @@ class Convocatoria {
         return lang == 'es' ? 'Vencida' : 'Expired';
       case 'draft':
         return lang == 'es' ? 'Borrador' : 'Draft';
+      case 'rejected':
+        return lang == 'es' ? 'No aprobada' : 'Not approved';
       default:
         return status;
     }

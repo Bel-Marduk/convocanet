@@ -4,12 +4,6 @@ import 'package:go_router/go_router.dart';
 import '../providers/locale_provider.dart';
 import '../providers/auth_provider.dart';
 import '../services/auth_service.dart';
-import '../screens/admin/admin_dashboard.dart';
-import '../screens/admin/manage_convocatorias.dart';
-import '../screens/admin/manage_users.dart';
-import '../screens/admin/manage_messages.dart';
-import '../screens/admin/manage_categories.dart';
-import '../screens/admin/edit_convocatoria_screen.dart';
 
 class AdminShell extends ConsumerStatefulWidget {
   final Widget child;
@@ -65,22 +59,6 @@ class _AdminShellState extends ConsumerState<AdminShell> {
     }
     if (best != _selectedIndex) {
       setState(() => _selectedIndex = best);
-    }
-  }
-
-  // Build child widget based on selected index
-  Widget _buildChild() {
-    switch (_selectedIndex) {
-      case 1:
-        return const ManageConvocatorias();
-      case 2:
-        return const ManageUsers();
-      case 3:
-        return const ManageMessages();
-      case 4:
-        return const ManageCategories();
-      default:
-        return const AdminDashboard();
     }
   }
 
@@ -250,9 +228,13 @@ class _AdminShellState extends ConsumerState<AdminShell> {
                     ],
                   ),
                 ),
-                // Page content — built from selected index
+                // Page content — render the child provided by the current route
+                // (e.g. ManageConvocatorias, EditConvocatoriaScreen, ...).
+                // Using a hardcoded widget based on _selectedIndex would make
+                // action buttons that call context.go (edit, view, etc.) appear
+                // to do nothing because the displayed screen would never change.
                 Expanded(
-                  child: _buildChild(),
+                  child: widget.child,
                 ),
               ],
             ),
