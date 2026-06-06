@@ -47,8 +47,15 @@ class _AdminShellState extends ConsumerState<AdminShell> {
     _updateSelectedIndex();
   }
 
+  @override
+  void didUpdateWidget(covariant AdminShell oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    debugPrint('[AdminShell] didUpdateWidget child changed: ${oldWidget.child.runtimeType} -> ${widget.child.runtimeType}');
+  }
+
   void _updateSelectedIndex() {
     final location = GoRouterState.of(context).uri.path;
+    debugPrint('[AdminShell] location=$location child=${widget.child.runtimeType}');
     int best = 0;
     int bestLen = 0;
     for (int i = 0; i < _routes.length; i++) {

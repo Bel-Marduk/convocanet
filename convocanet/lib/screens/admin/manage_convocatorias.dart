@@ -385,9 +385,10 @@ class _ManageConvocatoriasState extends ConsumerState<ManageConvocatorias> {
                                     IconButton(
                                       icon: const Icon(Icons.visibility, size: 20),
                                       tooltip: lang == 'es' ? 'Ver convocatoria' : 'View call',
-                                      onPressed: () => context.go(
-                                        '/convocatoria/${conv.id}',
-                                      ),
+                                      onPressed: () {
+                                        debugPrint('[MC] click Ver id=${conv.id}');
+                                        context.go('/convocatoria/${conv.id}');
+                                      },
                                     ),
                                     if (conv.isPending)
                                       IconButton(
@@ -397,7 +398,10 @@ class _ManageConvocatoriasState extends ConsumerState<ManageConvocatorias> {
                                           color: Color(0xFF10b981),
                                         ),
                                         tooltip: lang == 'es' ? 'Aprobar' : 'Approve',
-                                        onPressed: () => _approveConvocatoria(conv),
+                                        onPressed: () {
+                                          debugPrint('[MC] click Aprobar id=${conv.id}');
+                                          _approveConvocatoria(conv);
+                                        },
                                       ),
                                     if (!conv.isRejected)
                                       IconButton(
@@ -409,7 +413,10 @@ class _ManageConvocatoriasState extends ConsumerState<ManageConvocatorias> {
                                         tooltip: lang == 'es'
                                             ? 'Marcar como no aprobada'
                                             : 'Mark as not approved',
-                                        onPressed: () => _rejectConvocatoria(conv),
+                                        onPressed: () {
+                                          debugPrint('[MC] click No aprobada id=${conv.id}');
+                                          _rejectConvocatoria(conv);
+                                        },
                                       ),
                                     if (conv.isRejected)
                                       IconButton(
@@ -419,14 +426,18 @@ class _ManageConvocatoriasState extends ConsumerState<ManageConvocatorias> {
                                           color: Color(0xFF10b981),
                                         ),
                                         tooltip: lang == 'es' ? 'Aprobar' : 'Approve',
-                                        onPressed: () => _approveConvocatoria(conv),
+                                        onPressed: () {
+                                          debugPrint('[MC] click Re-aprobar id=${conv.id}');
+                                          _approveConvocatoria(conv);
+                                        },
                                       ),
                                     IconButton(
                                       icon: const Icon(Icons.edit, size: 20),
                                       tooltip: lang == 'es' ? 'Editar' : 'Edit',
-                                      onPressed: () => context.go(
-                                        '/admin/convocatorias/${conv.id}/edit',
-                                      ),
+                                      onPressed: () {
+                                        debugPrint('[MC] click Editar id=${conv.id}');
+                                        context.go('/admin/convocatorias/${conv.id}/edit');
+                                      },
                                     ),
                                     IconButton(
                                       icon: Icon(
@@ -435,8 +446,10 @@ class _ManageConvocatoriasState extends ConsumerState<ManageConvocatorias> {
                                         color: theme.colorScheme.error,
                                       ),
                                       tooltip: lang == 'es' ? 'Eliminar' : 'Delete',
-                                      onPressed: () =>
-                                          _deleteConvocatoria(conv.id),
+                                      onPressed: () {
+                                        debugPrint('[MC] click Eliminar id=${conv.id}');
+                                        _deleteConvocatoria(conv.id);
+                                      },
                                     ),
                                   ],
                                 ),
