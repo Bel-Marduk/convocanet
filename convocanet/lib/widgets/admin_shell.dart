@@ -55,7 +55,7 @@ class _AdminShellState extends ConsumerState<AdminShell> {
 
   void _updateSelectedIndex() {
     final location = GoRouterState.of(context).uri.path;
-    debugPrint('[AdminShell] location=$location child=${widget.child.runtimeType}');
+    debugPrint('[AdminShell] location=$location child=${widget.child.runtimeType} hashCode=${widget.child.hashCode}');
     int best = 0;
     int bestLen = 0;
     for (int i = 0; i < _routes.length; i++) {

@@ -125,7 +125,10 @@ final routerProvider = Provider<GoRouter>((ref) {
 
       // Admin routes (require admin role, wrapped in AdminShell)
       ShellRoute(
-        builder: (context, state, child) => AdminShell(child: child),
+        builder: (context, state, child) {
+          debugPrint('[ShellRoute] builder called: matched=${state.matchedLocation} uri=${state.uri.path} child=${child.runtimeType}');
+          return AdminShell(child: child);
+        },
         routes: [
           GoRoute(
             path: '/admin',
