@@ -10,6 +10,8 @@ import '../screens/admin/manage_users.dart';
 import '../screens/admin/manage_messages.dart';
 import '../screens/admin/manage_categories.dart';
 import '../screens/admin/edit_convocatoria_screen.dart';
+import '../screens/landing/landing_screen.dart';
+import '../screens/user/convocatoria_detail_screen.dart';
 
 class AdminShell extends ConsumerStatefulWidget {
   const AdminShell({super.key});
@@ -67,6 +69,8 @@ class AdminShell extends ConsumerStatefulWidget {
 
 class _AdminShellState extends ConsumerState<AdminShell> {
   static final _editRegex = RegExp(r'^/admin/convocatorias/([^/]+)/edit$');
+  static final _previewConvocatoriaRegex =
+      RegExp(r'^/admin/convocatorias/([^/]+)/preview$');
   static const _spinnerTimeout = Duration(seconds: 6);
 
   GoRouter? _router;
@@ -116,6 +120,13 @@ class _AdminShellState extends ConsumerState<AdminShell> {
 
   String? _editingId(String path) {
     final m = _editRegex.firstMatch(path);
+    return m?.group(1);
+  }
+
+  bool _isSitePreview(String path) => path == '/admin/preview';
+
+  String? _previewConvocatoriaId(String path) {
+    final m = _previewConvocatoriaRegex.firstMatch(path);
     return m?.group(1);
   }
 
@@ -222,6 +233,28 @@ class _AdminShellState extends ConsumerState<AdminShell> {
     final index = _indexFor(location);
     final creatingId = _isCreating(location);
     final editingId = _editingId(location);
+    final isSitePreview = _isSitePreview(location);
+    final previewConvocatoriaId = _previewConvocatoriaId(location);
+
+    if (isSitePreview) {
+      return Scaffold(
+        appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            tooltip: lang == 'es' ? 'Volver' : 'Back',
+            onPressed: () => context.go('/admin'),
+          ),
+          title: Text(lang == 'es' ? 'Vista previa del sitio' : 'Site preview'),
+        ),
+        body: const LandingScreen(),
+      );
+    }
+
+    if (previewConvocatoriaId != null) {
+      return ConvocatoriaDetailScreen(
+        convocatoriaId: previewConvocatoriaId,
+      );
+    }
 
     final Widget body;
     if (creatingId) {
@@ -306,7 +339,7 @@ class _AdminShellState extends ConsumerState<AdminShell> {
                       IconButton(
                         icon: const Icon(Icons.open_in_new),
                         tooltip: lang == 'es' ? 'Ver sitio' : 'View site',
-                        onPressed: () => context.go('/'),
+                        onPressed: () => context.go('/admin/preview'),
                       ),
                       const SizedBox(width: 8),
                       CircleAvatar(
