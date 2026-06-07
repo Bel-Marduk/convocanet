@@ -61,18 +61,17 @@ final routerProvider = Provider<GoRouter>((ref) {
         // profile can briefly be in a state where the previous value is
         // null and the new value is still loading. Running the role check
         // at that moment would see isAdmin=false and incorrectly redirect
-        // the admin to /dashboard. Bail out and wait for the profile to
-        // settle in either a value or an error.
-        if (user != null && profile.value == null && !profile.hasError) {
+        // the admin to /dashboard. We use `isLoading || isRefreshing` to
+        // cover both the cold-load case (AsyncLoading) and the
+        // re-fetch-with-stale-data case (AsyncData(null) where the
+        // underlying future is still in flight). A terminal AsyncData(null)
+        // (profile genuinely missing) falls through and the role check
+        // below will redirect non-admins to /dashboard.
+        if (user != null &&
+            !profile.hasError &&
+            (profile.isLoading || profile.isRefreshing)) {
           return null;
         }
-
-        // Profile not yet resolved — let the per-screen guards handle the
-        // loading state instead of freezing the redirect. Returning `path`
-        // here was trapping navigations when the provider re-emitted during
-        // a route change, causing the URL to update in the address bar but
-        // go_router to silently revert the navigation.
-        if (!profile.hasValue && !profile.hasError) return null;
 
         // Profile failed — send to login
         if (profile.hasError) return '/login';

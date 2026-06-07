@@ -61,14 +61,53 @@ Hay un índice único parcial en `source_url` (`WHERE source_url IS NOT NULL AND
 - **GitHub Actions `run-scraper.yml`** → 7:00 UTC, llama al edge function `ai-scraper` por HTTP. También disparable manual (`workflow_dispatch`).
 - **GitHub Actions `fetch-rates.yml`** → 8:00 UTC, llama al edge function `clever-endpoint` (rates de ECB). El nombre "clever-endpoint" es histórico; no renombrarlo sin actualizar el workflow.
 
-## AdminShell — bug histórico a no repetir
+## AdminShell — implementación y bugs históricos
 
-`lib/widgets/admin_shell.dart` envuelve las rutas `/admin/*` vía `ShellRoute`. Ya hubo un bug donde el cuerpo se construía con un `_buildChild()` hardcodeado según `_selectedIndex` en vez de `widget.child`, lo que hacía que los botones que navegan con `context.go(...)` (Editar, Ver, etc.) parecieran no hacer nada — la URL cambiaba pero la pantalla no. **Regla: el body de `AdminShell` siempre debe ser `widget.child`**, nunca un widget construido localmente. El nav rail usa `_updateSelectedIndex()` para resaltar el item correcto leyendo `GoRouterState.of(context).uri.path`.
+`lib/widgets/admin_shell.dart` es un `ConsumerStatefulWidget` (no `ShellRoute` ni `StatefulShellRoute`) que cubre **todas** las rutas `/admin/*` mediante un único `GoRoute` wildcard:
+
+```dart
+GoRoute(
+  path: '/admin',
+  builder: (context, state) => const AdminShell(),
+),
+GoRoute(
+  path: '/admin/:path(.*)',
+  builder: (context, state) => const AdminShell(),
+),
+```
+
+**Cómo decide qué sub-pantalla mostrar:** lee la URL cacheada (`_cachedLocation`, actualizada por un listener en `routerDelegate`) y construye un `IndexedStack` con los 5 sub-screens principales. Las rutas `/admin/convocatorias/new` y `/admin/convocatorias/:id/edit` se renderizan como `EditConvocatoriaScreen` standalone (reemplazan el `IndexedStack`, no se preserva state).
+
+### Bug histórico #1 — body hardcodeado por índice
+Hubo un bug donde el cuerpo se construía con un `_buildChild()` hardcodeado según `_selectedIndex` en vez de `widget.child`, lo que hacía que los botones que navegan con `context.go(...)` (Editar, Ver, etc.) parecieran no hacer nada — la URL cambiaba pero la pantalla no. **Regla superada:** en la versión actual NO existe `widget.child`. El body se construye internamente basado en la URL.
+
+### Bug histórico #2 — `GoRouterState.of(context).uri.path` no dispara rebuilds con wildcard
+Cuando un `GoRoute` wildcard (`/admin/:path(.*)`) tiene un `builder` que retorna el mismo widget para todos los sub-paths, **`GoRouterState.of(context).uri.path` no notifica a los dependents cuando la URL cambia entre sub-paths que matchean el mismo GoRoute**. El InheritedWidget interno de go_router no se actualiza porque el route matcheado es el mismo.
+
+**Síntoma:** click en el sidebar → URL cambia → redirect corre → pero el `build` del AdminShell no se llama → el `IndexedStack` no cambia de índice → la pantalla no se actualiza.
+
+**Fix (en `admin_shell.dart`):** subscribirse directamente al `routerDelegate.addListener()` (que SÍ es un `ChangeNotifier` y dispara en cada navegación) y llamar `setState()` con la nueva URL cacheada. Ver `_AdminShellState.didChangeDependencies` y `_onRouterChange`.
+
+### Bug histórico #3 — race condition en profile reload
+Al recargar la página en `/admin`, el `authStateProvider` resuelve antes que `currentProfileProvider` (que se invalida y re-fetcha). Durante ese gap, `profile.value` puede ser `null` y `isAdminProvider` devuelve `false` → redirect manda al admin a `/dashboard`.
+
+**Fix (en `routes.dart` redirect y en `AdminShell` build):** guard explícito: si `user != null && profile.value == null && !profile.hasError`, tratar como "still loading" y NO correr el role check. Ver el bloque marcado "RACE CONDITION GUARD" en ambos archivos.
 
 ## Auth / roles
 
 - `lib/providers/auth_provider.dart` expone `authStateProvider`, `currentProfileProvider` y `isAdminProvider`. Todas las rutas `/admin/*` requieren `isAdmin` (chequeado en el redirect de `lib/config/routes.dart` y como guard en `AdminShell`).
 - El campo `role` vive en `profiles.role` (CHECK: `'user' | 'admin'`). El admin se promueve actualizando esa fila.
+
+### Bug histórico #4 — perfil se queda en `AsyncData(null)` al refrescar `/admin`
+Síntoma reportado: tras un F5 sobre `https://bel-marduk.github.io/convocanet/#/admin`, la pantalla queda en spinner infinito y el log de consola muestra un único `[REDIRECT] path=/admin isLoggedIn=true` sin re-emisiones posteriores.
+
+Causa: en el ciclo de hidratación de Supabase post-recarga, el `authStateProvider` emite la sesión antes de que (a) `currentUserProvider` propague el `User` y (b) el contexto RLS del cliente postgrest esté listo para resolver `auth.uid()`. El primer `select` a `profiles` se dispara con `auth.uid() == null` y devuelve 0 filas. La función `AuthService.getCurrentProfile()` además leía `_client.auth.currentUser` directamente, que podía ser null en ese mismo tick, y devolvía null sin reintentar. El provider quedaba en `AsyncData(null)` terminal, el guard del redirect lo trataba como "loading" para siempre, y la pantalla no avanzaba.
+
+**Fix (3 partes):**
+
+1. `lib/services/auth_service.dart:103` — `getCurrentProfile({User? user})` ahora acepta el `User` por parámetro. Quien llama desde un provider que ya hizo `ref.watch(currentUserProvider)` lo pasa explícitamente y evita la lectura tardía de `_client.auth.currentUser`.
+2. `lib/providers/auth_provider.dart:28` — `currentProfileProvider` reintenta hasta 3 veces con 200 ms entre intentos. Cubre el caso "sesión aún no propagada al contexto postgrest". Si tras 3 intentos sigue null, se devuelve null terminal y el caller lo trata como "perfil genuinamente ausente".
+3. `lib/config/routes.dart` redirect guard y `lib/widgets/admin_shell.dart` build guard — usan `profile.isLoading || profile.isRefreshing` en vez de `profile.value == null`. Esto distingue el estado transitorio (futuro en vuelo, esperar) del estado terminal (perfil no existe, redirigir a `/login`). `AsyncRefreshing` es la `AsyncValue` que se obtiene cuando un `FutureProvider` se invalida y conserva el valor anterior: en page reload ese valor anterior es `null` (del tick pre-auth), por eso el guard viejo `value == null` lo confundía con "loading" y el nuevo `isRefreshing` lo identifica correctamente.
 
 ## Despliegue
 

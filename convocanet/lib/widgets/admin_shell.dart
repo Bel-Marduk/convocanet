@@ -161,15 +161,22 @@ class _AdminShellState extends ConsumerState<AdminShell> {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     final profile = ref.watch(currentProfileProvider);
-    if (!profile.hasValue && !profile.hasError) {
+    // Loading and refreshing both mean "the future is still in flight, wait
+    // for it". AsyncRefreshing is the case on page reload where the previous
+    // value (typically null from the pre-auth tick) is preserved while a
+    // fresh fetch is running — we must not redirect on that stale value.
+    if (profile.isLoading || profile.isRefreshing) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
-    // RACE CONDITION GUARD: on page reload the profile provider can briefly
-    // be AsyncData(null) — the old value from before the user logged in —
-    // while it is being re-fetched. isAdmin would be false during that gap
-    // and we'd wrongly redirect to /dashboard. Treat a null profile value
-    // as still-loading and wait for the real profile to arrive.
+    if (profile.hasError) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
     if (profile.value == null) {
+      // Terminal null — the profile genuinely doesn't exist. Send the user
+      // to /login so they can re-authenticate rather than spinning forever.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (context.mounted) context.go('/login');
+      });
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     final isAdmin = ref.watch(isAdminProvider);

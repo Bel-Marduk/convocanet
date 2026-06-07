@@ -92,14 +92,22 @@ class AuthService {
   }
 
   // Get current user profile
-  static Future<Profile?> getCurrentProfile() async {
-    final user = _client.auth.currentUser;
-    if (user == null) return null;
+  //
+  // Pass [user] explicitly when calling from a Riverpod provider that
+  // already watched `currentUserProvider`. Reading `_client.auth.currentUser`
+  // directly has a race with the auth state stream: the stream can emit the
+  // initial session before `currentUser` is populated, so a query fired
+  // immediately after `authStateProvider` resolves may see a null user and
+  // short-circuit to `return null`, leaving the caller permanently in a
+  // null-profile loading state. Trusting the caller-supplied user avoids that.
+  static Future<Profile?> getCurrentProfile({User? user}) async {
+    final target = user ?? _client.auth.currentUser;
+    if (target == null) return null;
 
     final response = await _client
         .from('profiles')
         .select()
-        .eq('id', user.id)
+        .eq('id', target.id)
         .maybeSingle();
 
     if (response == null) return null;
