@@ -68,6 +68,39 @@ class AdminShell extends ConsumerStatefulWidget {
 class _AdminShellState extends ConsumerState<AdminShell> {
   static final _editRegex = RegExp(r'^/admin/convocatorias/([^/]+)/edit$');
 
+  GoRouter? _router;
+  String? _cachedLocation;
+  bool _listening = false;
+
+  void _onRouterChange() {
+    if (!mounted || _router == null) return;
+    final newLocation = _router!.routerDelegate.currentConfiguration.uri.path;
+    if (newLocation != _cachedLocation) {
+      setState(() {
+        _cachedLocation = newLocation;
+      });
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_listening) {
+      _router = GoRouter.of(context);
+      _cachedLocation = _router!.routerDelegate.currentConfiguration.uri.path;
+      _router!.routerDelegate.addListener(_onRouterChange);
+      _listening = true;
+    }
+  }
+
+  @override
+  void dispose() {
+    if (_listening && _router != null) {
+      _router!.routerDelegate.removeListener(_onRouterChange);
+    }
+    super.dispose();
+  }
+
   int _indexFor(String path) {
     if (path == '/admin' || path == '/admin/') return 0;
     if (path == '/admin/convocatorias') return 1;
@@ -112,9 +145,9 @@ class _AdminShellState extends ConsumerState<AdminShell> {
 
   @override
   Widget build(BuildContext context) {
-    final location = GoRouterState.of(context).uri.path;
+    final location = _cachedLocation ?? GoRouterState.of(context).uri.path;
     // ignore: avoid_print
-    print('[SHELL] build location=$location');
+    print('[SHELL] build location=$location (from ${_cachedLocation != null ? "listener" : "inherited"})');
     final authState = ref.watch(authStateProvider);
     final lang = ref.watch(localeProvider).languageCode;
     final theme = Theme.of(context);
