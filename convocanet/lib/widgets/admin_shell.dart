@@ -54,15 +54,40 @@ class _AdminShellState extends ConsumerState<AdminShell> {
 
   bool _spinnerTimedOut = false;
 
+  GoRouter? _router;
+  bool _listening = false;
+
   @override
   void initState() {
     super.initState();
     debugPrint('[SHELL] initState branch=${widget.shell.currentIndex}');
   }
 
+  void _onRouterChange() {
+    if (!mounted) return;
+    debugPrint(
+      '[SHELL] routerDelegate changed → forcing rebuild '
+      '(shell.currentIndex=${widget.shell.currentIndex})',
+    );
+    setState(() {});
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_listening) {
+      _router = GoRouter.of(context);
+      _router!.routerDelegate.addListener(_onRouterChange);
+      _listening = true;
+    }
+  }
+
   @override
   void dispose() {
     debugPrint('[SHELL] dispose');
+    if (_listening && _router != null) {
+      _router!.routerDelegate.removeListener(_onRouterChange);
+    }
     super.dispose();
   }
 
