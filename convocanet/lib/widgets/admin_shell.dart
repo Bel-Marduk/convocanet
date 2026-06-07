@@ -189,10 +189,6 @@ class _AdminShellState extends ConsumerState<AdminShell> {
           if (!mounted) return;
           final p = ref.read(currentProfileProvider);
           if (p.isLoading || p.isRefreshing || p.value == null) {
-            debugPrint(
-              '[SHELL] spinner timeout (${_spinnerTimeout.inSeconds}s) — '
-              'profile still not resolved, sending to /login',
-            );
             if (context.mounted) context.go('/login');
           } else {
             _spinnerTimedOut = false;
@@ -222,10 +218,6 @@ class _AdminShellState extends ConsumerState<AdminShell> {
     }
 
     if (!location.startsWith('/admin')) {
-      debugPrint(
-        '[SHELL] location=$location is outside /admin — deferring to '
-        'top-level route',
-      );
       return const SizedBox.shrink();
     }
 
@@ -282,10 +274,7 @@ class _AdminShellState extends ConsumerState<AdminShell> {
             IconButton(
               icon: const Icon(Icons.open_in_new),
               tooltip: lang == 'es' ? 'Ver sitio' : 'View site',
-              onPressed: () {
-                debugPrint('[SHELL] click Ver sitio (open_in_new) → /');
-                context.go('/');
-              },
+              onPressed: () => context.go('/admin/preview'),
             ),
           ],
         ),

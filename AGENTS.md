@@ -112,13 +112,18 @@ Causa: en el ciclo de hidratación de Supabase post-recarga, el `authStateProvid
 ### Bug histórico #5 — AdminShell secuestra la pantalla al navegar fuera de `/admin/*`
 Síntoma: tras click en "Ver" o "Ver sitio" (AppBar `Icons.open_in_new`), la URL cambiaba (`/convocatoria/:id`, `/`) y el redirect corría, pero la pantalla seguía mostrando el dashboard del admin. El `ConvicatoriaDetailScreen` / `LandingScreen` nunca se construían (log: `[REDIRECT] path=/…: profile resolved isAdmin=true` aparecía, pero `initState` de la pantalla destino nunca se logueaba).
 
-Causa: `AdminShell` se suscribe a `routerDelegate.addListener()` para forzar rebuilds en cambios de sub-ruta (fix del bug #2). Esto **mantiene el state vivo** más allá de la vida de la sub-ruta. Cuando navegas a un `GoRoute` top-level fuera de `/admin/*`, el `GoRoute` builder retorna el widget nuevo, pero el `AdminShell` viejo (cuyo state sigue vivo) gana la batalla del render porque su `build` se llama con `_cachedLocation` ya actualizado, y `computeSelectedIndex` cae al default (0 = admin dashboard) para cualquier path que no matchea ningún `_routes[i]`.
+Causa raíz: la doble GoRoute wildcard (`/admin` literal + `/admin/:path(.*)`) crea un "wildcard trap" en go_router 14.6.x. El GoRouter no puede pop el AdminShell (built by the wildcard) y push el nuevo top-level GoRoute, así que la nueva ruta nunca se construye. Confirmado vía logs: el redirect retorna `null` (allow), el GoRoute builder de `/convocatoria/:id` nunca se llama, el `dispose` del AdminShell nunca se llama.
 
-**Fix (en `lib/widgets/admin_shell.dart` build):** guard explícito `if (!location.startsWith('/admin')) return const SizedBox.shrink();` justo después del check de `isAdmin`. Esto deja que el `GoRoute` top-level tome el screen y el widget vacío se descarte en el siguiente frame. `SizedBox.shrink()` (no `Scaffold` vacío) para que no haya flash de fondo blanco.
+**Fix final: rutas "preview" dentro de `/admin/*`.** En vez de navegar a una ruta top-level (`/convocatoria/:id`, `/`) — que activa el wildcard trap — el admin navega a una ruta que matchea el wildcard, y el `AdminShell` la detecta y renderiza la pantalla apropiada en su `build`:
 
-**Por qué no se desuscribe el listener:** `AdminShell` no sabe cuándo se desmonta de verdad porque `go_router` con wildcard lo mantiene en el árbol de widgets como hermano de las otras rutas. La solución más limpia a largo plazo es refactorizar a `ShellRoute`/`StatefulShellRoute` con navigator keys separados, pero eso es un refactor mayor. El guard funciona.
+- `/admin/convocatorias/:id/preview` → `AdminShell` retorna `ConvocatoriaDetailScreen(convocatoriaId: <id>)` sin chrome admin (la detail screen tiene su propio AppBar con back button que `context.go('/admin/convocatorias')`).
+- `/admin/preview` → `AdminShell` retorna un `Scaffold` con back button a `/admin` y la `LandingScreen` body.
 
-**Cómo verificarlo en el log:** después de este fix, click en "Ver" debe loguear `[MC] click Ver id=…` → `[SHELL] location=/admin/convocatorias is outside /admin — deferring to top-level route` → `[DETAIL] initState id=…` (en ese orden, sin más logs del shell).
+El botón "Ver convocatoria" en `manage_convocatorias.dart` ahora hace `context.go('/admin/convocatorias/<id>/preview')`. El botón "Ver sitio" en `admin_shell.dart` (mobile + desktop) hace `context.go('/admin/preview')`.
+
+**Por qué este patrón (en vez de `StatefulShellRoute.indexedStack`):** se intentó refactorizar al patrón canónico de go_router 14.x (5 branches con `StatefulShellBranch`), pero el `StatefulNavigationShell.currentIndex` no se actualizaba en cambios de URL entre branches — bug confirmado en el log. Workarounds con `shell.goBranch`, `context.go` + listener `setState` también fallaron. El wildcard + preview-routes es la solución que sí funciona con go_router 14.6.x.
+
+**Cómo verificarlo en el log:** click en "Ver" debe loguear `→ [REDIRECT] path=/admin/convocatorias/<id>/preview: profile resolved isAdmin=true` → `→ [DETAIL] initState id=<id>`.
 
 ## Despliegue
 
