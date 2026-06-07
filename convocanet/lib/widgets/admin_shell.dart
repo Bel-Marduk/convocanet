@@ -93,10 +93,7 @@ class _AdminShellState extends ConsumerState<AdminShell> {
   }
 
   void _goBranch(int index) {
-    widget.shell.goBranch(
-      index,
-      initialLocation: index == widget.shell.currentIndex,
-    );
+    context.go(AdminShell._routes[index]);
   }
 
   @override
