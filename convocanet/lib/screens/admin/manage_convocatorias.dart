@@ -198,7 +198,11 @@ class _ManageConvocatoriasState extends ConsumerState<ManageConvocatorias> {
                         FilledButton.icon(
                           icon: const Icon(Icons.add),
                           label: Text(lang == 'es' ? 'Nueva' : 'New'),
-                          onPressed: () => context.go('/admin/convocatorias/new'),
+                          onPressed: () {
+                            // ignore: avoid_print
+                            print('[BTN] click Nueva -> /admin/convocatorias/new');
+                            context.go('/admin/convocatorias/new');
+                          },
                         ),
                       ],
                     ),

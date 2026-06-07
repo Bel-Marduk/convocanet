@@ -85,6 +85,8 @@ class AdminShell extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // ignore: avoid_print
+    print('[SHELL] build called, child=${child.runtimeType}');
     final authState = ref.watch(authStateProvider);
     final lang = ref.watch(localeProvider).languageCode;
     final theme = Theme.of(context);

@@ -41,6 +41,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       if (authState.isLoading) return null;
 
       final isLoggedIn = authState.value?.session != null;
+      // ignore: avoid_print
+      print('[REDIRECT] path=$path isLoggedIn=$isLoggedIn');
       final isProtected = path == '/dashboard' ||
           path == '/favorites' ||
           path == '/convocatorias' ||
@@ -54,8 +56,12 @@ final routerProvider = Provider<GoRouter>((ref) {
       if (isLoggedIn) {
         final profile = ref.read(currentProfileProvider);
 
-        // Profile not yet resolved — stay on current path until data arrives
-        if (!profile.hasValue && !profile.hasError) return path;
+        // Profile not yet resolved — let the per-screen guards handle the
+        // loading state instead of freezing the redirect. Returning `path`
+        // here was trapping navigations when the provider re-emitted during
+        // a route change, causing the URL to update in the address bar but
+        // go_router to silently revert the navigation.
+        if (!profile.hasValue && !profile.hasError) return null;
 
         // Profile failed — send to login
         if (profile.hasError) return '/login';
@@ -126,35 +132,63 @@ final routerProvider = Provider<GoRouter>((ref) {
       // Admin routes (require admin role, each builder wraps content in AdminShell)
       GoRoute(
         path: '/admin',
-        builder: (context, state) => const AdminShell(child: AdminDashboard()),
+        builder: (context, state) {
+          // ignore: avoid_print
+          print('[ROUTE] /admin builder');
+          return const AdminShell(child: AdminDashboard());
+        },
         routes: [
           GoRoute(
             path: 'convocatorias',
-            builder: (context, state) => const AdminShell(child: ManageConvocatorias()),
+            builder: (context, state) {
+              // ignore: avoid_print
+              print('[ROUTE] /admin/convocatorias builder');
+              return const AdminShell(child: ManageConvocatorias());
+            },
           ),
           GoRoute(
             path: 'convocatorias/new',
-            builder: (context, state) => const AdminShell(child: EditConvocatoriaScreen()),
+            builder: (context, state) {
+              // ignore: avoid_print
+              print('[ROUTE] /admin/convocatorias/new builder');
+              return const AdminShell(child: EditConvocatoriaScreen());
+            },
           ),
           GoRoute(
             path: 'convocatorias/:id/edit',
-            builder: (context, state) => AdminShell(
-              child: EditConvocatoriaScreen(
-                convocatoriaId: state.pathParameters['id'],
-              ),
-            ),
+            builder: (context, state) {
+              // ignore: avoid_print
+              print('[ROUTE] /admin/convocatorias/:id/edit builder id=${state.pathParameters['id']}');
+              return AdminShell(
+                child: EditConvocatoriaScreen(
+                  convocatoriaId: state.pathParameters['id'],
+                ),
+              );
+            },
           ),
           GoRoute(
             path: 'users',
-            builder: (context, state) => const AdminShell(child: ManageUsers()),
+            builder: (context, state) {
+              // ignore: avoid_print
+              print('[ROUTE] /admin/users builder');
+              return const AdminShell(child: ManageUsers());
+            },
           ),
           GoRoute(
             path: 'messages',
-            builder: (context, state) => const AdminShell(child: ManageMessages()),
+            builder: (context, state) {
+              // ignore: avoid_print
+              print('[ROUTE] /admin/messages builder');
+              return const AdminShell(child: ManageMessages());
+            },
           ),
           GoRoute(
             path: 'categories',
-            builder: (context, state) => const AdminShell(child: ManageCategories()),
+            builder: (context, state) {
+              // ignore: avoid_print
+              print('[ROUTE] /admin/categories builder');
+              return const AdminShell(child: ManageCategories());
+            },
           ),
         ],
       ),
