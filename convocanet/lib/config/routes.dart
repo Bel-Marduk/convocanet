@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -64,19 +65,41 @@ final routerProvider = Provider<GoRouter>((ref) {
         // the admin to /dashboard. We use `isLoading || isRefreshing` to
         // cover both the cold-load case (AsyncLoading) and the
         // re-fetch-with-stale-data case (AsyncData(null) where the
-        // underlying future is still in flight). A terminal AsyncData(null)
-        // (profile genuinely missing) falls through and the role check
-        // below will redirect non-admins to /dashboard.
+        // underlying future is still in flight).
         if (user != null &&
             !profile.hasError &&
             (profile.isLoading || profile.isRefreshing)) {
+          debugPrint(
+            '[REDIRECT] path=$path: waiting for profile '
+            '(loading=${profile.isLoading}, refreshing=${profile.isRefreshing})',
+          );
           return null;
         }
 
         // Profile failed — send to login
-        if (profile.hasError) return '/login';
+        if (profile.hasError) {
+          debugPrint('[REDIRECT] path=$path: profile error → /login');
+          return '/login';
+        }
+
+        // Terminal null: profile fetch returned null and the future settled
+        // (e.g. RLS rejected the query, row missing, or all retries
+        // exhausted). We can't tell the admin from the non-admin without a
+        // profile, so send the user to /login rather than letting them
+        // freely navigate as a "default non-admin" — that was the bug
+        // where an admin on /dashboard saw the user dashboard because
+        // isAdmin was false against a null profile.
+        if (profile.value == null) {
+          debugPrint(
+            '[REDIRECT] path=$path: profile terminal-null → /login',
+          );
+          return '/login';
+        }
 
         final isAdmin = ref.read(isAdminProvider);
+        debugPrint(
+          '[REDIRECT] path=$path: profile resolved isAdmin=$isAdmin',
+        );
 
         // Logged-in users on login/register → correct dashboard (skip forgot-password)
         if (path == '/login' || path == '/register') {
@@ -163,9 +186,18 @@ final routerProvider = Provider<GoRouter>((ref) {
 class _AuthRefreshNotifier extends ChangeNotifier {
   _AuthRefreshNotifier(Ref ref) {
     ref.listen(authStateProvider, (prev, next) {
+      debugPrint(
+        '[NOTIFIER] authState changed → redirect re-eval '
+        '(hasSession=${next.value?.session != null})',
+      );
       notifyListeners();
     });
     ref.listen(currentProfileProvider, (prev, next) {
+      debugPrint(
+        '[NOTIFIER] profile changed → redirect re-eval '
+        '(loading=${next.isLoading}, refreshing=${next.isRefreshing}, '
+        'hasValue=${next.hasValue}, hasError=${next.hasError})',
+      );
       notifyListeners();
     });
   }

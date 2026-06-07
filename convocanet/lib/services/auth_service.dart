@@ -1,4 +1,5 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter/foundation.dart';
 import 'supabase_service.dart';
 import '../models/profile.dart';
 
@@ -102,16 +103,29 @@ class AuthService {
   // null-profile loading state. Trusting the caller-supplied user avoids that.
   static Future<Profile?> getCurrentProfile({User? user}) async {
     final target = user ?? _client.auth.currentUser;
-    if (target == null) return null;
+    if (target == null) {
+      debugPrint('[AUTH] getCurrentProfile: no user available, returning null');
+      return null;
+    }
 
-    final response = await _client
-        .from('profiles')
-        .select()
-        .eq('id', target.id)
-        .maybeSingle();
+    try {
+      final response = await _client
+          .from('profiles')
+          .select()
+          .eq('id', target.id)
+          .maybeSingle()
+          .timeout(const Duration(seconds: 8));
 
-    if (response == null) return null;
-    return Profile.fromJson(response);
+      if (response == null) {
+        debugPrint('[AUTH] getCurrentProfile: query returned null for ${target.id}');
+        return null;
+      }
+      return Profile.fromJson(response);
+    } catch (e, st) {
+      debugPrint('[AUTH] getCurrentProfile: error for ${target.id}: $e');
+      debugPrintStack(stackTrace: st, maxFrames: 5);
+      rethrow;
+    }
   }
 
   // Update profile
