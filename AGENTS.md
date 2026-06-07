@@ -125,6 +125,14 @@ El botón "Ver convocatoria" en `manage_convocatorias.dart` ahora hace `context.
 
 **Cómo verificarlo en el log:** click en "Ver" debe loguear `→ [REDIRECT] path=/admin/convocatorias/<id>/preview: profile resolved isAdmin=true` → `→ [DETAIL] initState id=<id>`.
 
+### Bug histórico #6 — spinner timeout 6s manda a `/login` a un admin confirmado
+
+Síntoma: tras un F5 sobre `https://bel-marduk.github.io/convocanet/#/admin`, el log de consola muestra `[PROFILE] loaded on attempt 1, isAdmin=true` (o sea el profile YA cargó), pero ~6 s después la pantalla salta a `/login` aunque el usuario siga autenticado y sea admin.
+
+Causa: tras el primer load exitoso, una re-invalidación de `currentProfileProvider` (típicamente disparada por un `authState` posterior al F5) llevaba al `AsyncValue` a `AsyncRefreshing(value: Profile(admin=true), isRefreshing: true)`. El bloque "isLoading || isRefreshing" del `AdminShell.build` se re-entraba, re-armaba el timer de 6 s (porque se reseteaba `_spinnerTimedOut = false` al final de cada build), y cuando el timer disparaba volvía a chequear `p.isLoading || p.isRefreshing || p.value == null`. Si el re-fetch todavía estaba en vuelo después de 6 s (lo cual pasa en la primera carga post-F5 con red lenta), `p.value == null` se cumplía momentáneamente y mandaba a `/login`.
+
+**Fix (en `admin_shell.dart`):** flag persistente `bool _everLoaded` en `_AdminShellState`. El timer de 6 s solo se arma si `!_everLoaded && !_spinnerTimedOut`. Cuando el profile resuelve con un value no-null en cualquier build, se setea `_everLoaded = true` y nunca más se rearma el timer. Re-fetches posteriores (post-auth, cambios de sesión) muestran el spinner el tiempo que haga falta, pero ya no pueden mandar al admin a `/login`. Adicionalmente, la condición del callback del timer se simplificó a `if (p.value == null)` — un re-fetch lento con `value` preservado ya no es motivo de redirect.
+
 ## Despliegue
 
 - Push a `main` → `.github/workflows/deploy.yml` (raíz) construye Flutter Web con `--base-href /convocanet/` y publica a **GitHub Pages** en `https://bel-marduk.github.io/convocanet/`.

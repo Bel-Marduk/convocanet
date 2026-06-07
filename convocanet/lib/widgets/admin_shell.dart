@@ -77,6 +77,7 @@ class _AdminShellState extends ConsumerState<AdminShell> {
   String? _cachedLocation;
   bool _listening = false;
   bool _spinnerTimedOut = false;
+  bool _everLoaded = false;
 
   void _onRouterChange() {
     if (!mounted || _router == null) return;
@@ -179,23 +180,28 @@ class _AdminShellState extends ConsumerState<AdminShell> {
     // value (typically null from the pre-auth tick) is preserved while a
     // fresh fetch is running — we must not redirect on that stale value.
     if (profile.isLoading || profile.isRefreshing) {
-      // Start a one-shot fallback timer the first time we see a spinner.
-      // If after 6s the profile still hasn't resolved, give up and send
-      // the user to /login so they're not stuck watching a spinner.
-      if (!_spinnerTimedOut) {
+      // Start a one-shot fallback timer the first time we ever see a spinner.
+      // Once the profile has loaded successfully, subsequent re-fetches (e.g.
+      // triggered by an auth state change after F5) must NOT risk sending a
+      // confirmed admin to /login just because the refetch is slow.
+      if (!_everLoaded && !_spinnerTimedOut) {
         _spinnerTimedOut = true;
         WidgetsBinding.instance.addPostFrameCallback((_) async {
           await Future<void>.delayed(_spinnerTimeout);
           if (!mounted) return;
           final p = ref.read(currentProfileProvider);
-          if (p.isLoading || p.isRefreshing || p.value == null) {
+          if (p.value == null) {
             if (context.mounted) context.go('/login');
           } else {
+            _everLoaded = true;
             _spinnerTimedOut = false;
           }
         });
       }
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+    if (profile.value != null) {
+      _everLoaded = true;
     }
     _spinnerTimedOut = false;
     if (profile.hasError) {
