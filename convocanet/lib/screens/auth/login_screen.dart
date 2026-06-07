@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -109,12 +108,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     // the AuthRefreshNotifier doesn't notify on the current location) and
     // guarantees the user lands on the right screen.
     final session = authState.value?.session;
-    debugPrint('[LOGIN] build: authLoading=${authState.isLoading} session!=null=${session != null}');
     if (session != null) {
-      debugPrint('[LOGIN] build: profileLoading=${profile.isLoading} profileRefreshing=${profile.isRefreshing} profileValue==null=${profile.value == null}');
       if (profile.value != null) {
         final isAdmin = ref.read(isAdminProvider);
-        debugPrint('[LOGIN] build: navigating to ${isAdmin ? '/admin' : '/dashboard'}');
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (context.mounted) {
             context.go(isAdmin ? '/admin' : '/dashboard');

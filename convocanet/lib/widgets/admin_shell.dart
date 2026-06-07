@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -168,13 +167,11 @@ class _AdminShellState extends ConsumerState<AdminShell> {
 
     final profile = ref.watch(currentProfileProvider);
     final user = ref.watch(currentUserProvider);
-    debugPrint('[ADMIN-SHELL] build location=$location authLoading=${authState.isLoading} user!=null=${user != null} profileLoading=${profile.isLoading} profileRefreshing=${profile.isRefreshing} profileValue==null=${profile.value == null}');
 
     if (authState.isLoading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     if (authState.value == null) {
-      debugPrint('[ADMIN-SHELL] authState.value == null, queuing go(/login)');
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (context.mounted) context.go('/login');
       });

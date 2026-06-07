@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -36,13 +35,11 @@ final routerProvider = Provider<GoRouter>((ref) {
     refreshListenable: refreshNotifier,
     errorBuilder: (context, state) => const NotFoundScreen(),
     redirect: (context, state) {
-      final result = _evaluateRedirect(
+      return _evaluateRedirect(
         ref,
         ref.read(authStateProvider),
         state.matchedLocation,
       );
-      debugPrint('[REDIRECT] path=${state.matchedLocation} → $result');
-      return result;
     },
     routes: [
       // Landing Page
@@ -115,11 +112,9 @@ final routerProvider = Provider<GoRouter>((ref) {
 class _AuthRefreshNotifier extends ChangeNotifier {
   _AuthRefreshNotifier(Ref ref) {
     ref.listen(authStateProvider, (prev, next) {
-      debugPrint('[REDIRECT] authState changed: loading=${next.isLoading} session!=null=${next.value?.session != null}');
       notifyListeners();
     });
     ref.listen(currentProfileProvider, (prev, next) {
-      debugPrint('[REDIRECT] profile changed: loading=${next.isLoading} refreshing=${next.isRefreshing} value!=null=${next.value != null}');
       notifyListeners();
     });
   }
