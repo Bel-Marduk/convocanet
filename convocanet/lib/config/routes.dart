@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -36,11 +35,11 @@ final routerProvider = Provider<GoRouter>((ref) {
     refreshListenable: refreshNotifier,
     errorBuilder: (context, state) => const NotFoundScreen(),
     redirect: (context, state) {
-      final authState = ref.read(authStateProvider);
-      final path = state.matchedLocation;
-      final result = _evaluateRedirect(ref, authState, path);
-      debugPrint('[REDIRECT] path=$path loggedIn=${authState.value?.session != null} → $result');
-      return result;
+      return _evaluateRedirect(
+        ref,
+        ref.read(authStateProvider),
+        state.matchedLocation,
+      );
     },
     routes: [
       // Landing Page
@@ -113,11 +112,9 @@ final routerProvider = Provider<GoRouter>((ref) {
 class _AuthRefreshNotifier extends ChangeNotifier {
   _AuthRefreshNotifier(Ref ref) {
     ref.listen(authStateProvider, (prev, next) {
-      debugPrint('[REDIRECT] authState changed: isLoading=${next.isLoading} hasSession=${next.value?.session != null}');
       notifyListeners();
     });
     ref.listen(currentProfileProvider, (prev, next) {
-      debugPrint('[REDIRECT] profile changed: isLoading=${next.isLoading} isRefreshing=${next.isRefreshing} hasValue=${next.value != null} hasError=${next.hasError}');
       notifyListeners();
     });
   }

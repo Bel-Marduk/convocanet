@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -103,10 +102,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final lang = ref.watch(localeProvider).languageCode;
     final theme = Theme.of(context);
 
-    // Already logged in → let router redirect based on role (profile must load first)
+    // Already logged in → wait for the profile to resolve, then navigate
+    // actively. This bypasses the router's redirect (which may not fire if
+    // the AuthRefreshNotifier doesn't notify on the current location) and
+    // guarantees the user lands on the right screen.
     if (authState.value?.session != null) {
-      final profile = ref.read(currentProfileProvider);
-      debugPrint('[LOGIN] already logged in branch: profile.isLoading=${profile.isLoading} profile.isRefreshing=${profile.isRefreshing} profile.value==null=${profile.value == null}');
+      final profile = ref.watch(currentProfileProvider);
+      if (profile.value != null) {
+        final isAdmin = ref.read(isAdminProvider);
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (context.mounted) {
+            context.go(isAdmin ? '/admin' : '/dashboard');
+          }
+        });
+      }
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
       );

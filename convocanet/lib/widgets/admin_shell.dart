@@ -208,12 +208,17 @@ class _AdminShellState extends ConsumerState<AdminShell> {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     if (profile.value == null) {
-      // Terminal null — the profile genuinely doesn't exist. Send the user
-      // to /login so they can re-authenticate rather than spinning forever.
-      debugPrint('[ADMIN-SHELL] profile.value == null terminal, queuing go(/login)');
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (context.mounted) context.go('/login');
-      });
+      // Only redirect to /login if we have a confirmed session and user. If
+      // currentUserProvider is null, the profile is null because there's no
+      // user (transient tick during RLS hydration) and the auth check above
+      // handles the genuine "no session" case. This prevents a premature
+      // redirect to /login that would race with the profile loading on its
+      // next tick.
+      if (ref.read(currentUserProvider) != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (context.mounted) context.go('/login');
+        });
+      }
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     final isAdmin = ref.watch(isAdminProvider);

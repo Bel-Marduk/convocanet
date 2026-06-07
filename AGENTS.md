@@ -133,6 +133,20 @@ Causa: tras el primer load exitoso, una re-invalidación de `currentProfileProvi
 
 **Fix (en `admin_shell.dart`):** flag persistente `bool _everLoaded` en `_AdminShellState`. El timer de 6 s solo se arma si `!_everLoaded && !_spinnerTimedOut`. Cuando el profile resuelve con un value no-null en cualquier build, se setea `_everLoaded = true` y nunca más se rearma el timer. Re-fetches posteriores (post-auth, cambios de sesión) muestran el spinner el tiempo que haga falta, pero ya no pueden mandar al admin a `/login`. Adicionalmente, la condición del callback del timer se simplificó a `if (p.value == null)` — un re-fetch lento con `value` preservado ya no es motivo de redirect.
 
+### Bug histórico #7 — F5 redirige a `/login` y se queda en spinner infinito (AdminShell "Terminal null" prematuro + redirect del router no re-dispara)
+
+Síntoma: tras un F5 sobre `https://bel-marduk.github.io/convocanet/#/admin`, el log de consola muestra `[PROFILE] currentProfileProvider: user is null, returning null` seguido de `[PROFILE] currentProfileProvider: loaded on attempt 1, isAdmin=true` (o sea el profile SÍ carga correctamente con isAdmin=true), pero la pantalla queda en `/login` con un spinner (la rama "spinner while logged in" de `LoginScreen`).
+
+Causa raíz (dos partes):
+
+1. **AdminShell dispara el redirect a `/login` prematuramente.** Durante el primer tick post-recarga, `currentUserProvider` aún es null (Supabase no ha propagado el User), por lo que `currentProfileProvider` se evalúa y retorna `AsyncData(null)`. Cuando `authState` resuelve con sesión y `AdminShell` se rebuildea, el bloque "Terminal null" (`profile.value == null && !isLoading && !isRefreshing`) se activa y encola `context.go('/login')` en un postFrameCallback. Pero el profile está a punto de re-evaluarse (porque `currentUserProvider` acaba de cambiar) y va a cargar correctamente — el redirect a `/login` se dispara antes de que esa re-evaluación complete.
+2. **El redirect del router desde `/login → /admin` no re-dispara** cuando el profile carga. El `AuthRefreshNotifier` (`routes.dart`) escucha `currentProfileProvider` vía `ref.listen` y llama `notifyListeners()`, pero GoRouter no siempre re-evalúa el redirect en la ubicación actual cuando el `refreshListenable` notifica. El usuario queda atrapado en `LoginScreen` con la rama "spinner while logged in" (líneas 109-122), que solo muestra un spinner y espera al redirect que nunca llega.
+
+**Fix (en dos partes):**
+
+1. `lib/widgets/admin_shell.dart:210` — el bloque "Terminal null" ahora solo encola `context.go('/login')` si `ref.read(currentUserProvider) != null`. Si el user provider es null, el profile es null porque no hay user (transitorio durante la hidratación RLS), y el redirect a `/login` sería prematuro. El check de auth state arriba (`authState.value == null`) ya maneja el caso genuino de "no hay sesión".
+2. `lib/screens/auth/login_screen.dart:109` — la rama "spinner while logged in" ahora hace `ref.watch(currentProfileProvider)` y, cuando el profile resuelve con `value != null`, navega activamente con `context.go(isAdmin ? '/admin' : '/dashboard')` en un postFrameCallback. Esto bypasea el redirect del router y garantiza que el usuario llegue a la pantalla correcta, independientemente de si el `AuthRefreshNotifier` notifica o no.
+
 ## Despliegue
 
 - Push a `main` → `.github/workflows/deploy.yml` (raíz) construye Flutter Web con `--base-href /convocanet/` y publica a **GitHub Pages** en `https://bel-marduk.github.io/convocanet/`.
