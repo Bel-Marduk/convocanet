@@ -256,10 +256,7 @@ class _AdminShellState extends ConsumerState<AdminShell> {
             IconButton(
               icon: const Icon(Icons.open_in_new),
               tooltip: lang == 'es' ? 'Ver sitio' : 'View site',
-              onPressed: () {
-                debugPrint('[SHELL] click Ver sitio (open_in_new) → /');
-                context.go('/');
-              },
+              onPressed: () => context.push('/'),
             ),
           ],
         ),
@@ -313,7 +310,7 @@ class _AdminShellState extends ConsumerState<AdminShell> {
                       IconButton(
                         icon: const Icon(Icons.open_in_new),
                         tooltip: lang == 'es' ? 'Ver sitio' : 'View site',
-                        onPressed: () => context.go('/'),
+                        onPressed: () => context.push('/'),
                       ),
                       const SizedBox(width: 8),
                       CircleAvatar(

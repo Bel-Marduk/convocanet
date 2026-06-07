@@ -386,11 +386,7 @@ class _ManageConvocatoriasState extends ConsumerState<ManageConvocatorias> {
                                       icon: const Icon(Icons.visibility, size: 20),
                                       tooltip: lang == 'es' ? 'Ver convocatoria' : 'View call',
                                       onPressed: () {
-                                        debugPrint(
-                                          '[MC] click Ver id=${conv.id} '
-                                          'title=${conv.titleEs}',
-                                        );
-                                        context.go('/convocatoria/${conv.id}');
+                                        context.push('/convocatoria/${conv.id}');
                                       },
                                     ),
                                     if (conv.isPending)
