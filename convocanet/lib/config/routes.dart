@@ -133,69 +133,25 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const ProfileScreen(),
       ),
 
-      // Admin routes (require admin role, each builder wraps content in AdminShell).
-      // FLAT routes (no parent/child nesting) — in go_router 14.x, when a parent
-      // GoRoute has its own `builder`, the parent builder is used as a catch-all
-      // for the entire path prefix and the child builders are NEVER invoked.
-      // Top-level routes avoid that trap.
+      // Admin routes — single GoRoute catches the entire /admin tree.
+      // AdminShell reads GoRouterState.of(context).uri.path and builds the
+      // correct sub-screen via an IndexedStack. This bypasses the
+      // go_router 14.x bug where subroute builders don't fire when the URL
+      // changes via context.go() in some Flutter Web scenarios.
       GoRoute(
         path: '/admin',
         builder: (context, state) {
           // ignore: avoid_print
           print('[ROUTE] /admin builder');
-          return const AdminShell(child: AdminDashboard());
+          return const AdminShell();
         },
       ),
       GoRoute(
-        path: '/admin/convocatorias',
+        path: '/admin/:path(.*)',
         builder: (context, state) {
           // ignore: avoid_print
-          print('[ROUTE] /admin/convocatorias builder');
-          return const AdminShell(child: ManageConvocatorias());
-        },
-      ),
-      GoRoute(
-        path: '/admin/convocatorias/new',
-        builder: (context, state) {
-          // ignore: avoid_print
-          print('[ROUTE] /admin/convocatorias/new builder');
-          return const AdminShell(child: EditConvocatoriaScreen());
-        },
-      ),
-      GoRoute(
-        path: '/admin/convocatorias/:id/edit',
-        builder: (context, state) {
-          // ignore: avoid_print
-          print('[ROUTE] /admin/convocatorias/:id/edit builder id=${state.pathParameters['id']}');
-          return AdminShell(
-            child: EditConvocatoriaScreen(
-              convocatoriaId: state.pathParameters['id'],
-            ),
-          );
-        },
-      ),
-      GoRoute(
-        path: '/admin/users',
-        builder: (context, state) {
-          // ignore: avoid_print
-          print('[ROUTE] /admin/users builder');
-          return const AdminShell(child: ManageUsers());
-        },
-      ),
-      GoRoute(
-        path: '/admin/messages',
-        builder: (context, state) {
-          // ignore: avoid_print
-          print('[ROUTE] /admin/messages builder');
-          return const AdminShell(child: ManageMessages());
-        },
-      ),
-      GoRoute(
-        path: '/admin/categories',
-        builder: (context, state) {
-          // ignore: avoid_print
-          print('[ROUTE] /admin/categories builder');
-          return const AdminShell(child: ManageCategories());
+          print('[ROUTE] /admin/:path(.*) builder, rest=${state.pathParameters['path']}');
+          return const AdminShell();
         },
       ),
     ],

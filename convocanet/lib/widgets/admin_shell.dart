@@ -4,11 +4,15 @@ import 'package:go_router/go_router.dart';
 import '../providers/locale_provider.dart';
 import '../providers/auth_provider.dart';
 import '../services/auth_service.dart';
+import '../screens/admin/admin_dashboard.dart';
+import '../screens/admin/manage_convocatorias.dart';
+import '../screens/admin/manage_users.dart';
+import '../screens/admin/manage_messages.dart';
+import '../screens/admin/manage_categories.dart';
+import '../screens/admin/edit_convocatoria_screen.dart';
 
-class AdminShell extends ConsumerWidget {
-  final Widget child;
-
-  const AdminShell({super.key, required this.child});
+class AdminShell extends ConsumerStatefulWidget {
+  const AdminShell({super.key});
 
   static const _routes = [
     '/admin',
@@ -34,7 +38,7 @@ class AdminShell extends ConsumerWidget {
     Icons.category,
   ];
 
-  String _label(String lang, int index) {
+  static String label(String lang, int index) {
     const labels = [
       ['Dashboard', 'Dashboard'],
       ['Convocatorias', 'Calls'],
@@ -45,7 +49,7 @@ class AdminShell extends ConsumerWidget {
     return lang == 'es' ? labels[index][0] : labels[index][1];
   }
 
-  int _computeSelectedIndex(String location) {
+  static int computeSelectedIndex(String location) {
     int best = 0;
     int bestLen = 0;
     for (int i = 0; i < _routes.length; i++) {
@@ -55,6 +59,29 @@ class AdminShell extends ConsumerWidget {
       }
     }
     return best;
+  }
+
+  @override
+  ConsumerState<AdminShell> createState() => _AdminShellState();
+}
+
+class _AdminShellState extends ConsumerState<AdminShell> {
+  static final _editRegex = RegExp(r'^/admin/convocatorias/([^/]+)/edit$');
+
+  int _indexFor(String path) {
+    if (path == '/admin' || path == '/admin/') return 0;
+    if (path == '/admin/convocatorias') return 1;
+    if (path == '/admin/users') return 2;
+    if (path == '/admin/messages') return 3;
+    if (path == '/admin/categories') return 4;
+    return 0;
+  }
+
+  bool _isCreating(String path) => path == '/admin/convocatorias/new';
+
+  String? _editingId(String path) {
+    final m = _editRegex.firstMatch(path);
+    return m?.group(1);
   }
 
   Future<void> _logout(BuildContext context, WidgetRef ref, String lang) async {
@@ -84,9 +111,10 @@ class AdminShell extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
+    final location = GoRouterState.of(context).uri.path;
     // ignore: avoid_print
-    print('[SHELL] build called, child=${child.runtimeType}');
+    print('[SHELL] build location=$location');
     final authState = ref.watch(authStateProvider);
     final lang = ref.watch(localeProvider).languageCode;
     final theme = Theme.of(context);
@@ -113,8 +141,28 @@ class AdminShell extends ConsumerWidget {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    final location = GoRouterState.of(context).uri.path;
-    final selectedIndex = _computeSelectedIndex(location);
+    final selectedIndex = AdminShell.computeSelectedIndex(location);
+    final index = _indexFor(location);
+    final creatingId = _isCreating(location);
+    final editingId = _editingId(location);
+
+    final Widget body;
+    if (creatingId) {
+      body = const EditConvocatoriaScreen();
+    } else if (editingId != null) {
+      body = EditConvocatoriaScreen(convocatoriaId: editingId);
+    } else {
+      body = IndexedStack(
+        index: index,
+        children: const [
+          AdminDashboard(),
+          ManageConvocatorias(),
+          ManageUsers(),
+          ManageMessages(),
+          ManageCategories(),
+        ],
+      );
+    }
 
     if (isMobile) {
       return Scaffold(
@@ -131,7 +179,7 @@ class AdminShell extends ConsumerWidget {
         drawer: Drawer(
           child: _buildNavContent(context, ref, lang, theme, profile, selectedIndex),
         ),
-        body: child,
+        body: body,
       );
     }
 
@@ -169,7 +217,7 @@ class AdminShell extends ConsumerWidget {
                   child: Row(
                     children: [
                       Text(
-                        _label(lang, selectedIndex),
+                        AdminShell.label(lang, selectedIndex),
                         style: theme.textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.w700,
                         ),
@@ -205,7 +253,7 @@ class AdminShell extends ConsumerWidget {
                     ],
                   ),
                 ),
-                Expanded(child: child),
+                Expanded(child: body),
               ],
             ),
           ),
@@ -247,19 +295,19 @@ class AdminShell extends ConsumerWidget {
           ),
           const Divider(height: 1),
           const SizedBox(height: 8),
-          ...List.generate(_routes.length, (index) {
+          ...List.generate(AdminShell._routes.length, (index) {
             final selected = selectedIndex == index;
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
               child: ListTile(
                 leading: Icon(
-                  selected ? _iconsSelected[index] : _icons[index],
+                  selected ? AdminShell._iconsSelected[index] : AdminShell._icons[index],
                   color: selected
                       ? theme.colorScheme.primary
                       : theme.colorScheme.onSurfaceVariant,
                 ),
                 title: Text(
-                  _label(lang, index),
+                  AdminShell.label(lang, index),
                   style: TextStyle(
                     fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
                     color: selected
@@ -272,7 +320,11 @@ class AdminShell extends ConsumerWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
-                onTap: () => context.go(_routes[index]),
+                onTap: () {
+                  // ignore: avoid_print
+                  print('[SHELL] sidebar tap -> ${AdminShell._routes[index]}');
+                  context.go(AdminShell._routes[index]);
+                },
               ),
             );
           }),
