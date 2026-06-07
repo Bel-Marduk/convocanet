@@ -210,6 +210,7 @@ class _AdminShellState extends ConsumerState<AdminShell> {
     if (profile.value == null) {
       // Terminal null — the profile genuinely doesn't exist. Send the user
       // to /login so they can re-authenticate rather than spinning forever.
+      debugPrint('[ADMIN-SHELL] profile.value == null terminal, queuing go(/login)');
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (context.mounted) context.go('/login');
       });

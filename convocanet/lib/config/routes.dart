@@ -37,42 +37,9 @@ final routerProvider = Provider<GoRouter>((ref) {
     redirect: (context, state) {
       final authState = ref.read(authStateProvider);
       final path = state.matchedLocation;
-
-      if (authState.isLoading) return null;
-
-      final isLoggedIn = authState.value?.session != null;
-      final isProtected = path == '/dashboard' ||
-          path == '/favorites' ||
-          path == '/convocatorias' ||
-          path == '/profile' ||
-          path.startsWith('/admin');
-
-      if (!isLoggedIn && isProtected) return '/login';
-
-      if (isLoggedIn) {
-        final user = ref.read(currentUserProvider);
-        final profile = ref.read(currentProfileProvider);
-
-        if (user != null &&
-            !profile.hasError &&
-            (profile.isLoading || profile.isRefreshing)) {
-          return null;
-        }
-
-        if (profile.hasError) return '/login';
-
-        if (profile.value != null) {
-          final isAdmin = ref.read(isAdminProvider);
-
-          if (path == '/login' || path == '/register') {
-            return isAdmin ? '/admin' : '/dashboard';
-          }
-          if (isAdmin && path == '/dashboard') return '/admin';
-          if (path.startsWith('/admin') && !isAdmin) return '/dashboard';
-        }
-      }
-
-      return null;
+      final result = _evaluateRedirect(ref, authState, path);
+      debugPrint('[REDIRECT] path=$path loggedIn=${authState.value?.session != null} → $result');
+      return result;
     },
     routes: [
       // Landing Page
@@ -145,10 +112,50 @@ final routerProvider = Provider<GoRouter>((ref) {
 class _AuthRefreshNotifier extends ChangeNotifier {
   _AuthRefreshNotifier(Ref ref) {
     ref.listen(authStateProvider, (prev, next) {
+      debugPrint('[REDIRECT] authState changed: isLoading=${next.isLoading} hasSession=${next.value?.session != null}');
       notifyListeners();
     });
     ref.listen(currentProfileProvider, (prev, next) {
+      debugPrint('[REDIRECT] profile changed: isLoading=${next.isLoading} isRefreshing=${next.isRefreshing} hasValue=${next.value != null} hasError=${next.hasError}');
       notifyListeners();
     });
   }
+}
+
+String? _evaluateRedirect(Ref ref, AsyncValue<AuthState> authState, String path) {
+  if (authState.isLoading) return null;
+
+  final isLoggedIn = authState.value?.session != null;
+  final isProtected = path == '/dashboard' ||
+      path == '/favorites' ||
+      path == '/convocatorias' ||
+      path == '/profile' ||
+      path.startsWith('/admin');
+
+  if (!isLoggedIn && isProtected) return '/login';
+
+  if (isLoggedIn) {
+    final user = ref.read(currentUserProvider);
+    final profile = ref.read(currentProfileProvider);
+
+    if (user != null &&
+        !profile.hasError &&
+        (profile.isLoading || profile.isRefreshing)) {
+      return null;
+    }
+
+    if (profile.hasError) return '/login';
+
+    if (profile.value != null) {
+      final isAdmin = ref.read(isAdminProvider);
+
+      if (path == '/login' || path == '/register') {
+        return isAdmin ? '/admin' : '/dashboard';
+      }
+      if (isAdmin && path == '/dashboard') return '/admin';
+      if (path.startsWith('/admin') && !isAdmin) return '/dashboard';
+    }
+  }
+
+  return null;
 }
