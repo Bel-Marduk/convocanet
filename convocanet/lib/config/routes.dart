@@ -58,7 +58,20 @@ final routerProvider = Provider<GoRouter>((ref) {
 
       // For authenticated users, wait for profile to load before role checks
       if (isLoggedIn) {
+        final user = ref.read(currentUserProvider);
         final profile = ref.read(currentProfileProvider);
+
+        // RACE CONDITION GUARD: on page reload, authState resolves first
+        // (step 1) and only then does currentProfileProvider get invalidated
+        // and start re-fetching (step 3). Between those two events the
+        // profile can briefly be in a state where the previous value is
+        // null and the new value is still loading. Running the role check
+        // at that moment would see isAdmin=false and incorrectly redirect
+        // the admin to /dashboard. Bail out and wait for the profile to
+        // settle in either a value or an error.
+        if (user != null && profile.value == null && !profile.hasError) {
+          return null;
+        }
 
         // Profile not yet resolved — let the per-screen guards handle the
         // loading state instead of freezing the redirect. Returning `path`

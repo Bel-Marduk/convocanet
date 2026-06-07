@@ -133,6 +133,14 @@ class _AdminShellState extends ConsumerState<AdminShell> {
     if (!profile.hasValue && !profile.hasError) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
+    // RACE CONDITION GUARD: on page reload the profile provider can briefly
+    // be AsyncData(null) — the old value from before the user logged in —
+    // while it is being re-fetched. isAdmin would be false during that gap
+    // and we'd wrongly redirect to /dashboard. Treat a null profile value
+    // as still-loading and wait for the real profile to arrive.
+    if (profile.value == null) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
     final isAdmin = ref.watch(isAdminProvider);
     if (!isAdmin) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
