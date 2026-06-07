@@ -32,7 +32,11 @@ final routerProvider = Provider<GoRouter>((ref) {
     navigatorKey: _rootNavigatorKey,
     initialLocation: '/',
     refreshListenable: refreshNotifier,
-    errorBuilder: (context, state) => const NotFoundScreen(),
+    errorBuilder: (context, state) {
+      // ignore: avoid_print
+      print('[ERROR] state.uri=${state.uri} state.error=${state.error}');
+      return const NotFoundScreen();
+    },
     redirect: (context, state) {
       final authState = ref.read(authStateProvider);
       final path = state.matchedLocation;
@@ -129,7 +133,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const ProfileScreen(),
       ),
 
-      // Admin routes (require admin role, each builder wraps content in AdminShell)
+      // Admin routes (require admin role, each builder wraps content in AdminShell).
+      // FLAT routes (no parent/child nesting) — in go_router 14.x, when a parent
+      // GoRoute has its own `builder`, the parent builder is used as a catch-all
+      // for the entire path prefix and the child builders are NEVER invoked.
+      // Top-level routes avoid that trap.
       GoRoute(
         path: '/admin',
         builder: (context, state) {
@@ -137,60 +145,58 @@ final routerProvider = Provider<GoRouter>((ref) {
           print('[ROUTE] /admin builder');
           return const AdminShell(child: AdminDashboard());
         },
-        routes: [
-          GoRoute(
-            path: 'convocatorias',
-            builder: (context, state) {
-              // ignore: avoid_print
-              print('[ROUTE] /admin/convocatorias builder');
-              return const AdminShell(child: ManageConvocatorias());
-            },
-          ),
-          GoRoute(
-            path: 'convocatorias/new',
-            builder: (context, state) {
-              // ignore: avoid_print
-              print('[ROUTE] /admin/convocatorias/new builder');
-              return const AdminShell(child: EditConvocatoriaScreen());
-            },
-          ),
-          GoRoute(
-            path: 'convocatorias/:id/edit',
-            builder: (context, state) {
-              // ignore: avoid_print
-              print('[ROUTE] /admin/convocatorias/:id/edit builder id=${state.pathParameters['id']}');
-              return AdminShell(
-                child: EditConvocatoriaScreen(
-                  convocatoriaId: state.pathParameters['id'],
-                ),
-              );
-            },
-          ),
-          GoRoute(
-            path: 'users',
-            builder: (context, state) {
-              // ignore: avoid_print
-              print('[ROUTE] /admin/users builder');
-              return const AdminShell(child: ManageUsers());
-            },
-          ),
-          GoRoute(
-            path: 'messages',
-            builder: (context, state) {
-              // ignore: avoid_print
-              print('[ROUTE] /admin/messages builder');
-              return const AdminShell(child: ManageMessages());
-            },
-          ),
-          GoRoute(
-            path: 'categories',
-            builder: (context, state) {
-              // ignore: avoid_print
-              print('[ROUTE] /admin/categories builder');
-              return const AdminShell(child: ManageCategories());
-            },
-          ),
-        ],
+      ),
+      GoRoute(
+        path: '/admin/convocatorias',
+        builder: (context, state) {
+          // ignore: avoid_print
+          print('[ROUTE] /admin/convocatorias builder');
+          return const AdminShell(child: ManageConvocatorias());
+        },
+      ),
+      GoRoute(
+        path: '/admin/convocatorias/new',
+        builder: (context, state) {
+          // ignore: avoid_print
+          print('[ROUTE] /admin/convocatorias/new builder');
+          return const AdminShell(child: EditConvocatoriaScreen());
+        },
+      ),
+      GoRoute(
+        path: '/admin/convocatorias/:id/edit',
+        builder: (context, state) {
+          // ignore: avoid_print
+          print('[ROUTE] /admin/convocatorias/:id/edit builder id=${state.pathParameters['id']}');
+          return AdminShell(
+            child: EditConvocatoriaScreen(
+              convocatoriaId: state.pathParameters['id'],
+            ),
+          );
+        },
+      ),
+      GoRoute(
+        path: '/admin/users',
+        builder: (context, state) {
+          // ignore: avoid_print
+          print('[ROUTE] /admin/users builder');
+          return const AdminShell(child: ManageUsers());
+        },
+      ),
+      GoRoute(
+        path: '/admin/messages',
+        builder: (context, state) {
+          // ignore: avoid_print
+          print('[ROUTE] /admin/messages builder');
+          return const AdminShell(child: ManageMessages());
+        },
+      ),
+      GoRoute(
+        path: '/admin/categories',
+        builder: (context, state) {
+          // ignore: avoid_print
+          print('[ROUTE] /admin/categories builder');
+          return const AdminShell(child: ManageCategories());
+        },
       ),
     ],
   );
