@@ -291,17 +291,27 @@ class _NavbarState extends ConsumerState<Navbar> {
   }
 }
 
-/// Dashboard button for desktop navbar — routes admin to /admin, user to /dashboard
+/// Dashboard button for desktop navbar — routes admin to /admin, user to /dashboard.
+///
+/// IMPORTANT: `isAdmin` is read with `ref.read` inside `onPressed` (not
+/// `ref.watch` in the build). On a fresh page reload the profile provider
+/// is `AsyncData(null)` from the pre-auth tick and `isAdmin` would be
+/// `false`; if we captured that in the build, clicking the button would
+/// route an admin to `/dashboard`. Reading at click time picks up the
+/// latest value after the provider has been re-run and the profile
+/// resolved.
 class _DashboardButton extends ConsumerWidget {
   final String lang;
   const _DashboardButton({required this.lang});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final profile = ref.watch(currentProfileProvider);
-    final isAdmin = profile.value?.isAdmin ?? false;
     return TextButton(
-      onPressed: () => context.go(isAdmin ? '/admin' : '/dashboard'),
+      onPressed: () {
+        final profile = ref.read(currentProfileProvider);
+        final isAdmin = profile.value?.isAdmin ?? false;
+        context.go(isAdmin ? '/admin' : '/dashboard');
+      },
       child: Text(lang == 'es' ? 'Dashboard' : 'Dashboard'),
     );
   }
@@ -314,13 +324,13 @@ class _DashboardListTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final profile = ref.watch(currentProfileProvider);
-    final isAdmin = profile.value?.isAdmin ?? false;
     return ListTile(
       leading: const Icon(Icons.dashboard),
       title: const Text('Dashboard'),
       onTap: () {
         Navigator.pop(context);
+        final profile = ref.read(currentProfileProvider);
+        final isAdmin = profile.value?.isAdmin ?? false;
         context.go(isAdmin ? '/admin' : '/dashboard');
       },
     );

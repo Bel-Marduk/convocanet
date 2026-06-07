@@ -30,6 +30,9 @@ class _ConvocatoriaDetailScreenState
   @override
   void initState() {
     super.initState();
+    debugPrint(
+      '[DETAIL] initState id=${widget.convocatoriaId}',
+    );
     _loadConvocatoria();
   }
 

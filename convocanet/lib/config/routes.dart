@@ -82,35 +82,39 @@ final routerProvider = Provider<GoRouter>((ref) {
           return '/login';
         }
 
-        // Terminal null: profile fetch returned null and the future settled
-        // (e.g. RLS rejected the query, row missing, or all retries
-        // exhausted). We can't tell the admin from the non-admin without a
-        // profile, so send the user to /login rather than letting them
-        // freely navigate as a "default non-admin" — that was the bug
-        // where an admin on /dashboard saw the user dashboard because
-        // isAdmin was false against a null profile.
-        if (profile.value == null) {
+        // Profile resolved (has a real Profile value) — do role checks
+        if (profile.value != null) {
+          final isAdmin = ref.read(isAdminProvider);
           debugPrint(
-            '[REDIRECT] path=$path: profile terminal-null → /login',
+            '[REDIRECT] path=$path: profile resolved isAdmin=$isAdmin',
           );
-          return '/login';
+
+          // Logged-in users on login/register → correct dashboard
+          if (path == '/login' || path == '/register') {
+            return isAdmin ? '/admin' : '/dashboard';
+          }
+
+          // Admin users on /dashboard → admin
+          if (isAdmin && path == '/dashboard') return '/admin';
+
+          // Non-admin users on admin routes → dashboard
+          if (path.startsWith('/admin') && !isAdmin) return '/dashboard';
+        } else {
+          // profile.value == null AND not loading/refreshing AND not error.
+          // This used to be treated as "terminal null → /login" but that
+          // caused the F5 bug: the notifier fires on authState change
+          // before currentProfileProvider has been invalidated to re-run
+          // with the new user, so the profile is briefly AsyncData(null)
+          // (from the initial pre-auth tick where user was null). Sending
+          // the user to /login at that point is premature. The retry
+          // mechanism in currentProfileProvider has 5×400ms to resolve;
+          // if it doesn't, the per-screen guards (AdminShell, Dashboard)
+          // will eventually time out and redirect.
+          debugPrint(
+            '[REDIRECT] path=$path: profile null but not loading — waiting '
+            'for provider to re-run (user=${user?.id})',
+          );
         }
-
-        final isAdmin = ref.read(isAdminProvider);
-        debugPrint(
-          '[REDIRECT] path=$path: profile resolved isAdmin=$isAdmin',
-        );
-
-        // Logged-in users on login/register → correct dashboard (skip forgot-password)
-        if (path == '/login' || path == '/register') {
-          return isAdmin ? '/admin' : '/dashboard';
-        }
-
-        // Admin users on /dashboard → admin (but allow / landing page)
-        if (isAdmin && path == '/dashboard') return '/admin';
-
-        // Non-admin users on admin routes → dashboard
-        if (path.startsWith('/admin') && !isAdmin) return '/dashboard';
       }
 
       return null;

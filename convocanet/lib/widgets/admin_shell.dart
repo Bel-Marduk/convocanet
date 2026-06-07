@@ -67,10 +67,12 @@ class AdminShell extends ConsumerStatefulWidget {
 
 class _AdminShellState extends ConsumerState<AdminShell> {
   static final _editRegex = RegExp(r'^/admin/convocatorias/([^/]+)/edit$');
+  static const _spinnerTimeout = Duration(seconds: 6);
 
   GoRouter? _router;
   String? _cachedLocation;
   bool _listening = false;
+  bool _spinnerTimedOut = false;
 
   void _onRouterChange() {
     if (!mounted || _router == null) return;
@@ -166,8 +168,29 @@ class _AdminShellState extends ConsumerState<AdminShell> {
     // value (typically null from the pre-auth tick) is preserved while a
     // fresh fetch is running — we must not redirect on that stale value.
     if (profile.isLoading || profile.isRefreshing) {
+      // Start a one-shot fallback timer the first time we see a spinner.
+      // If after 6s the profile still hasn't resolved, give up and send
+      // the user to /login so they're not stuck watching a spinner.
+      if (!_spinnerTimedOut) {
+        _spinnerTimedOut = true;
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
+          await Future<void>.delayed(_spinnerTimeout);
+          if (!mounted) return;
+          final p = ref.read(currentProfileProvider);
+          if (p.isLoading || p.isRefreshing || p.value == null) {
+            debugPrint(
+              '[SHELL] spinner timeout (${_spinnerTimeout.inSeconds}s) — '
+              'profile still not resolved, sending to /login',
+            );
+            if (context.mounted) context.go('/login');
+          } else {
+            _spinnerTimedOut = false;
+          }
+        });
+      }
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
+    _spinnerTimedOut = false;
     if (profile.hasError) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
