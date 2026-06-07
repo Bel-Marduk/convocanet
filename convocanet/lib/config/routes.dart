@@ -143,9 +143,14 @@ final routerProvider = Provider<GoRouter>((ref) {
       // Convocatoria detail (public)
       GoRoute(
         path: '/convocatoria/:id',
-        builder: (context, state) => ConvocatoriaDetailScreen(
-          convocatoriaId: state.pathParameters['id']!,
-        ),
+        builder: (context, state) {
+          debugPrint(
+            '[ROUTE] /convocatoria/:id builder called id=${state.pathParameters['id']}',
+          );
+          return ConvocatoriaDetailScreen(
+            convocatoriaId: state.pathParameters['id']!,
+          );
+        },
       ),
 
       // User routes (require auth)
@@ -174,11 +179,19 @@ final routerProvider = Provider<GoRouter>((ref) {
       // wildcard GoRoute.
       GoRoute(
         path: '/admin',
-        builder: (context, state) => const AdminShell(),
+        builder: (context, state) {
+          debugPrint('[ROUTE] /admin builder called');
+          return const AdminShell();
+        },
       ),
       GoRoute(
         path: '/admin/:path(.*)',
-        builder: (context, state) => const AdminShell(),
+        builder: (context, state) {
+          debugPrint(
+            '[ROUTE] /admin/:path(.*) builder called path=${state.pathParameters['path']}',
+          );
+          return const AdminShell();
+        },
       ),
     ],
   );

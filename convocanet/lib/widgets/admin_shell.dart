@@ -74,6 +74,12 @@ class _AdminShellState extends ConsumerState<AdminShell> {
   bool _listening = false;
   bool _spinnerTimedOut = false;
 
+  @override
+  void initState() {
+    super.initState();
+    debugPrint('[SHELL] initState');
+  }
+
   void _onRouterChange() {
     if (!mounted || _router == null) return;
     final newLocation = _router!.routerDelegate.currentConfiguration.uri.path;
@@ -97,6 +103,7 @@ class _AdminShellState extends ConsumerState<AdminShell> {
 
   @override
   void dispose() {
+    debugPrint('[SHELL] dispose');
     if (_listening && _router != null) {
       _router!.routerDelegate.removeListener(_onRouterChange);
     }
