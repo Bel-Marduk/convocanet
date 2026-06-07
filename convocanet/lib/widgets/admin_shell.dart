@@ -4,11 +4,15 @@ import 'package:go_router/go_router.dart';
 import '../providers/locale_provider.dart';
 import '../providers/auth_provider.dart';
 import '../services/auth_service.dart';
+import '../screens/admin/admin_dashboard.dart';
+import '../screens/admin/manage_convocatorias.dart';
+import '../screens/admin/manage_users.dart';
+import '../screens/admin/manage_messages.dart';
+import '../screens/admin/manage_categories.dart';
+import '../screens/admin/edit_convocatoria_screen.dart';
 
 class AdminShell extends ConsumerStatefulWidget {
-  const AdminShell({super.key, required this.shell});
-
-  final StatefulNavigationShell shell;
+  const AdminShell({super.key});
 
   static const _routes = [
     '/admin',
@@ -45,31 +49,39 @@ class AdminShell extends ConsumerStatefulWidget {
     return lang == 'es' ? labels[index][0] : labels[index][1];
   }
 
+  static int computeSelectedIndex(String location) {
+    int best = 0;
+    int bestLen = 0;
+    for (int i = 0; i < _routes.length; i++) {
+      if (location.startsWith(_routes[i]) && _routes[i].length > bestLen) {
+        best = i;
+        bestLen = _routes[i].length;
+      }
+    }
+    return best;
+  }
+
   @override
   ConsumerState<AdminShell> createState() => _AdminShellState();
 }
 
 class _AdminShellState extends ConsumerState<AdminShell> {
+  static final _editRegex = RegExp(r'^/admin/convocatorias/([^/]+)/edit$');
   static const _spinnerTimeout = Duration(seconds: 6);
 
+  GoRouter? _router;
+  String? _cachedLocation;
+  bool _listening = false;
   bool _spinnerTimedOut = false;
 
-  GoRouter? _router;
-  bool _listening = false;
-
-  @override
-  void initState() {
-    super.initState();
-    debugPrint('[SHELL] initState branch=${widget.shell.currentIndex}');
-  }
-
   void _onRouterChange() {
-    if (!mounted) return;
-    debugPrint(
-      '[SHELL] routerDelegate changed → forcing rebuild '
-      '(shell.currentIndex=${widget.shell.currentIndex})',
-    );
-    setState(() {});
+    if (!mounted || _router == null) return;
+    final newLocation = _router!.routerDelegate.currentConfiguration.uri.path;
+    if (newLocation != _cachedLocation) {
+      setState(() {
+        _cachedLocation = newLocation;
+      });
+    }
   }
 
   @override
@@ -77,6 +89,7 @@ class _AdminShellState extends ConsumerState<AdminShell> {
     super.didChangeDependencies();
     if (!_listening) {
       _router = GoRouter.of(context);
+      _cachedLocation = _router!.routerDelegate.currentConfiguration.uri.path;
       _router!.routerDelegate.addListener(_onRouterChange);
       _listening = true;
     }
@@ -84,11 +97,26 @@ class _AdminShellState extends ConsumerState<AdminShell> {
 
   @override
   void dispose() {
-    debugPrint('[SHELL] dispose');
     if (_listening && _router != null) {
       _router!.routerDelegate.removeListener(_onRouterChange);
     }
     super.dispose();
+  }
+
+  int _indexFor(String path) {
+    if (path == '/admin' || path == '/admin/') return 0;
+    if (path == '/admin/convocatorias') return 1;
+    if (path == '/admin/users') return 2;
+    if (path == '/admin/messages') return 3;
+    if (path == '/admin/categories') return 4;
+    return 0;
+  }
+
+  bool _isCreating(String path) => path == '/admin/convocatorias/new';
+
+  String? _editingId(String path) {
+    final m = _editRegex.firstMatch(path);
+    return m?.group(1);
   }
 
   Future<void> _logout(BuildContext context, WidgetRef ref, String lang) async {
@@ -117,17 +145,13 @@ class _AdminShellState extends ConsumerState<AdminShell> {
     }
   }
 
-  void _goBranch(int index) {
-    context.go(AdminShell._routes[index]);
-  }
-
   @override
   Widget build(BuildContext context) {
+    final location = _cachedLocation ?? GoRouterState.of(context).uri.path;
     final authState = ref.watch(authStateProvider);
     final lang = ref.watch(localeProvider).languageCode;
     final theme = Theme.of(context);
     final isMobile = MediaQuery.of(context).size.width < 768;
-    final selectedIndex = widget.shell.currentIndex;
 
     if (authState.isLoading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
@@ -139,7 +163,14 @@ class _AdminShellState extends ConsumerState<AdminShell> {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     final profile = ref.watch(currentProfileProvider);
+    // Loading and refreshing both mean "the future is still in flight, wait
+    // for it". AsyncRefreshing is the case on page reload where the previous
+    // value (typically null from the pre-auth tick) is preserved while a
+    // fresh fetch is running — we must not redirect on that stale value.
     if (profile.isLoading || profile.isRefreshing) {
+      // Start a one-shot fallback timer the first time we see a spinner.
+      // If after 6s the profile still hasn't resolved, give up and send
+      // the user to /login so they're not stuck watching a spinner.
       if (!_spinnerTimedOut) {
         _spinnerTimedOut = true;
         WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -164,6 +195,8 @@ class _AdminShellState extends ConsumerState<AdminShell> {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     if (profile.value == null) {
+      // Terminal null — the profile genuinely doesn't exist. Send the user
+      // to /login so they can re-authenticate rather than spinning forever.
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (context.mounted) context.go('/login');
       });
@@ -177,17 +210,49 @@ class _AdminShellState extends ConsumerState<AdminShell> {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    final body = widget.shell;
+    if (!location.startsWith('/admin')) {
+      debugPrint(
+        '[SHELL] location=$location is outside /admin — deferring to '
+        'top-level route',
+      );
+      return const SizedBox.shrink();
+    }
+
+    final selectedIndex = AdminShell.computeSelectedIndex(location);
+    final index = _indexFor(location);
+    final creatingId = _isCreating(location);
+    final editingId = _editingId(location);
+
+    final Widget body;
+    if (creatingId) {
+      body = const EditConvocatoriaScreen();
+    } else if (editingId != null) {
+      body = EditConvocatoriaScreen(convocatoriaId: editingId);
+    } else {
+      body = IndexedStack(
+        index: index,
+        children: const [
+          AdminDashboard(),
+          ManageConvocatorias(),
+          ManageUsers(),
+          ManageMessages(),
+          ManageCategories(),
+        ],
+      );
+    }
 
     if (isMobile) {
       return Scaffold(
         appBar: AppBar(
-          title: Text(AdminShell.label(lang, selectedIndex)),
+          title: const Text('Admin'),
           actions: [
             IconButton(
               icon: const Icon(Icons.open_in_new),
               tooltip: lang == 'es' ? 'Ver sitio' : 'View site',
-              onPressed: () => context.push('/'),
+              onPressed: () {
+                debugPrint('[SHELL] click Ver sitio (open_in_new) → /');
+                context.go('/');
+              },
             ),
           ],
         ),
@@ -241,7 +306,7 @@ class _AdminShellState extends ConsumerState<AdminShell> {
                       IconButton(
                         icon: const Icon(Icons.open_in_new),
                         tooltip: lang == 'es' ? 'Ver sitio' : 'View site',
-                        onPressed: () => context.push('/'),
+                        onPressed: () => context.go('/'),
                       ),
                       const SizedBox(width: 8),
                       CircleAvatar(
@@ -335,7 +400,7 @@ class _AdminShellState extends ConsumerState<AdminShell> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
-                onTap: () => _goBranch(index),
+                onTap: () => context.go(AdminShell._routes[index]),
               ),
             );
           }),
