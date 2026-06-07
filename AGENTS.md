@@ -109,6 +109,17 @@ Causa: en el ciclo de hidratación de Supabase post-recarga, el `authStateProvid
 2. `lib/providers/auth_provider.dart:28` — `currentProfileProvider` reintenta hasta 3 veces con 200 ms entre intentos. Cubre el caso "sesión aún no propagada al contexto postgrest". Si tras 3 intentos sigue null, se devuelve null terminal y el caller lo trata como "perfil genuinamente ausente".
 3. `lib/config/routes.dart` redirect guard y `lib/widgets/admin_shell.dart` build guard — usan `profile.isLoading || profile.isRefreshing` en vez de `profile.value == null`. Esto distingue el estado transitorio (futuro en vuelo, esperar) del estado terminal (perfil no existe, redirigir a `/login`). `AsyncRefreshing` es la `AsyncValue` que se obtiene cuando un `FutureProvider` se invalida y conserva el valor anterior: en page reload ese valor anterior es `null` (del tick pre-auth), por eso el guard viejo `value == null` lo confundía con "loading" y el nuevo `isRefreshing` lo identifica correctamente.
 
+### Bug histórico #5 — AdminShell secuestra la pantalla al navegar fuera de `/admin/*`
+Síntoma: tras click en "Ver" o "Ver sitio" (AppBar `Icons.open_in_new`), la URL cambiaba (`/convocatoria/:id`, `/`) y el redirect corría, pero la pantalla seguía mostrando el dashboard del admin. El `ConvicatoriaDetailScreen` / `LandingScreen` nunca se construían (log: `[REDIRECT] path=/…: profile resolved isAdmin=true` aparecía, pero `initState` de la pantalla destino nunca se logueaba).
+
+Causa: `AdminShell` se suscribe a `routerDelegate.addListener()` para forzar rebuilds en cambios de sub-ruta (fix del bug #2). Esto **mantiene el state vivo** más allá de la vida de la sub-ruta. Cuando navegas a un `GoRoute` top-level fuera de `/admin/*`, el `GoRoute` builder retorna el widget nuevo, pero el `AdminShell` viejo (cuyo state sigue vivo) gana la batalla del render porque su `build` se llama con `_cachedLocation` ya actualizado, y `computeSelectedIndex` cae al default (0 = admin dashboard) para cualquier path que no matchea ningún `_routes[i]`.
+
+**Fix (en `lib/widgets/admin_shell.dart` build):** guard explícito `if (!location.startsWith('/admin')) return const SizedBox.shrink();` justo después del check de `isAdmin`. Esto deja que el `GoRoute` top-level tome el screen y el widget vacío se descarte en el siguiente frame. `SizedBox.shrink()` (no `Scaffold` vacío) para que no haya flash de fondo blanco.
+
+**Por qué no se desuscribe el listener:** `AdminShell` no sabe cuándo se desmonta de verdad porque `go_router` con wildcard lo mantiene en el árbol de widgets como hermano de las otras rutas. La solución más limpia a largo plazo es refactorizar a `ShellRoute`/`StatefulShellRoute` con navigator keys separados, pero eso es un refactor mayor. El guard funciona.
+
+**Cómo verificarlo en el log:** después de este fix, click en "Ver" debe loguear `[MC] click Ver id=…` → `[SHELL] location=/admin/convocatorias is outside /admin — deferring to top-level route` → `[DETAIL] initState id=…` (en ese orden, sin más logs del shell).
+
 ## Despliegue
 
 - Push a `main` → `.github/workflows/deploy.yml` (raíz) construye Flutter Web con `--base-href /convocanet/` y publica a **GitHub Pages** en `https://bel-marduk.github.io/convocanet/`.
