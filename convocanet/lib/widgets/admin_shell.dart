@@ -5,17 +5,10 @@ import '../providers/locale_provider.dart';
 import '../providers/auth_provider.dart';
 import '../services/auth_service.dart';
 
-class AdminShell extends ConsumerStatefulWidget {
+class AdminShell extends ConsumerWidget {
   final Widget child;
 
   const AdminShell({super.key, required this.child});
-
-  @override
-  ConsumerState<AdminShell> createState() => _AdminShellState();
-}
-
-class _AdminShellState extends ConsumerState<AdminShell> {
-  int _selectedIndex = 0;
 
   static const _routes = [
     '/admin',
@@ -41,34 +34,6 @@ class _AdminShellState extends ConsumerState<AdminShell> {
     Icons.category,
   ];
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _updateSelectedIndex();
-  }
-
-  @override
-  void didUpdateWidget(covariant AdminShell oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    debugPrint('[AdminShell] didUpdateWidget child changed: ${oldWidget.child.runtimeType} -> ${widget.child.runtimeType}');
-  }
-
-  void _updateSelectedIndex() {
-    final location = GoRouterState.of(context).uri.path;
-    debugPrint('[AdminShell] location=$location child=${widget.child.runtimeType} hashCode=${widget.child.hashCode}');
-    int best = 0;
-    int bestLen = 0;
-    for (int i = 0; i < _routes.length; i++) {
-      if (location.startsWith(_routes[i]) && _routes[i].length > bestLen) {
-        best = i;
-        bestLen = _routes[i].length;
-      }
-    }
-    if (best != _selectedIndex) {
-      setState(() => _selectedIndex = best);
-    }
-  }
-
   String _label(String lang, int index) {
     const labels = [
       ['Dashboard', 'Dashboard'],
@@ -80,13 +45,19 @@ class _AdminShellState extends ConsumerState<AdminShell> {
     return lang == 'es' ? labels[index][0] : labels[index][1];
   }
 
-  void _onNavigate(int index) {
-    setState(() => _selectedIndex = index);
-    context.go(_routes[index]);
+  int _computeSelectedIndex(String location) {
+    int best = 0;
+    int bestLen = 0;
+    for (int i = 0; i < _routes.length; i++) {
+      if (location.startsWith(_routes[i]) && _routes[i].length > bestLen) {
+        best = i;
+        bestLen = _routes[i].length;
+      }
+    }
+    return best;
   }
 
-  Future<void> _logout() async {
-    final lang = ref.read(localeProvider).languageCode;
+  Future<void> _logout(BuildContext context, WidgetRef ref, String lang) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -106,46 +77,47 @@ class _AdminShellState extends ConsumerState<AdminShell> {
         ],
       ),
     );
-    if (confirmed == true && mounted) {
+    if (confirmed == true && context.mounted) {
       await AuthService.signOut();
-      if (mounted) context.go('/');
+      if (context.mounted) context.go('/');
     }
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authStateProvider);
     final lang = ref.watch(localeProvider).languageCode;
     final theme = Theme.of(context);
     final isMobile = MediaQuery.of(context).size.width < 768;
 
-    // Auth + role guard for all admin routes
     if (authState.isLoading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     if (authState.value == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) context.go('/login');
+        if (context.mounted) context.go('/login');
       });
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     final profile = ref.watch(currentProfileProvider);
-    // Block until profile loads — prevents non-admin from flashing admin shell
     if (!profile.hasValue && !profile.hasError) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     final isAdmin = ref.watch(isAdminProvider);
     if (!isAdmin) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) context.go('/dashboard');
+        if (context.mounted) context.go('/dashboard');
       });
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
+    final location = GoRouterState.of(context).uri.path;
+    final selectedIndex = _computeSelectedIndex(location);
+
     if (isMobile) {
       return Scaffold(
         appBar: AppBar(
-          title: Text(lang == 'es' ? 'Admin' : 'Admin'),
+          title: const Text('Admin'),
           actions: [
             IconButton(
               icon: const Icon(Icons.open_in_new),
@@ -155,16 +127,15 @@ class _AdminShellState extends ConsumerState<AdminShell> {
           ],
         ),
         drawer: Drawer(
-          child: _buildNavContent(lang, theme, profile),
+          child: _buildNavContent(context, ref, lang, theme, profile, selectedIndex),
         ),
-        body: widget.child,
+        body: child,
       );
     }
 
     return Scaffold(
       body: Row(
         children: [
-          // Navigation Rail
           Container(
             width: 220,
             decoration: BoxDecoration(
@@ -176,13 +147,11 @@ class _AdminShellState extends ConsumerState<AdminShell> {
                 ),
               ),
             ),
-            child: _buildNavContent(lang, theme, profile),
+            child: _buildNavContent(context, ref, lang, theme, profile, selectedIndex),
           ),
-          // Main content
           Expanded(
             child: Column(
               children: [
-                // Top bar
                 Container(
                   height: 56,
                   padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -198,7 +167,7 @@ class _AdminShellState extends ConsumerState<AdminShell> {
                   child: Row(
                     children: [
                       Text(
-                        _label(lang, _selectedIndex),
+                        _label(lang, selectedIndex),
                         style: theme.textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.w700,
                         ),
@@ -210,7 +179,6 @@ class _AdminShellState extends ConsumerState<AdminShell> {
                         onPressed: () => context.go('/'),
                       ),
                       const SizedBox(width: 8),
-                      // Avatar + name
                       CircleAvatar(
                         radius: 16,
                         backgroundColor: theme.colorScheme.primary,
@@ -235,14 +203,7 @@ class _AdminShellState extends ConsumerState<AdminShell> {
                     ],
                   ),
                 ),
-                // Page content — render the child provided by the current route
-                // (e.g. ManageConvocatorias, EditConvocatoriaScreen, ...).
-                // Using a hardcoded widget based on _selectedIndex would make
-                // action buttons that call context.go (edit, view, etc.) appear
-                // to do nothing because the displayed screen would never change.
-                Expanded(
-                  child: widget.child,
-                ),
+                Expanded(child: child),
               ],
             ),
           ),
@@ -251,11 +212,17 @@ class _AdminShellState extends ConsumerState<AdminShell> {
     );
   }
 
-  Widget _buildNavContent(String lang, ThemeData theme, AsyncValue<dynamic> profile) {
+  Widget _buildNavContent(
+    BuildContext context,
+    WidgetRef ref,
+    String lang,
+    ThemeData theme,
+    AsyncValue<dynamic> profile,
+    int selectedIndex,
+  ) {
     return SafeArea(
       child: Column(
         children: [
-          // Logo / Header
           Container(
             padding: const EdgeInsets.all(20),
             child: Row(
@@ -278,9 +245,8 @@ class _AdminShellState extends ConsumerState<AdminShell> {
           ),
           const Divider(height: 1),
           const SizedBox(height: 8),
-          // Nav items
           ...List.generate(_routes.length, (index) {
-            final selected = _selectedIndex == index;
+            final selected = selectedIndex == index;
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
               child: ListTile(
@@ -304,16 +270,12 @@ class _AdminShellState extends ConsumerState<AdminShell> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
-                onTap: () {
-                  debugPrint('[AS] sidebar tap index=$index -> ${_routes[index]}');
-                  _onNavigate(index);
-                },
+                onTap: () => context.go(_routes[index]),
               ),
             );
           }),
           const Spacer(),
           const Divider(height: 1),
-          // Logout
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             child: ListTile(
@@ -328,7 +290,7 @@ class _AdminShellState extends ConsumerState<AdminShell> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
-              onTap: _logout,
+              onTap: () => _logout(context, ref, lang),
             ),
           ),
           const SizedBox(height: 8),

@@ -123,42 +123,38 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const ProfileScreen(),
       ),
 
-      // Admin routes (require admin role, wrapped in AdminShell)
-      ShellRoute(
-        builder: (context, state, child) {
-          debugPrint('[ShellRoute] builder called: matched=${state.matchedLocation} uri=${state.uri.path} child=${child.runtimeType}');
-          return AdminShell(child: child);
-        },
+      // Admin routes (require admin role, each builder wraps content in AdminShell)
+      GoRoute(
+        path: '/admin',
+        builder: (context, state) => const AdminShell(child: AdminDashboard()),
         routes: [
           GoRoute(
-            path: '/admin',
-            builder: (context, state) => const AdminDashboard(),
+            path: 'convocatorias',
+            builder: (context, state) => const AdminShell(child: ManageConvocatorias()),
           ),
           GoRoute(
-            path: '/admin/convocatorias',
-            builder: (context, state) => const ManageConvocatorias(),
+            path: 'convocatorias/new',
+            builder: (context, state) => const AdminShell(child: EditConvocatoriaScreen()),
           ),
           GoRoute(
-            path: '/admin/convocatorias/new',
-            builder: (context, state) => const EditConvocatoriaScreen(),
-          ),
-          GoRoute(
-            path: '/admin/convocatorias/:id/edit',
-            builder: (context, state) => EditConvocatoriaScreen(
-              convocatoriaId: state.pathParameters['id'],
+            path: 'convocatorias/:id/edit',
+            builder: (context, state) => AdminShell(
+              child: EditConvocatoriaScreen(
+                convocatoriaId: state.pathParameters['id'],
+              ),
             ),
           ),
           GoRoute(
-            path: '/admin/users',
-            builder: (context, state) => const ManageUsers(),
+            path: 'users',
+            builder: (context, state) => const AdminShell(child: ManageUsers()),
           ),
           GoRoute(
-            path: '/admin/messages',
-            builder: (context, state) => const ManageMessages(),
+            path: 'messages',
+            builder: (context, state) => const AdminShell(child: ManageMessages()),
           ),
           GoRoute(
-            path: '/admin/categories',
-            builder: (context, state) => const ManageCategories(),
+            path: 'categories',
+            builder: (context, state) => const AdminShell(child: ManageCategories()),
           ),
         ],
       ),
