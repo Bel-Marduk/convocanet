@@ -100,6 +100,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authStateProvider);
+    final profile = ref.watch(currentProfileProvider);
     final lang = ref.watch(localeProvider).languageCode;
     final theme = Theme.of(context);
 
@@ -110,7 +111,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final session = authState.value?.session;
     debugPrint('[LOGIN] build: authLoading=${authState.isLoading} session!=null=${session != null}');
     if (session != null) {
-      final profile = ref.watch(currentProfileProvider);
       debugPrint('[LOGIN] build: profileLoading=${profile.isLoading} profileRefreshing=${profile.isRefreshing} profileValue==null=${profile.value == null}');
       if (profile.value != null) {
         final isAdmin = ref.read(isAdminProvider);
