@@ -32,11 +32,7 @@ final routerProvider = Provider<GoRouter>((ref) {
     navigatorKey: _rootNavigatorKey,
     initialLocation: '/',
     refreshListenable: refreshNotifier,
-    errorBuilder: (context, state) {
-      // ignore: avoid_print
-      print('[ERROR] state.uri=${state.uri} state.error=${state.error}');
-      return const NotFoundScreen();
-    },
+    errorBuilder: (context, state) => const NotFoundScreen(),
     redirect: (context, state) {
       final authState = ref.read(authStateProvider);
       final path = state.matchedLocation;
@@ -45,8 +41,6 @@ final routerProvider = Provider<GoRouter>((ref) {
       if (authState.isLoading) return null;
 
       final isLoggedIn = authState.value?.session != null;
-      // ignore: avoid_print
-      print('[REDIRECT] path=$path isLoggedIn=$isLoggedIn');
       final isProtected = path == '/dashboard' ||
           path == '/favorites' ||
           path == '/convocatorias' ||
@@ -147,25 +141,18 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
 
       // Admin routes — single GoRoute catches the entire /admin tree.
-      // AdminShell reads GoRouterState.of(context).uri.path and builds the
-      // correct sub-screen via an IndexedStack. This bypasses the
-      // go_router 14.x bug where subroute builders don't fire when the URL
-      // changes via context.go() in some Flutter Web scenarios.
+      // AdminShell reads the current URL via a routerDelegate listener and
+      // builds the correct sub-screen via an IndexedStack. This bypasses a
+      // go_router 14.x limitation where GoRouterState.of(context).uri.path
+      // doesn't trigger rebuilds when the URL changes within the same
+      // wildcard GoRoute.
       GoRoute(
         path: '/admin',
-        builder: (context, state) {
-          // ignore: avoid_print
-          print('[ROUTE] /admin builder');
-          return const AdminShell();
-        },
+        builder: (context, state) => const AdminShell(),
       ),
       GoRoute(
         path: '/admin/:path(.*)',
-        builder: (context, state) {
-          // ignore: avoid_print
-          print('[ROUTE] /admin/:path(.*) builder, rest=${state.pathParameters['path']}');
-          return const AdminShell();
-        },
+        builder: (context, state) => const AdminShell(),
       ),
     ],
   );

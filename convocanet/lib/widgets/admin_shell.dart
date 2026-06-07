@@ -146,8 +146,6 @@ class _AdminShellState extends ConsumerState<AdminShell> {
   @override
   Widget build(BuildContext context) {
     final location = _cachedLocation ?? GoRouterState.of(context).uri.path;
-    // ignore: avoid_print
-    print('[SHELL] build location=$location (from ${_cachedLocation != null ? "listener" : "inherited"})');
     final authState = ref.watch(authStateProvider);
     final lang = ref.watch(localeProvider).languageCode;
     final theme = Theme.of(context);
@@ -361,11 +359,7 @@ class _AdminShellState extends ConsumerState<AdminShell> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
-                onTap: () {
-                  // ignore: avoid_print
-                  print('[SHELL] sidebar tap -> ${AdminShell._routes[index]}');
-                  context.go(AdminShell._routes[index]);
-                },
+                onTap: () => context.go(AdminShell._routes[index]),
               ),
             );
           }),
