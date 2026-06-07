@@ -25,8 +25,6 @@ import '../providers/auth_provider.dart';
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
 
 final routerProvider = Provider<GoRouter>((ref) {
-  // Listen to both providers via a ChangeNotifier so GoRouter re-evaluates
-  // redirects without recreating the entire router instance.
   final refreshNotifier = _AuthRefreshNotifier(ref);
 
   final router = GoRouter(
@@ -46,7 +44,6 @@ final routerProvider = Provider<GoRouter>((ref) {
 
       String? result;
 
-      // Auth state still loading — allow navigation, screen guards will show spinner
       if (authState.isLoading) {
         result = null;
       } else {
@@ -57,7 +54,6 @@ final routerProvider = Provider<GoRouter>((ref) {
             path == '/profile' ||
             path.startsWith('/admin');
 
-        // Unauthenticated users on protected routes → login
         if (!isLoggedIn && isProtected) {
           result = '/login';
         } else if (isLoggedIn) {
@@ -106,13 +102,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       return result;
     },
     routes: [
-      // Landing Page
       GoRoute(
         path: '/',
         builder: (context, state) => const LandingScreen(),
       ),
-
-      // Auth routes
       GoRoute(
         path: '/login',
         builder: (context, state) => const LoginScreen(),
@@ -125,8 +118,6 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/forgot-password',
         builder: (context, state) => const ForgotPasswordScreen(),
       ),
-
-      // Convocatoria detail (public)
       GoRoute(
         path: '/convocatoria/:id',
         builder: (context, state) {
@@ -138,8 +129,6 @@ final routerProvider = Provider<GoRouter>((ref) {
           );
         },
       ),
-
-      // User routes (require auth)
       GoRoute(
         path: '/dashboard',
         builder: (context, state) => const DashboardScreen(),
@@ -157,27 +146,106 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const ProfileScreen(),
       ),
 
-      // Admin routes — single GoRoute catches the entire /admin tree.
-      // AdminShell reads the current URL via a routerDelegate listener and
-      // builds the correct sub-screen via an IndexedStack. This bypasses a
-      // go_router 14.x limitation where GoRouterState.of(context).uri.path
-      // doesn't trigger rebuilds when the URL changes within the same
-      // wildcard GoRoute.
+      // Admin create/edit — top-level, replace the shell entirely.
       GoRoute(
-        path: '/admin',
+        path: '/admin/convocatorias/new',
         builder: (context, state) {
-          debugPrint('[ROUTE] /admin builder called');
-          return const AdminShell();
+          debugPrint('[ROUTE] /admin/convocatorias/new builder called');
+          return Scaffold(
+            appBar: AppBar(
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () => context.go('/admin/convocatorias'),
+              ),
+              title: const Text('Nueva convocatoria'),
+            ),
+            body: const EditConvocatoriaScreen(),
+          );
         },
       ),
       GoRoute(
-        path: '/admin/:path(.*)',
+        path: '/admin/convocatorias/:id/edit',
         builder: (context, state) {
           debugPrint(
-            '[ROUTE] /admin/:path(.*) builder called path=${state.pathParameters['path']}',
+            '[ROUTE] /admin/convocatorias/:id/edit builder called id=${state.pathParameters['id']}',
           );
-          return const AdminShell();
+          final id = state.pathParameters['id']!;
+          return Scaffold(
+            appBar: AppBar(
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () => context.go('/admin/convocatorias'),
+              ),
+              title: const Text('Editar convocatoria'),
+            ),
+            body: EditConvocatoriaScreen(convocatoriaId: id),
+          );
         },
+      ),
+
+      // Admin shell — 5 branches, IndexedStack via StatefulShellRoute.
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, navigationShell) {
+          debugPrint('[SHELL] builder called currentIndex=${navigationShell.currentIndex}');
+          return AdminShell(shell: navigationShell);
+        },
+        branches: [
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/admin',
+                builder: (context, state) {
+                  debugPrint('[ROUTE] /admin builder called');
+                  return const AdminDashboard();
+                },
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/admin/convocatorias',
+                builder: (context, state) {
+                  debugPrint('[ROUTE] /admin/convocatorias builder called');
+                  return const ManageConvocatorias();
+                },
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/admin/users',
+                builder: (context, state) {
+                  debugPrint('[ROUTE] /admin/users builder called');
+                  return const ManageUsers();
+                },
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/admin/messages',
+                builder: (context, state) {
+                  debugPrint('[ROUTE] /admin/messages builder called');
+                  return const ManageMessages();
+                },
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/admin/categories',
+                builder: (context, state) {
+                  debugPrint('[ROUTE] /admin/categories builder called');
+                  return const ManageCategories();
+                },
+              ),
+            ],
+          ),
+        ],
       ),
     ],
   );
@@ -185,7 +253,6 @@ final routerProvider = Provider<GoRouter>((ref) {
   return router;
 });
 
-/// Notifies GoRouter to re-evaluate redirects when auth or profile changes.
 class _AuthRefreshNotifier extends ChangeNotifier {
   _AuthRefreshNotifier(Ref ref) {
     ref.listen(authStateProvider, (prev, next) {
